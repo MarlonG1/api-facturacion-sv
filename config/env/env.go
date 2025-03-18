@@ -104,6 +104,16 @@ var (
 	HostPattern = "^(localhost|((25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)\\.){3}(25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)|((?:[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?\\.)+[a-zA-Z]{2,}))$"
 )
 
+var (
+	// AvailableDatabaseDrivers contiene los drivers de base de datos soportados.
+	// Se usa para validar que el driver especificado en la configuración sea válido.
+	// Si se agrega un nuevo driver, se debe agregar aquí.
+	AvailableDatabaseDrivers = map[string]bool{
+		"mysql":    true,
+		"postgres": true,
+	}
+)
+
 var EnvConfig *envConfig
 var Server *server
 var Database *database
@@ -217,6 +227,10 @@ func validateDatabaseFields() error {
 
 	if !matchPattern(PortPattern, EnvConfig.Database.Port) {
 		return fmt.Errorf("DATABASE_PORT must be a valid port")
+	}
+
+	if !AvailableDatabaseDrivers[EnvConfig.Database.Driver] {
+		return fmt.Errorf("DATABASE_DRIVER must be a valid driver")
 	}
 
 	return nil
