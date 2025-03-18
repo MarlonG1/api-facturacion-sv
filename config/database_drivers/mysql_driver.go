@@ -18,7 +18,7 @@ func (m *MysqlDriver) GetDSN() gorm.Dialector {
 }
 
 func (m *MysqlDriver) GetStringConnection() string {
-	return fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=%s&parseTime=True&loc=America/El_Salvador",
+	return fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=%s&parseTime=True&loc=America%%2FEl_Salvador",
 		env.Database.User,
 		env.Database.Password,
 		env.Database.Host,

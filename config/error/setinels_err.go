@@ -9,4 +9,5 @@ var (
 	ErrFailedToGetDBInstance     = errors.New("failed to get database instance")
 	ErrEnvFileNotFound           = errors.New("env file not found")
 	ErrFailedToLoadEnv           = errors.New("failed to load env file")
+	ErrUnrecognizedDriver        = errors.New("unrecognized database driver")
 )
