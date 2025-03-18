@@ -19,3 +19,9 @@
 
 # Go workspace file
 go.work
+
+# Output of go tooling
+.env
+.idea
+*.log
+scripts/temp/*
