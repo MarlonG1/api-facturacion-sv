@@ -12,18 +12,18 @@ package db_models
 // Los campos con terminación MH hacen referencia a los códigos brindados por Hacienda, si no posee dichos códigos de Hacienda
 // dejar los campos en blanco para evitar problemas legales
 type BranchOffice struct {
-	ID                  uint   `gorm:"column:id;type:uint;primaryKey;autoIncrement;not null"`
-	UserID              uint   `gorm:"column:user_id;type:uint;not null;index:idx_branch_offices_user"`
-	EstablishmentCode   string `gorm:"column:establishment_code;type:varchar(4)"`
-	Email               string `gorm:"column:email;type:varchar(255)"`
-	APIKey              string `gorm:"column:api_key;type:varchar(255);not null;uniqueIndex"`
-	APISecret           string `gorm:"column:api_secret;type:varchar(255);not null"`
-	Phone               string `gorm:"column:phone;type:varchar(8)"`
-	EstablishmentType   string `gorm:"column:establishment_type;type:varchar(2);not null;index:idx_branch_est_type"`
-	EstablishmentTypeMH string `gorm:"column:establishment_type_mh;type:varchar(4)"`
-	POSCode             string `gorm:"column:pos_code;type:varchar(4)"`
-	POSCodeMH           string `gorm:"column:pos_code_mh;type:varchar(4)"`
-	IsActive            bool   `gorm:"column:is_active;type:tinyint(1);not null;index:idx_branch_offices_active"`
+	ID                  uint    `gorm:"column:id;type:uint;primaryKey;autoIncrement;not null"`
+	UserID              uint    `gorm:"column:user_id;type:uint;not null;index:idx_branch_offices_user"`
+	EstablishmentCode   *string `gorm:"column:establishment_code;type:varchar(4)"`
+	Email               *string `gorm:"column:email;type:varchar(255)"`
+	APIKey              string  `gorm:"column:api_key;type:varchar(255);not null;uniqueIndex"`
+	APISecret           string  `gorm:"column:api_secret;type:varchar(255);not null"`
+	Phone               *string `gorm:"column:phone;type:varchar(8)"`
+	EstablishmentType   string  `gorm:"column:establishment_type;type:varchar(2);not null;index:idx_branch_est_type"`
+	EstablishmentTypeMH *string `gorm:"column:establishment_type_mh;type:varchar(4)"`
+	POSCode             *string `gorm:"column:pos_code;type:varchar(4)"`
+	POSCodeMH           *string `gorm:"column:pos_code_mh;type:varchar(4)"`
+	IsActive            bool    `gorm:"column:is_active;type:tinyint(1);not null;index:idx_branch_offices_active"`
 
 	// Relaciones
 	User *User `gorm:"foreignKey:UserID;references:ID"`
