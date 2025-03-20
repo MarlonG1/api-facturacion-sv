@@ -18,11 +18,8 @@ var modelsToMigrate = []schema.Tabler{
 	&db_models.DTEDocument{},
 	&db_models.ContingencyDocument{},
 	&db_models.ControlNumberSequence{},
-	&db_models.SystemAdmin{},
 	&db_models.DomainEvent{},
 	&db_models.UserNotification{},
-	&db_models.AdminAlert{},
-	&db_models.AdminAlertRecipients{},
 	&db_models.NotifiableUser{},
 }
 

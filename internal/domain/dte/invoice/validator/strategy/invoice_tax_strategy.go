@@ -2,13 +2,13 @@ package strategy
 
 import (
 	"fmt"
+	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/invoice/invoice_models"
 	"github.com/shopspring/decimal"
 
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/constants"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/dte_errors"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/interfaces"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/validator/strategy"
-	"github.com/MarlonG1/api-facturacion-sv/internal/domain/invoice/invoice_models"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/logs"
 )
 
