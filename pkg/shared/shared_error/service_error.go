@@ -1,9 +1,9 @@
 package shared_error
 
 import (
-	"config"
 	"fmt"
-	"strings"
+
+	"github.com/MarlonG1/api-facturacion-sv/config/env"
 )
 
 type ServiceError struct {
@@ -19,7 +19,7 @@ func (e *ServiceError) Error() string {
 		return fmt.Sprintf("%s", e.Message)
 	}
 
-	if strings.ToUpper(config.Debug) == "ON" {
+	if env.Server.Debug {
 		return fmt.Sprintf("[%s] %s: %s | cause: %v", e.Type, e.Operation, e.Message, e.Err)
 	}
 
