@@ -16,12 +16,13 @@ package db_models
 // en la sección de "Documentos de Sistema de Transmisión DTE", documento: "2. Catálogos- Sistema de Transmisión"
 // página 5 del documento PDF y revisar /internal/domain/dte/common/constants/dte_type.go
 type DTEDetails struct {
-	ID             string `gorm:"column:id;varchar(36);primaryKey;not null"`
-	DTEType        string `gorm:"column:dte_type;varchar(2);not null;index:idx_dte_type"`
-	ControlNumber  string `gorm:"column:control_number;varchar(30);not null;index"`
-	ReceptionStamp string `gorm:"column:reception_stamp;varchar(40);not null"`
-	Status         string `gorm:"column:status;varchar(15);not null;index"`
-	JSONData       string `gorm:"column:json_data;type:json;not null"`
+	ID             string  `gorm:"column:id;varchar(36);primaryKey;not null"`
+	DTEType        string  `gorm:"column:dte_type;varchar(2);not null;index:idx_dte_type"`
+	ControlNumber  string  `gorm:"column:control_number;varchar(30);not null;index"`
+	ReceptionStamp *string `gorm:"column:reception_stamp;varchar(40)"`
+	Transmission   string  `gorm:"column:transmission;varchar(15);not null"`
+	Status         string  `gorm:"column:status;varchar(15);not null;index"`
+	JSONData       string  `gorm:"column:json_data;type:json;not null"`
 }
 
 func (DTEDetails) TableName() string {

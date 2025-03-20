@@ -16,9 +16,9 @@ type ContingencyDocument struct {
 	BranchID        uint      `gorm:"column:branch_id;type:uint;not null;index:idx_contingency_branch"`
 	ContingencyType int8      `gorm:"column:type;contingency_type:tinyint;not null;index"`
 	Reason          string    `gorm:"column:reason;type:varchar(150);not null;index"`
-	BatchID         string    `gorm:"column:batch_id;type:varchar(36);not null;index"`
-	MHBatchID       string    `gorm:"column:mh_batch_id;type:varchar(36)"`
-	Observations    string    `gorm:"column:observations;type:text"`
+	BatchID         *string   `gorm:"column:batch_id;type:varchar(36);index"`
+	MHBatchID       *string   `gorm:"column:mh_batch_id;type:varchar(36)"`
+	Observations    *string   `gorm:"column:observations;type:text"`
 	CreatedAt       time.Time `gorm:"column:created_at;type:timestamp;default:CURRENT_TIMESTAMP;index:idx_contingency_date"`
 	UpdatedAt       time.Time `gorm:"column:updated_at;type:timestamp;default:CURRENT_TIMESTAMP"`
 

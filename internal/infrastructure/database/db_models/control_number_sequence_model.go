@@ -16,7 +16,7 @@ import "time"
 // en la sección de "Documentos de Sistema de Transmisión DTE", documento: "2. Catálogos- Sistema de Transmisión"
 // página 5 del documento PDF y revisar /internal/domain/dte/common/constants/dte_type.go
 type ControlNumberSequence struct {
-	ID         uint      `gorm:"column:id;type:uint;primaryKey;autoIncrement"`
+	ID         uint      `gorm:"column:id;type:uint;primaryKey;autoIncrement;not null"`
 	BranchID   uint      `gorm:"column:branch_id;type:uint;not null;uniqueIndex:idx_branch_dte_type,priority:1"`
 	DTEType    string    `gorm:"column:dte_type;type:varchar(2);not null;uniqueIndex:idx_branch_dte_type,priority:2"`
 	Year       uint      `gorm:"column:year;type:uint;not null;index:idx_sequence_year"`
