@@ -19,8 +19,6 @@ type User struct {
 	NRC            string    `gorm:"column:nrc;type:varchar(10);not null;uniqueIndex"`
 	Status         bool      `gorm:"column:status;type:tinyint;not null;index:idx_user_status"`
 	AuthType       string    `gorm:"column:auth_type;type:varchar(15);not null"`
-	APIKey         string    `gorm:"column:api_key;type:varchar(255);not null;uniqueIndex"`
-	APISecret      string    `gorm:"column:api_secret;type:varchar(255);not null"`
 	PasswordPri    string    `gorm:"column:password_pri;type:varchar(255);not null"`
 	CommercialName string    `gorm:"column:commercial_name;type:varchar(255);not null"`
 	Business       string    `gorm:"column:business_name;type:varchar(255);not null"`

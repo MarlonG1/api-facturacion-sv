@@ -12,11 +12,13 @@ type envConfig struct {
 
 // server es una estructura que contiene la configuración del servidor
 type server struct {
-	Port             string `map-structure:"SERVER_PORT"`
-	JWTSecret        string `map-structure:"JWT_SECRET"`
-	AmbientCode      string `map-structure:"MH_AMBIENT_CODE"`
-	Debug            bool   `map-structure:"DEBUG"`
-	ForceContingency bool   `map-structure:"FORCE_CONTINGENCY"`
+	Port                string `map-structure:"SERVER_PORT"`
+	JWTSecret           string `map-structure:"JWT_SECRET"`
+	AmbientCode         string `map-structure:"MH_AMBIENT_CODE"`
+	Debug               bool   `map-structure:"DEBUG"`
+	AdminEmail          string `map-structure:"ADMIN_EMAIL"`
+	ForceContingency    bool   `map-structure:"FORCE_CONTINGENCY"`
+	EnableCreateActions bool   `map-structure:"ENABLE_CREATE_ACTIONS"`
 }
 
 // database es una estructura que contiene la configuración de la base de datos
