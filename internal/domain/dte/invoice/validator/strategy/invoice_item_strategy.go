@@ -1,15 +1,15 @@
 package strategy
 
 import (
+	invoice_models2 "github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/invoice/invoice_models"
 	"github.com/shopspring/decimal"
 
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/dte_errors"
-	"github.com/MarlonG1/api-facturacion-sv/internal/domain/invoice/invoice_models"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/logs"
 )
 
 type InvoiceItemsStrategy struct {
-	Document *invoice_models.ElectronicInvoice
+	Document *invoice_models2.ElectronicInvoice
 }
 
 func (s *InvoiceItemsStrategy) Validate() *dte_errors.DTEError {
@@ -40,7 +40,7 @@ func (s *InvoiceItemsStrategy) Validate() *dte_errors.DTEError {
 
 // validateItem valida un item de la invoice electrónica de venta
 // Verifica que la suma de ventas coincida con el total y que el monto no gravado no exceda el total del item
-func (s *InvoiceItemsStrategy) validateItem(item invoice_models.InvoiceItem) *dte_errors.DTEError {
+func (s *InvoiceItemsStrategy) validateItem(item invoice_models2.InvoiceItem) *dte_errors.DTEError {
 	// IVA item sin venta gravada
 
 	if item.TaxedSale.GetValue() > 0 && item.GetUnitPrice() == 0 {
@@ -152,7 +152,7 @@ func (s *InvoiceItemsStrategy) validateItem(item invoice_models.InvoiceItem) *dt
 }
 
 // validateNonTaxedAmount valida que el monto no gravado no exceda el total del item
-func (s *InvoiceItemsStrategy) validateNonTaxedAmount(item invoice_models.InvoiceItem) *dte_errors.DTEError {
+func (s *InvoiceItemsStrategy) validateNonTaxedAmount(item invoice_models2.InvoiceItem) *dte_errors.DTEError {
 	nonTaxed := decimal.NewFromFloat(item.NonTaxed.GetValue())
 
 	// Si hay monto no gravado, no debe haber otros tipos de venta
@@ -215,7 +215,7 @@ func (s *InvoiceItemsStrategy) validateTotals() *dte_errors.DTEError {
 	return nil
 }
 
-func (s *InvoiceItemsStrategy) validateItemSaleTypes(item *invoice_models.InvoiceItem) *dte_errors.DTEError {
+func (s *InvoiceItemsStrategy) validateItemSaleTypes(item *invoice_models2.InvoiceItem) *dte_errors.DTEError {
 	// Validar venta no gravada
 	if item.NonTaxed.GetValue() > 0 {
 		// No debe tener otros tipos de venta

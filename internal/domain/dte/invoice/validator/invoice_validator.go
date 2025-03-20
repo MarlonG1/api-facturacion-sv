@@ -3,8 +3,8 @@ package validator
 import (
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/dte_errors"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/interfaces"
-	"github.com/MarlonG1/api-facturacion-sv/internal/domain/invoice/invoice_models"
-	"github.com/MarlonG1/api-facturacion-sv/internal/domain/invoice/validator/strategy"
+	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/invoice/invoice_models"
+	strategy2 "github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/invoice/validator/strategy"
 )
 
 type InvoiceRulesValidator struct {
@@ -17,9 +17,9 @@ func NewInvoiceRulesValidator(doc *invoice_models.ElectronicInvoice) *InvoiceRul
 	validator := &InvoiceRulesValidator{
 		document: doc,
 		strategies: []interfaces.DTEValidationStrategy{
-			&strategy.InvoiceItemsStrategy{Document: doc},  // 1. Validaciones de items
-			&strategy.InvoiceTaxStrategy{Document: doc},    // 2. Validaciones de impuestos específicos
-			&strategy.InvoiceTotalsStrategy{Document: doc}, // 3. Cálculos específicos
+			&strategy2.InvoiceItemsStrategy{Document: doc},  // 1. Validaciones de items
+			&strategy2.InvoiceTaxStrategy{Document: doc},    // 2. Validaciones de impuestos específicos
+			&strategy2.InvoiceTotalsStrategy{Document: doc}, // 3. Cálculos específicos
 		},
 	}
 	return validator
