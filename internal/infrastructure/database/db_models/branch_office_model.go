@@ -26,7 +26,8 @@ type BranchOffice struct {
 	IsActive            bool    `gorm:"column:is_active;type:tinyint(1);not null;index:idx_branch_offices_active"`
 
 	// Relaciones
-	User *User `gorm:"foreignKey:UserID;references:ID"`
+	User    *User    `gorm:"foreignKey:UserID;references:ID"`
+	Address *Address `gorm:"foreignKey:BranchID;references:ID"`
 }
 
 func (BranchOffice) TableName() string {

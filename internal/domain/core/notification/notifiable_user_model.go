@@ -1,4 +1,4 @@
-package models
+package notification
 
 // NotifiableUser representa un usuario que puede recibir notificaciones
 type NotifiableUser struct {

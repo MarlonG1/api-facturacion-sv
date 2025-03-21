@@ -1,4 +1,4 @@
-package models
+package event
 
 // DomainEvent representa un evento de dominio
 type DomainEvent struct {

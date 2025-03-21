@@ -1,4 +1,4 @@
-package models
+package dte
 
 type DTEResponse struct {
 	ControlNumber  string                 `json:"control_number"`

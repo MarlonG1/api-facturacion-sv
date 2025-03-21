@@ -1,0 +1,122 @@
+package service
+
+import (
+	"context"
+	"errors"
+	"github.com/MarlonG1/api-facturacion-sv/internal/domain/core/dte"
+	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/shared_error"
+	"time"
+
+	tokenPorts "github.com/MarlonG1/api-facturacion-sv/internal/application/ports"
+	"github.com/MarlonG1/api-facturacion-sv/internal/domain/auth/constants"
+	"github.com/MarlonG1/api-facturacion-sv/internal/domain/auth/models"
+	"github.com/MarlonG1/api-facturacion-sv/internal/domain/auth/service/strategies"
+	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/ports"
+	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/logs"
+)
+
+type AuthManager struct {
+	strategies   map[string]ports.AuthStrategy
+	authRepo     ports.AuthRepositoryPort
+	tokenService tokenPorts.TokenManager
+	cacheService tokenPorts.CacheManager
+}
+
+func NewAuthService(
+	tokenService tokenPorts.TokenManager,
+	clientRepository ports.AuthRepositoryPort,
+	cacheService tokenPorts.CacheManager,
+) ports.AuthManager {
+	return &AuthManager{
+		strategies: map[string]ports.AuthStrategy{
+			constants.StandardAuthType: strategies.NewStandardAuthStrategy(clientRepository, cacheService),
+		},
+		tokenService: tokenService,
+		authRepo:     clientRepository,
+		cacheService: cacheService,
+	}
+}
+
+// Login maneja el proceso de autenticación
+func (s *AuthManager) Login(ctx context.Context, credentials *models.AuthCredentials) (string, error) {
+	// 0. Verificar existencia de credenciales
+	if !credentialsExists(credentials) {
+		return "", shared_error.NewGeneralServiceError("AuthManager", "Login", "missing credentials", errors.New("all fields are required"))
+	}
+
+	// 1. Obtener tipo de autenticación
+	authType, err := s.authRepo.GetAuthTypeByApiKey(ctx, credentials.APIKey)
+	if err != nil {
+		return "", err
+	}
+
+	// 2. Obtener la estrategia apropiada
+	strategy, exists := s.strategies[authType]
+	if !exists {
+		return "", errors.New("unsupported authentication type")
+	}
+
+	// 3. Validar formato de credenciales
+	if err = strategy.ValidateCredentials(credentials); err != nil {
+		return "", err
+	}
+
+	// 4. Autenticar usando la estrategia
+	claims, err := strategy.Authenticate(ctx, credentials)
+	if err != nil {
+		return "", err
+	}
+
+	// 5. Generar token JWT
+	token, err := s.tokenService.GenerateToken(claims)
+	if err != nil {
+		return "", err
+	}
+
+	//6. Guardar credenciales en cache
+	if err = s.cacheService.SetCredentials(token, credentials.MHCredentials, 30*24*time.Hour); err != nil {
+		return "", err
+	}
+
+	return token, nil
+}
+
+func (s *AuthManager) GetHaciendaCredentials(ctx context.Context, nit, token string) (*models.HaciendaCredentials, error) {
+
+	// 1. Obtener tipo de autenticación
+	authType, err := s.authRepo.GetAuthTypeByNIT(ctx, nit)
+	if err != nil {
+		logs.Info("Error getting auth type", map[string]interface{}{"error": err.Error()})
+		return nil, err
+	}
+	logs.Info("Auth type retrieved", map[string]interface{}{"authType": authType})
+
+	// 2. Obtener la estrategia apropiada
+	strategy, exists := s.strategies[authType]
+	if !exists {
+		logs.Info("Unsupported authentication type", map[string]interface{}{"authType": authType})
+		return nil, errors.New("unsupported authentication type")
+	}
+	logs.Info("Strategy found", map[string]interface{}{"strategy": strategy.GetAuthType()})
+
+	return strategy.GetHaciendaCredentials(token)
+}
+
+// GetIssuer retorna el emisor por su id de sucursal
+func (s *AuthManager) GetIssuer(ctx context.Context, apiKey string) (*dte.IssuerDTE, error) {
+	return s.authRepo.GetIssuerInfoByApiKey(ctx, apiKey)
+}
+
+// ValidateToken valida un token existente
+func (s *AuthManager) ValidateToken(token string) (*models.AuthClaims, error) {
+	return s.tokenService.ValidateToken(token)
+}
+
+// RevokeToken revoca un token
+func (s *AuthManager) RevokeToken(token string) error {
+	return s.tokenService.RevokeToken(token)
+}
+
+func credentialsExists(credentials *models.AuthCredentials) bool {
+	return credentials.APIKey != "" && credentials.APISecret != "" && credentials.MHCredentials != nil && credentials.MHCredentials.Username != "" && credentials.MHCredentials.Password != ""
+}

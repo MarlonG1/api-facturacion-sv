@@ -1,4 +1,4 @@
-package models
+package dte
 
 import "time"
 

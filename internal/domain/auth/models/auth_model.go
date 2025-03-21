@@ -13,8 +13,8 @@ type AuthCredentials struct {
 
 // AuthClaims representa la información que se incluirá en el token JWT
 type AuthClaims struct {
-	ClientID  string    `json:"sub"`
-	BranchID  string    `json:"branch_sub"`
+	ClientID  uint      `json:"sub"`
+	BranchID  uint      `json:"branch_sub"`
 	AuthType  string    `json:"auth_type"`
 	NIT       string    `json:"nit"`
 	ExpiresAt time.Time `json:"expires_at"`

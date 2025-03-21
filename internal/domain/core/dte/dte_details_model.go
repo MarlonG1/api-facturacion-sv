@@ -1,4 +1,4 @@
-package models
+package dte
 
 // DTEDetails representa los detalles de un documento tributario electrónico
 type DTEDetails struct {
