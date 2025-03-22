@@ -22,7 +22,7 @@ type Summary struct {
 	OperationCondition financial.PaymentCondition `json:"operation_condition"`
 	TotalToPay         financial.Amount           `json:"totalToPay"`
 	TotalTaxes         []interfaces.Tax           `json:"taxes,omitempty"`
-	TotalInWords       *string                    `json:"totalInWords,omitempty"`
+	TotalInWords       string                     `json:"totalInWords"`
 	ElectronicPayment  *string                    `json:"electronicPayment,omitempty"`
 	PaymentTypes       []interfaces.PaymentType   `json:"payments,omitempty"`
 }
@@ -72,7 +72,7 @@ func (s *Summary) GetSubtotalSales() float64 {
 func (s *Summary) GetTotalToPay() float64 {
 	return s.TotalToPay.GetValue()
 }
-func (s *Summary) GetTotalInWords() *string {
+func (s *Summary) GetTotalInWords() string {
 	return s.TotalInWords
 }
 func (s *Summary) GetElectronicPayment() *string {

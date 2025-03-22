@@ -7,10 +7,11 @@ import (
 
 type InvoiceSummary struct {
 	*models.Summary
-	TaxedDiscount   financial.Amount `json:"taxedDiscount"`   // descuGravada
-	IVAPerception   financial.Amount `json:"IVAPerception"`   // ivaPerci1
-	IVARetention    financial.Amount `json:"IVARetention"`    // ivaRete1
-	IncomeRetention financial.Amount `json:"incomeRetention"` // reteRenta
-	TotalIva        financial.Amount `json:"totalIva"`        // totalIva
-	BalanceInFavor  financial.Amount `json:"balanceInFavor"`  // saldoFavor
+	TaxedDiscount           financial.Amount `json:"taxedDiscount"`
+	IVAPerception           financial.Amount `json:"IVAPerception"`
+	IVARetention            financial.Amount `json:"IVARetention"`
+	IncomeRetention         financial.Amount `json:"incomeRetention"`
+	TotalIva                financial.Amount `json:"totalIva"`
+	BalanceInFavor          financial.Amount `json:"balanceInFavor"`
+	ElectronicPaymentNumber *string          `json:"electronicPaymentNumber,omitempty"`
 }
