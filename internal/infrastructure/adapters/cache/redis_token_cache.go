@@ -22,7 +22,7 @@ type RedisTokenCache struct {
 }
 
 // NewRedisTokenCache crea una nueva instancia de RedisTokenCache
-func NewRedisTokenCache(config *config.RedisConfig) (ports.CacheManager, error) {
+func NewRedisTokenCache(config *config.RedisConfig, cryptService ports.CryptManager) (ports.CacheManager, error) {
 	opt, err := redis.ParseURL(config.GetURL())
 	if err != nil {
 		logs.Error("Failed to parse Redis URL", map[string]interface{}{
@@ -60,8 +60,9 @@ func NewRedisTokenCache(config *config.RedisConfig) (ports.CacheManager, error) 
 		"port": config.Port,
 	})
 	return &RedisTokenCache{
-		client: client,
-		ctx:    ctx,
+		client:       client,
+		cryptService: cryptService,
+		ctx:          ctx,
 	}, nil
 }
 
