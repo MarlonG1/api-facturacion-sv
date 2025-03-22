@@ -50,8 +50,8 @@ type AuthStrategy interface {
 type AuthManager interface {
 	// Login maneja el proceso de autenticación
 	Login(ctx context.Context, credentials *models.AuthCredentials) (string, error)
-	// GetIssuer retorna el emisor por su NIT
-	GetIssuer(ctx context.Context, nit string) (*dte.IssuerDTE, error)
+	// GetIssuer retorna el emisor por API key
+	GetIssuer(ctx context.Context, apiKey string) (*dte.IssuerDTE, error)
 	// GetHaciendaCredentials obtiene las credenciales de hacienda segun el tipo de autenticación
 	GetHaciendaCredentials(ctx context.Context, nit, token string) (*models.HaciendaCredentials, error)
 	// Create crea un usuario con sus sucursales

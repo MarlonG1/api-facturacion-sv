@@ -5,23 +5,27 @@ import (
 	errPackage "github.com/MarlonG1/api-facturacion-sv/internal/domain/core/error"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/constants"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/dte_errors"
+	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/value_objects/base"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/value_objects/identification"
 	"time"
 )
 
 type User struct {
-	ID             uint      `json:"-"`
-	NIT            string    `json:"nit"`
-	NRC            string    `json:"nrc"`
-	Status         bool      `json:"status"`
-	AuthType       string    `json:"auth_type"`
-	PasswordPri    string    `json:"password_pri"`
-	CommercialName string    `json:"commercial_name"`
-	Business       string    `json:"business_name"`
-	Email          string    `json:"email"`
-	YearInDTE      bool      `json:"year_in_dte"`
-	CreatedAt      time.Time `json:"created_at,omitempty"`
-	UpdatedAt      time.Time `json:"updated_at,omitempty"`
+	ID                   uint      `json:"-"`
+	Status               bool      `json:"-"`
+	NIT                  string    `json:"nit"`
+	NRC                  string    `json:"nrc"`
+	AuthType             string    `json:"auth_type"`
+	PasswordPri          string    `json:"password_pri"`
+	CommercialName       string    `json:"commercial_name"`
+	Business             string    `json:"business_name"`
+	EconomicActivity     string    `json:"economic_activity"`
+	EconomicActivityDesc string    `json:"economic_activity_desc"`
+	Email                string    `json:"email"`
+	Phone                string    `json:"phone"`
+	YearInDTE            bool      `json:"year_in_dte"`
+	CreatedAt            time.Time `json:"-"`
+	UpdatedAt            time.Time `json:"-"`
 
 	// Relationships
 	BranchOffices []BranchOffice `json:"branch_offices,omitempty"`
@@ -37,6 +41,18 @@ func (u *User) Validate() error {
 		return err
 	}
 
+	if _, err := identification.NewActivityCode(u.EconomicActivity); err != nil {
+		return err
+	}
+
+	if _, err := base.NewPhone(u.Phone); err != nil {
+		return err
+	}
+
+	if _, err := base.NewEmail(u.Email); err != nil {
+		return err
+	}
+
 	if u.AuthType == "" {
 		return dte_errors.NewValidationError("RequiredField", "auth_type")
 	}
@@ -46,15 +62,26 @@ func (u *User) Validate() error {
 	}
 
 	if u.CommercialName == "" {
+		if len(u.CommercialName) > 150 {
+			return dte_errors.NewValidationError("InvalidLength", "commercial_name", "1 to 150", u.CommercialName)
+		}
 		return dte_errors.NewValidationError("RequiredField", "commercial_name")
 	}
 
 	if u.Business == "" {
+		if len(u.Business) > 200 {
+			return dte_errors.NewValidationError("InvalidLength", "business_name", "1 to 200", u.Business)
+		}
+
 		return dte_errors.NewValidationError("RequiredField", "business_name")
 	}
 
-	if u.Email == "" {
-		return dte_errors.NewValidationError("RequiredField", "email")
+	if u.EconomicActivityDesc == "" {
+		if len(u.EconomicActivityDesc) > 150 {
+			return dte_errors.NewValidationError("InvalidLength", "economic_activity_desc", "1 to 150", u.EconomicActivityDesc)
+		}
+
+		return dte_errors.NewValidationError("RequiredField", "economic_activity_desc")
 	}
 
 	if u.BranchOffices == nil {
@@ -77,16 +104,17 @@ func (u *User) GetBranchOfficeMatrix() (*BranchOffice, error) {
 		}
 	}
 
-	return nil, errPackage.ErrBranchMatrixNotFound
+	return nil, dte_errors.NewFormattedValidationError(errPackage.ErrBranchMatrixNotFound)
 }
 
 // ValidateBranchOffices valida las sucursales del usuario para que cumplan con las reglas de negocio
 func (u *User) ValidateBranchOffices() error {
 	var matrixCount int
+	var matrixHasAddress bool
 
 	// 1. Validar que tenga al menos una sucursal
 	if len(u.BranchOffices) == 0 {
-		return errPackage.ErrAtLeastOneBranch
+		return dte_errors.NewFormattedValidationError(errPackage.ErrAtLeastOneBranch)
 	}
 
 	// 2. Validar cada sucursal individualmente
@@ -97,17 +125,25 @@ func (u *User) ValidateBranchOffices() error {
 
 		if branchOffice.EstablishmentType == constants.CasaMatriz {
 			matrixCount++
+			if branchOffice.Address != nil {
+				matrixHasAddress = true
+			}
 		}
 	}
 
 	// 3. Validar que tenga una casa matriz
 	if matrixCount == 0 {
-		return errPackage.ErrDontHaveBranchMatrix
+		return dte_errors.NewFormattedValidationError(errPackage.ErrDontHaveBranchMatrix)
 	}
 
-	// 4. Validar que tenga solo una casa matriz
+	// 4. Validar que la casa matriz tenga dirección
+	if !matrixHasAddress {
+		return dte_errors.NewFormattedValidationError(errPackage.ErrBranchMatrixWithoutAddress)
+	}
+
+	// 5. Validar que tenga solo una casa matriz
 	if matrixCount > 1 {
-		return errPackage.ErrMoreThanOneBranchMatrix
+		return dte_errors.NewFormattedValidationError(errPackage.ErrMoreThanOneBranchMatrix)
 	}
 
 	return nil
@@ -115,14 +151,30 @@ func (u *User) ValidateBranchOffices() error {
 
 // SetBranchesKeysAndSecrets asigna las llaves y secretos a las sucursales del usuario
 func (u *User) SetBranchesKeysAndSecrets(keys []string, secrets []string) {
-	for i, branch := range u.BranchOffices {
-		branch.APIKey = keys[i]
-		branch.APISecret = secrets[i]
-		branch.IsActive = true
+	for i := range u.BranchOffices {
+		u.BranchOffices[i].APIKey = keys[i]
+		u.BranchOffices[i].APISecret = secrets[i]
+		u.BranchOffices[i].IsActive = true
 	}
 }
 
 func (u *User) ToStringJSON() string {
 	jsonUser, _ := json.Marshal(u)
 	return string(jsonUser)
+}
+
+func (u *User) ListBranches() []ListBranchesResponse {
+	var branches []ListBranchesResponse
+
+	for i, branch := range u.BranchOffices {
+		branches = append(branches, ListBranchesResponse{
+			BranchNumber:      i + 1,
+			EstablishmentType: branch.EstablishmentType,
+			EstablishmentCode: branch.EstablishmentCode,
+			APIKey:            branch.APIKey,
+			APISecret:         branch.APISecret,
+		})
+	}
+
+	return branches
 }

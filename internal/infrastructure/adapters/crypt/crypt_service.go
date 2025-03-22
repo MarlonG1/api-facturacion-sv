@@ -86,8 +86,8 @@ func (cs *CryptService) DecryptStruct(token string, data string) (models.Haciend
 // GenerateBulkAPIKeys es una funcion de tipo bulk que genera una cantidad determinada de API KEYS y API SECRETs
 func (cs *CryptService) GenerateBulkAPIKeys(amount int) ([]string, []string, error) {
 	var err error
-	keys := make([]string, 0)
-	secrets := make([]string, 0)
+	keys := make([]string, amount)
+	secrets := make([]string, amount)
 
 	for i := 0; i < amount; i++ {
 		keys[i], err = cs.GenerateAPIKey()

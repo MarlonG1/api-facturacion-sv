@@ -89,22 +89,23 @@ func (r *AuthRepository) GetByBranchOfficeApiKey(ctx context.Context, apiKey str
 	}
 
 	// 3. Convertir a modelo de dominio
-	user := &user.User{
-		ID:             dbUser.ID,
-		NIT:            dbUser.NIT,
-		NRC:            dbUser.NRC,
-		Status:         dbUser.Status,
-		AuthType:       dbUser.AuthType,
-		PasswordPri:    dbUser.PasswordPri,
-		CommercialName: dbUser.CommercialName,
-		Business:       dbUser.Business,
-		Email:          dbUser.Email,
-		YearInDTE:      dbUser.YearInDTE,
-		CreatedAt:      dbUser.CreatedAt,
-		UpdatedAt:      dbUser.UpdatedAt,
-	}
-
-	return user, nil
+	return &user.User{
+		ID:                   dbUser.ID,
+		NIT:                  dbUser.NIT,
+		NRC:                  dbUser.NRC,
+		Status:               dbUser.Status,
+		AuthType:             dbUser.AuthType,
+		PasswordPri:          dbUser.PasswordPri,
+		CommercialName:       dbUser.CommercialName,
+		EconomicActivity:     dbUser.EconomicActivity,
+		EconomicActivityDesc: dbUser.EconomicActivityDesc,
+		Phone:                dbUser.Phone,
+		Business:             dbUser.Business,
+		Email:                dbUser.Email,
+		YearInDTE:            dbUser.YearInDTE,
+		CreatedAt:            dbUser.CreatedAt,
+		UpdatedAt:            dbUser.UpdatedAt,
+	}, nil
 }
 
 // Create crea un usuario con sus sucursales
@@ -112,15 +113,18 @@ func (r *AuthRepository) Create(ctx context.Context, user *user.User) error {
 	return r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		// 1. Convertir modelo de dominio a modelo de base de datos
 		dbUser := db_models.User{
-			NIT:            user.NIT,
-			NRC:            user.NRC,
-			Status:         user.Status,
-			AuthType:       user.AuthType,
-			PasswordPri:    user.PasswordPri,
-			CommercialName: user.CommercialName,
-			Business:       user.Business,
-			Email:          user.Email,
-			YearInDTE:      user.YearInDTE,
+			NIT:                  user.NIT,
+			NRC:                  user.NRC,
+			Status:               true,
+			AuthType:             user.AuthType,
+			PasswordPri:          user.PasswordPri,
+			CommercialName:       user.CommercialName,
+			EconomicActivity:     user.EconomicActivity,
+			EconomicActivityDesc: user.EconomicActivityDesc,
+			Business:             user.Business,
+			Email:                user.Email,
+			Phone:                user.Phone,
+			YearInDTE:            user.YearInDTE,
 		}
 
 		// 2. Crear usuario
@@ -136,12 +140,12 @@ func (r *AuthRepository) Create(ctx context.Context, user *user.User) error {
 			dbBranch := db_models.BranchOffice{
 				UserID:              dbUser.ID,
 				EstablishmentCode:   user.BranchOffices[i].EstablishmentCode,
+				EstablishmentCodeMH: user.BranchOffices[i].EstablishmentCodeMH,
 				Email:               user.BranchOffices[i].Email,
 				APIKey:              user.BranchOffices[i].APIKey,
 				APISecret:           user.BranchOffices[i].APISecret,
 				Phone:               user.BranchOffices[i].Phone,
 				EstablishmentType:   user.BranchOffices[i].EstablishmentType,
-				EstablishmentTypeMH: user.BranchOffices[i].EstablishmentTypeMH,
 				POSCode:             user.BranchOffices[i].POSCode,
 				POSCodeMH:           user.BranchOffices[i].POSCodeMH,
 				IsActive:            user.BranchOffices[i].IsActive,
@@ -208,12 +212,12 @@ func (r *AuthRepository) UpdateBranchOffices(ctx context.Context, userID uint, b
 			dbBranch := db_models.BranchOffice{
 				ID:                  branch.ID,
 				EstablishmentCode:   branch.EstablishmentCode,
+				EstablishmentCodeMH: branch.EstablishmentCodeMH,
 				Email:               branch.Email,
 				APIKey:              branch.APIKey,
 				APISecret:           branch.APISecret,
 				Phone:               branch.Phone,
 				EstablishmentType:   branch.EstablishmentType,
-				EstablishmentTypeMH: branch.EstablishmentTypeMH,
 				POSCode:             branch.POSCode,
 				POSCodeMH:           branch.POSCodeMH,
 				IsActive:            branch.IsActive,
@@ -281,7 +285,7 @@ func (r *AuthRepository) DeleteBranchOffice(ctx context.Context, userID uint, br
 func (r *AuthRepository) GetBranchByApiKey(ctx context.Context, apiKey string) (*user.BranchOffice, error) {
 	var branch db_models.BranchOffice
 
-	result := r.db.WithContext(ctx).Where("api_key = ?", apiKey).First(&branch)
+	result := r.db.WithContext(ctx).Preload("Address").Where("api_key = ?", apiKey).First(&branch)
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 			return nil, errPackage.ErrBranchOfficeNotFound
@@ -293,15 +297,20 @@ func (r *AuthRepository) GetBranchByApiKey(ctx context.Context, apiKey string) (
 		ID:                  branch.ID,
 		UserID:              branch.UserID,
 		EstablishmentCode:   branch.EstablishmentCode,
+		EstablishmentCodeMH: branch.EstablishmentCodeMH,
 		Email:               branch.Email,
 		APIKey:              branch.APIKey,
 		APISecret:           branch.APISecret,
 		Phone:               branch.Phone,
 		EstablishmentType:   branch.EstablishmentType,
-		EstablishmentTypeMH: branch.EstablishmentTypeMH,
 		POSCode:             branch.POSCode,
 		POSCodeMH:           branch.POSCodeMH,
 		IsActive:            branch.IsActive,
+		Address: &user.Address{
+			Municipality: branch.Address.Municipality,
+			Department:   branch.Address.Department,
+			Complement:   branch.Address.Complement,
+		},
 	}, nil
 }
 
@@ -317,13 +326,13 @@ func (r *AuthRepository) GetAuthTypeByNIT(ctx context.Context, nit string) (stri
 
 // GetIssuerInfoByApiKey obtiene la información del usuario y sucursal formateada para el DTE de Hacienda
 func (r *AuthRepository) GetIssuerInfoByApiKey(ctx context.Context, apiKey string) (*dte.IssuerDTE, error) {
-	var email *string
-
 	// 1. Obtener sucursal
 	branch, err := r.GetBranchByApiKey(ctx, apiKey)
 	if err != nil {
 		return nil, err
 	}
+	phone := branch.Phone
+	email := branch.Email
 
 	// 2. Obtener usuario
 	user, err := r.GetByBranchOfficeApiKey(ctx, apiKey)
@@ -336,7 +345,12 @@ func (r *AuthRepository) GetIssuerInfoByApiKey(ctx context.Context, apiKey strin
 		email = &user.Email
 	}
 
-	// 2.2 Si la sucursal no tiene dirección, usar la de la casa matriz
+	// 2.2 Si la sucursal no tiene teléfono, usar el del usuario
+	if branch.Phone == nil {
+		phone = &user.Phone
+	}
+
+	// 2.3 Si la sucursal no tiene dirección, usar la de la casa matriz
 	if branch.Address == nil {
 		matrixBranch, err := r.GetMatrixBranch(ctx, user.ID)
 		if err != nil {
@@ -348,18 +362,20 @@ func (r *AuthRepository) GetIssuerInfoByApiKey(ctx context.Context, apiKey strin
 
 	// 3. Formatear información para DTE
 	return &dte.IssuerDTE{
-		NIT:                 user.NIT,
-		NRC:                 user.NRC,
-		CommercialName:      user.CommercialName,
-		BusinessName:        user.Business,
-		EstablishmentCode:   branch.EstablishmentCode,
-		EstablishmentType:   branch.EstablishmentType,
-		EstablishmentTypeMH: branch.EstablishmentTypeMH,
-		EstablishmentCodeMH: branch.POSCodeMH,
-		POSCode:             branch.POSCode,
-		Email:               email,
-		Phone:               branch.Phone,
-		Address:             branch.Address,
+		NIT:                  user.NIT,
+		NRC:                  user.NRC,
+		CommercialName:       user.CommercialName,
+		BusinessName:         user.Business,
+		EconomicActivity:     user.EconomicActivity,
+		EconomicActivityDesc: user.EconomicActivityDesc,
+		EstablishmentCode:    branch.EstablishmentCode,
+		EstablishmentCodeMH:  branch.EstablishmentCodeMH,
+		EstablishmentType:    branch.EstablishmentType,
+		POSCode:              branch.POSCode,
+		POSCodeMH:            branch.POSCodeMH,
+		Email:                email,
+		Phone:                phone,
+		Address:              branch.Address,
 	}, nil
 }
 
@@ -367,7 +383,10 @@ func (r *AuthRepository) GetIssuerInfoByApiKey(ctx context.Context, apiKey strin
 func (r *AuthRepository) GetMatrixBranch(ctx context.Context, userID uint) (*user.BranchOffice, error) {
 	var branch db_models.BranchOffice
 
-	result := r.db.WithContext(ctx).Where("user_id = ? AND establishment_type", userID, constants.CasaMatriz).First(&branch)
+	result := r.db.WithContext(ctx).
+		Preload("Address").
+		Where("user_id = ? AND establishment_type = ?", userID, constants.CasaMatriz).
+		First(&branch)
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 			return nil, errPackage.ErrBranchOfficeNotFound
@@ -379,14 +398,19 @@ func (r *AuthRepository) GetMatrixBranch(ctx context.Context, userID uint) (*use
 		ID:                  branch.ID,
 		UserID:              branch.UserID,
 		EstablishmentCode:   branch.EstablishmentCode,
+		EstablishmentCodeMH: branch.EstablishmentCodeMH,
 		Email:               branch.Email,
 		APIKey:              branch.APIKey,
 		APISecret:           branch.APISecret,
 		Phone:               branch.Phone,
 		EstablishmentType:   branch.EstablishmentType,
-		EstablishmentTypeMH: branch.EstablishmentTypeMH,
 		POSCode:             branch.POSCode,
 		POSCodeMH:           branch.POSCodeMH,
 		IsActive:            branch.IsActive,
+		Address: &user.Address{
+			Municipality: branch.Address.Municipality,
+			Department:   branch.Address.Department,
+			Complement:   branch.Address.Complement,
+		},
 	}, nil
 }

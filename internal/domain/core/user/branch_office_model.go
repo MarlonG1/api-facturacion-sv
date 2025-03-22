@@ -1,6 +1,7 @@
 package user
 
 import (
+	"fmt"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/dte_errors"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/value_objects/base"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/value_objects/document"
@@ -10,12 +11,12 @@ type BranchOffice struct {
 	ID                  uint     `json:"-"`
 	UserID              uint     `json:"-"`
 	EstablishmentCode   *string  `json:"establishment_code,omitempty"`
+	EstablishmentCodeMH *string  `json:"establishment_code_mh,omitempty"`
 	Email               *string  `json:"email,omitempty"`
-	APIKey              string   `json:"-"`
-	APISecret           string   `json:"-"`
+	APIKey              string   `json:"api_key"`
+	APISecret           string   `json:"api_secret"`
 	Phone               *string  `json:"phone,omitempty"`
 	EstablishmentType   string   `json:"establishment_type"`
-	EstablishmentTypeMH *string  `json:"establishment_type_mh,omitempty"`
 	POSCode             *string  `json:"pos_code,omitempty"`
 	POSCodeMH           *string  `json:"pos_code_mh,omitempty"`
 	IsActive            bool     `json:"is_active"`
@@ -23,9 +24,27 @@ type BranchOffice struct {
 }
 
 func (b *BranchOffice) Validate() error {
+	if b.EstablishmentCodeMH != nil {
+		if len(*b.EstablishmentCodeMH) != 4 {
+			return dte_errors.NewValidationError("InvalidLength", "establishment_code", "4", fmt.Sprint(*b.EstablishmentCodeMH))
+		}
+	}
+
 	if b.EstablishmentCode != nil {
-		if len(*b.EstablishmentCode) != 4 {
-			return dte_errors.NewValidationError("InvalidLength", "establishment_code", "4", len(*b.EstablishmentCode))
+		if len(*b.EstablishmentCode) < 1 || len(*b.EstablishmentCode) > 10 {
+			return dte_errors.NewValidationError("InvalidLength", "establishment_code", "1 to 10", fmt.Sprint(*b.EstablishmentCode))
+		}
+	}
+
+	if b.POSCodeMH != nil {
+		if len(*b.POSCodeMH) != 4 {
+			return dte_errors.NewValidationError("InvalidLength", "pos_code_mh", "4", fmt.Sprint(*b.POSCodeMH))
+		}
+	}
+
+	if b.POSCode != nil {
+		if len(*b.POSCode) < 1 || len(*b.POSCode) > 15 {
+			return dte_errors.NewValidationError("InvalidLength", "pos_code", "1 to 15", fmt.Sprint(*b.POSCode))
 		}
 	}
 
@@ -41,30 +60,14 @@ func (b *BranchOffice) Validate() error {
 		}
 	}
 
-	if b.EstablishmentTypeMH != nil {
-		if _, err := document.NewEstablishmentType(*b.EstablishmentTypeMH); err != nil {
-			return err
-		}
-	}
-
-	if b.POSCode != nil {
-		if len(*b.POSCode) != 4 {
-			return dte_errors.NewValidationError("InvalidLength", "pos_code", "4", len(*b.POSCode))
-		}
-	}
-
-	if b.POSCodeMH != nil {
-		if len(*b.POSCodeMH) != 4 {
-			return dte_errors.NewValidationError("InvalidLength", "pos_code_mh", "4", len(*b.POSCodeMH))
-		}
-	}
-
 	if _, err := document.NewEstablishmentType(b.EstablishmentType); err != nil {
 		return err
 	}
 
-	if b.Address.Validate() != nil {
-		return b.Address.Validate()
+	if b.Address != nil {
+		if err := b.Address.Validate(); err != nil {
+			return err
+		}
 	}
 
 	return nil

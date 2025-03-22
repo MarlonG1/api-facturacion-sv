@@ -5,17 +5,18 @@ import (
 )
 
 type IssuerDTE struct {
-	NIT                 string
-	NRC                 string
-	CommercialName      string
-	BusinessName        string
-	EstablishmentCode   *string
-	EstablishmentCodeMH *string
-	Email               *string
-	Phone               *string
-	EstablishmentType   string
-	EstablishmentTypeMH *string
-	POSCode             *string
-	POSCodeMH           *string
-	Address             *user.Address
+	NIT                  string
+	NRC                  string
+	CommercialName       string
+	BusinessName         string
+	EconomicActivity     string
+	EconomicActivityDesc string
+	EstablishmentCode    *string
+	EstablishmentCodeMH  *string
+	Email                *string
+	Phone                *string
+	EstablishmentType    string
+	POSCode              *string
+	POSCodeMH            *string
+	Address              *user.Address
 }

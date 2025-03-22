@@ -7,6 +7,8 @@ import (
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/core/user"
 	tokenPorts "github.com/MarlonG1/api-facturacion-sv/internal/domain/ports"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/shared_error"
+	"gorm.io/gorm"
+	"strings"
 	"time"
 
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/auth/constants"
@@ -124,5 +126,42 @@ func credentialsExists(credentials *models.AuthCredentials) bool {
 
 // Create crea un usuario con sus sucursales
 func (s *AuthManager) Create(ctx context.Context, user *user.User) error {
-	return s.authRepo.Create(ctx, user)
+	err := s.authRepo.Create(ctx, user)
+	if err != nil {
+		return handleGormError("create", err)
+	}
+
+	return nil
+}
+
+func handleGormError(operation string, err error) error {
+	if errors.Is(err, gorm.ErrInvalidData) {
+		return shared_error.NewGeneralServiceError("AuthService", operation, "invalid data", nil)
+	}
+
+	if isDuplicatedEntryErr(err) {
+		errMsg := err.Error()
+		if strings.Contains(errMsg, "nit") {
+			return shared_error.NewGeneralServiceError("AuthService", operation, "nit already exists", nil)
+		}
+
+		if strings.Contains(errMsg, "email") {
+			return shared_error.NewGeneralServiceError("AuthService", operation, "email already exists", nil)
+		}
+
+		if strings.Contains(errMsg, "nrc") {
+			return shared_error.NewGeneralServiceError("AuthService", operation, "nrc already exists", nil)
+		}
+	}
+
+	return err
+}
+
+func isDuplicatedEntryErr(err error) bool {
+	errMsg := strings.ToLower(err.Error())
+	return errors.Is(err, gorm.ErrInvalidData) ||
+		strings.Contains(errMsg, "duplicate entry") || // MySQL
+		strings.Contains(errMsg, "unique constraint") || // PostgreSQL
+		strings.Contains(errMsg, "violates unique") || // PostgreSQL
+		strings.Contains(errMsg, "unique key constraint") // SQL Server
 }
