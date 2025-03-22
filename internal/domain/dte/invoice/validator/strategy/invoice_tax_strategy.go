@@ -2,13 +2,13 @@ package strategy
 
 import (
 	"fmt"
-	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/invoice/invoice_models"
 	"github.com/shopspring/decimal"
 
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/constants"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/dte_errors"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/interfaces"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/validator/strategy"
+	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/invoice/invoice_models"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/logs"
 )
 
@@ -356,7 +356,7 @@ func (s *InvoiceTaxStrategy) validateSummaryTaxes() *dte_errors.DTEError {
 	summaryIVA := decimal.NewFromFloat(s.Document.InvoiceSummary.TotalIva.GetValue())
 
 	// 3. Validar que el IVA calculado coincida con el total declarado
-	if !s.CompareTaxWithTolerance(totalIVAFromItems, summaryIVA, 0.0001) {
+	if !s.CompareTaxWithTolerance(totalIVAFromItems, summaryIVA, 0.01) {
 		logs.Error("Invalid IVA total", map[string]interface{}{
 			"expectedFromItems": totalIVAFromItems.InexactFloat64(),
 			"actual":            summaryIVA.InexactFloat64(),

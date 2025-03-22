@@ -1,10 +1,10 @@
 package strategy
 
 import (
-	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/invoice/invoice_models"
 	"github.com/shopspring/decimal"
 
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/dte_errors"
+	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/invoice/invoice_models"
 )
 
 type InvoiceTotalsStrategy struct {
