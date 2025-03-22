@@ -18,6 +18,10 @@ func NewValidationError(errorType string, params ...interface{}) *ValidationErro
 	return &ValidationError{ErrorType: errorType, Message: message}
 }
 
+func NewFormattedValidationError(err error) *ValidationError {
+	return &ValidationError{ErrorType: "", Message: err.Error()}
+}
+
 // Error Implementación de la interfaz error para el error de validación
 func (v *ValidationError) Error() string {
 	return fmt.Sprintf("%s", v.Message)

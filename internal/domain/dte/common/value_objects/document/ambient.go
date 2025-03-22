@@ -1,6 +1,7 @@
 package document
 
 import (
+	"github.com/MarlonG1/api-facturacion-sv/config/env"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/constants"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/dte_errors"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/interfaces"
@@ -13,7 +14,7 @@ type Ambient struct {
 // NewAmbient Crea un nuevo objeto de valor Ambient con el valor del ambiente obtenido del entorno
 func NewAmbient() (*Ambient, error) {
 	ambient := &Ambient{
-		Value: config.HaciendaAmbientCode,
+		Value: env.Server.AmbientCode,
 	}
 
 	if ambient.IsValid() {
