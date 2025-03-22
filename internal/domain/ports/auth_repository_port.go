@@ -2,11 +2,13 @@ package ports
 
 import (
 	"context"
+
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/auth/models"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/core/dte"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/core/user"
 )
 
+// AuthRepositoryPort define el comportamiento que debe implementar un repositorio de autenticación
 type AuthRepositoryPort interface {
 	// GetAuthTypeByApiKey obtiene el tipo de autenticación de un usuario
 	GetAuthTypeByApiKey(context.Context, string) (string, error)
@@ -52,4 +54,6 @@ type AuthManager interface {
 	GetIssuer(ctx context.Context, nit string) (*dte.IssuerDTE, error)
 	// GetHaciendaCredentials obtiene las credenciales de hacienda segun el tipo de autenticación
 	GetHaciendaCredentials(ctx context.Context, nit, token string) (*models.HaciendaCredentials, error)
+	// Create crea un usuario con sus sucursales
+	Create(ctx context.Context, user *user.User) error
 }

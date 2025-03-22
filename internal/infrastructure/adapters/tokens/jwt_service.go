@@ -3,10 +3,10 @@ package tokens
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/MarlonG1/api-facturacion-sv/internal/domain/ports"
 	"github.com/golang-jwt/jwt"
 	"time"
 
-	"github.com/MarlonG1/api-facturacion-sv/internal/application/ports"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/auth/models"
 	"github.com/MarlonG1/api-facturacion-sv/internal/infrastructure/dto"
 	errPackage "github.com/MarlonG1/api-facturacion-sv/internal/infrastructure/error"
@@ -25,7 +25,7 @@ type JWTService struct {
 func NewJWTService(secretKey string, cache ports.CacheManager) *JWTService {
 	return &JWTService{
 		SecretKey:    secretKey,
-		tokenTTL:     7 * 24 * time.Hour, // 7 días
+		tokenTTL:     30 * 24 * time.Hour, // 30 días
 		cacheService: cache,
 	}
 }
@@ -112,7 +112,7 @@ func (s *JWTService) SaveTimestampsForContingency(issuedAt, expiresAt time.Time,
 		ExpiresAt: expiresAt.Unix(),
 	}
 
-	key := fmt.Sprintf("token:timestamps:%s", claims.ClientID)
+	key := fmt.Sprintf("token:timestamps:%d", claims.ClientID)
 	jsonTimestamps, err := json.Marshal(timestamps)
 	if err != nil {
 		logs.Error("Failed to marshal timestamps", map[string]interface{}{
@@ -141,7 +141,7 @@ func (s *JWTService) SaveTimestampsForContingency(issuedAt, expiresAt time.Time,
 	return nil
 }
 
-// ValidateToken valida un token JWT y retorna los claims si es válido.
+// ValidateToken válida un token JWT y retorna los claims si es válido.
 func (s *JWTService) ValidateToken(tokenString string) (*models.AuthClaims, error) {
 	key := "token:" + tokenString
 	claims, err := s.cacheService.Get(key)

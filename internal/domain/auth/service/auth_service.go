@@ -4,31 +4,31 @@ import (
 	"context"
 	"errors"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/core/dte"
+	"github.com/MarlonG1/api-facturacion-sv/internal/domain/core/user"
+	tokenPorts "github.com/MarlonG1/api-facturacion-sv/internal/domain/ports"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/shared_error"
 	"time"
 
-	tokenPorts "github.com/MarlonG1/api-facturacion-sv/internal/application/ports"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/auth/constants"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/auth/models"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/auth/service/strategies"
-	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/ports"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/logs"
 )
 
 type AuthManager struct {
-	strategies   map[string]ports.AuthStrategy
-	authRepo     ports.AuthRepositoryPort
+	strategies   map[string]tokenPorts.AuthStrategy
+	authRepo     tokenPorts.AuthRepositoryPort
 	tokenService tokenPorts.TokenManager
 	cacheService tokenPorts.CacheManager
 }
 
 func NewAuthService(
 	tokenService tokenPorts.TokenManager,
-	clientRepository ports.AuthRepositoryPort,
+	clientRepository tokenPorts.AuthRepositoryPort,
 	cacheService tokenPorts.CacheManager,
-) ports.AuthManager {
+) tokenPorts.AuthManager {
 	return &AuthManager{
-		strategies: map[string]ports.AuthStrategy{
+		strategies: map[string]tokenPorts.AuthStrategy{
 			constants.StandardAuthType: strategies.NewStandardAuthStrategy(clientRepository, cacheService),
 		},
 		tokenService: tokenService,
@@ -117,6 +117,12 @@ func (s *AuthManager) RevokeToken(token string) error {
 	return s.tokenService.RevokeToken(token)
 }
 
+// credentialsExists verifica que las credenciales tengan todos los campos requeridos
 func credentialsExists(credentials *models.AuthCredentials) bool {
 	return credentials.APIKey != "" && credentials.APISecret != "" && credentials.MHCredentials != nil && credentials.MHCredentials.Username != "" && credentials.MHCredentials.Password != ""
+}
+
+// Create crea un usuario con sus sucursales
+func (s *AuthManager) Create(ctx context.Context, user *user.User) error {
+	return s.authRepo.Create(ctx, user)
 }

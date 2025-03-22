@@ -4,8 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/MarlonG1/api-facturacion-sv/internal/application/ports"
-	"github.com/MarlonG1/api-facturacion-sv/internal/infrastructure/crypt"
+	"github.com/MarlonG1/api-facturacion-sv/internal/domain/ports"
 	"github.com/go-redis/redis/v8"
 	"time"
 
@@ -17,8 +16,9 @@ import (
 )
 
 type RedisTokenCache struct {
-	client *redis.Client
-	ctx    context.Context
+	client       *redis.Client
+	cryptService ports.CryptManager
+	ctx          context.Context
 }
 
 // NewRedisTokenCache crea una nueva instancia de RedisTokenCache
@@ -92,7 +92,7 @@ func (c *RedisTokenCache) Set(key string, saveInfo []byte, ttl time.Duration) er
 func (c *RedisTokenCache) SetCredentials(token string, creds *models.HaciendaCredentials, ttl time.Duration) error {
 	key := fmt.Sprintf("hacienda:credentials:%s", token)
 
-	encryptStruct, err := crypt.EncryptStruct(token, *creds)
+	encryptStruct, err := c.cryptService.EncryptStruct(token, *creds)
 	if err != nil {
 		logs.Error("Failed to encrypt credentials", map[string]interface{}{
 			"token": token,
@@ -187,7 +187,7 @@ func (c *RedisTokenCache) GetCredentials(token string) (*models.HaciendaCredenti
 		)
 	}
 
-	creds, err := crypt.DecryptStruct(token, cipherStruct)
+	creds, err := c.cryptService.DecryptStruct(token, cipherStruct)
 	if err != nil {
 		logs.Error("Failed to decrypt credentials", map[string]interface{}{
 			"token": token,

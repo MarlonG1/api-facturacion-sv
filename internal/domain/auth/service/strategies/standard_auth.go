@@ -5,21 +5,20 @@ import (
 	"crypto/subtle"
 	"errors"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/auth/constants"
+	"github.com/MarlonG1/api-facturacion-sv/internal/domain/ports"
 
-	"github.com/MarlonG1/api-facturacion-sv/internal/application/ports"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/auth/models"
-	authPorts "github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/ports"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/logs"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/shared_error"
 )
 
 type StandardAuthStrategy struct {
-	authRepo     authPorts.AuthRepositoryPort
+	authRepo     ports.AuthRepositoryPort
 	cacheService ports.CacheManager
 }
 
 // NewStandardAuthStrategy crea una instancia de StandardAuthStrategy. Recibe un repositorio de clientes.
-func NewStandardAuthStrategy(repo authPorts.AuthRepositoryPort, cacheService ports.CacheManager) *StandardAuthStrategy {
+func NewStandardAuthStrategy(repo ports.AuthRepositoryPort, cacheService ports.CacheManager) *StandardAuthStrategy {
 	return &StandardAuthStrategy{
 		cacheService: cacheService,
 		authRepo:     repo,

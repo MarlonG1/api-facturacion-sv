@@ -3,14 +3,14 @@ package repositories
 import (
 	"context"
 	"errors"
-	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/constants"
+	"github.com/MarlonG1/api-facturacion-sv/internal/domain/ports"
+	"gorm.io/gorm"
 
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/core/dte"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/core/user"
-	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/ports"
+	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/constants"
 	"github.com/MarlonG1/api-facturacion-sv/internal/infrastructure/database/db_models"
 	errPackage "github.com/MarlonG1/api-facturacion-sv/internal/infrastructure/error"
-	"gorm.io/gorm"
 )
 
 type AuthRepository struct {

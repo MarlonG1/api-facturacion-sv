@@ -1,14 +1,38 @@
 package models
 
-import "time"
+import (
+	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/dte_errors"
+	"time"
+)
 
 // AuthCredentials representa las credenciales de autenticación
 type AuthCredentials struct {
-	AuthType      string                 `json:"auth_type"`
-	MHCredentials *HaciendaCredentials   `json:"credentials"`
-	APIKey        string                 `json:"api_key,omitempty"`
-	APISecret     string                 `json:"api_secret,omitempty"`
-	VaultConfig   map[string]interface{} `json:"vault_config,omitempty"`
+	MHCredentials *HaciendaCredentials `json:"credentials"`
+	APIKey        string               `json:"api_key"`
+	APISecret     string               `json:"api_secret"`
+}
+
+func (a *AuthCredentials) Validate() error {
+	if a.APIKey == "" {
+		return dte_errors.NewValidationError("RequiredField", "api_key")
+	}
+	if a.APISecret == "" {
+		return dte_errors.NewValidationError("RequiredField", "api_secret")
+	}
+
+	if a.MHCredentials == nil {
+		return dte_errors.NewValidationError("RequiredField", "credentials")
+	}
+
+	if a.MHCredentials.Username == "" {
+		return dte_errors.NewValidationError("RequiredField", "username")
+	}
+
+	if a.MHCredentials.Password == "" {
+		return dte_errors.NewValidationError("RequiredField", "password")
+	}
+
+	return nil
 }
 
 // AuthClaims representa la información que se incluirá en el token JWT
