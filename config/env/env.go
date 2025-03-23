@@ -211,6 +211,10 @@ func validateServerFields() error {
 		return fmt.Errorf("SERVER_PORT must be a valid port")
 	}
 
+	if EnvConfig.Server.MaxBatchSize <= 0 || EnvConfig.Server.MaxBatchSize > 100 {
+		return fmt.Errorf("MH_MAX_BATCH_SIZE must be between 1 and 100")
+	}
+
 	return nil
 }
 

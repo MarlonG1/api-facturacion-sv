@@ -3,8 +3,7 @@ package ports
 import (
 	"context"
 	"encoding/json"
-
-	"github.com/MarlonG1/api-facturacion-sv/internal/domain/transmission/models"
+	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/transmitter/models"
 )
 
 type BaseTransmitter interface {

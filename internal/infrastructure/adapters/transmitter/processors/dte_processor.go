@@ -2,21 +2,21 @@ package processors
 
 import (
 	"github.com/MarlonG1/api-facturacion-sv/config/env"
-	"github.com/MarlonG1/api-facturacion-sv/internal/domain/transmission/models"
+	models2 "github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/transmitter/models"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/logs"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/shared_error"
 )
 
 type DTEProcessor struct{}
 
-func (p *DTEProcessor) ProcessRequest(signedDoc string, document interface{}) (*models.HaciendaRequest, error) {
+func (p *DTEProcessor) ProcessRequest(signedDoc string, document interface{}) (*models2.HaciendaRequest, error) {
 	version, dteType, generationCode, sequenceNumber, err := GetDocumentRequestData(document)
 	if err != nil {
 		logs.Error("Failed to get document request data", map[string]interface{}{"error": err.Error()})
 		return nil, err
 	}
 
-	return &models.HaciendaRequest{
+	return &models2.HaciendaRequest{
 		Ambient:        env.Server.AmbientCode,
 		SendID:         sequenceNumber,
 		Version:        version,
@@ -27,12 +27,12 @@ func (p *DTEProcessor) ProcessRequest(signedDoc string, document interface{}) (*
 	}, nil
 }
 
-func (p *DTEProcessor) ProcessResponse(resp *models.HaciendaResponse) (*models.TransmitResult, error) {
+func (p *DTEProcessor) ProcessResponse(resp *models2.HaciendaResponse) (*models2.TransmitResult, error) {
 	if resp == nil {
 		return nil, shared_error.NewGeneralServiceError("InvalidationProcessor", "ProcessResponse", "nil response", nil)
 	}
 
-	return &models.TransmitResult{
+	return &models2.TransmitResult{
 		Status:         resp.Status,
 		ReceptionStamp: &resp.ReceptionStamp,
 		ProcessingDate: resp.ProcessingDate,

@@ -1,9 +1,9 @@
 package bootstrap
 
 import (
+	ports2 "github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/dte_documents/ports"
 	appPorts "github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/ports"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/ports"
-	ports2 "github.com/MarlonG1/api-facturacion-sv/internal/domain/transmission/ports"
 	"github.com/MarlonG1/api-facturacion-sv/internal/infrastructure/adapters/repositories"
 	"gorm.io/gorm"
 )

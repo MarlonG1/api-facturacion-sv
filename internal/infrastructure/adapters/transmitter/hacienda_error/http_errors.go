@@ -2,7 +2,7 @@ package hacienda_error
 
 import (
 	"fmt"
-	"github.com/MarlonG1/api-facturacion-sv/internal/domain/transmission/models"
+	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/transmitter/models"
 )
 
 type HTTPResponseError struct {

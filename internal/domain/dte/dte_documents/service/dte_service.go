@@ -3,8 +3,8 @@ package service
 import (
 	"context"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/constants"
-	"github.com/MarlonG1/api-facturacion-sv/internal/domain/transmission/interfaces"
-	"github.com/MarlonG1/api-facturacion-sv/internal/domain/transmission/ports"
+	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/dte_documents/ports"
+	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte_documents/interfaces"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/mapper/response_mapper/structs"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/shared_error"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/utils"

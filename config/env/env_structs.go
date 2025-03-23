@@ -13,6 +13,7 @@ type envConfig struct {
 // server es una estructura que contiene la configuración del servidor
 type server struct {
 	Port                string `map-structure:"SERVER_PORT"`
+	MaxBatchSize        int    `map-structure:"MH_MAX_BATCH_SIZE"`
 	JWTSecret           string `map-structure:"JWT_SECRET"`
 	AmbientCode         string `map-structure:"MH_AMBIENT_CODE"`
 	Debug               bool   `map-structure:"DEBUG"`
