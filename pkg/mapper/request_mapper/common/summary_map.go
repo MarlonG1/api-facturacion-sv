@@ -109,9 +109,6 @@ func MapCommonRequestSummary(summary structs.SummaryRequest) (*models.Summary, e
 }
 
 func validateSummaryFields(summary structs.SummaryRequest) error {
-	//if summary.TotalTaxed == 0 {
-	//	return dte_errors.NewValidationError("RequiredField", "TotalTaxed")
-	//}
 	if summary.SubTotal == 0 {
 		return dte_errors.NewValidationError("RequiredField", "SubTotal")
 	}

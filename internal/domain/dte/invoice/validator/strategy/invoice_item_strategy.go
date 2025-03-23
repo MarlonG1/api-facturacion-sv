@@ -133,15 +133,15 @@ func (s *InvoiceItemsStrategy) validateItem(item invoice_models.InvoiceItem) *dt
 
 	if item.TaxedSale.GetValue() > 0 {
 		expectedTaxed := decimal.NewFromFloat(item.GetUnitPrice()).
-			Mul(decimal.NewFromFloat(item.GetQuantity())).
-			Sub(decimal.NewFromFloat(item.GetDiscount()))
+			Sub(decimal.NewFromFloat(item.GetDiscount())).
+			Mul(decimal.NewFromFloat(item.GetQuantity()))
 
 		// Calcular la diferencia absoluta
 		diff := decimal.NewFromFloat(item.TaxedSale.GetValue()).
 			Sub(expectedTaxed).
 			Abs()
 
-		if diff.GreaterThan(decimal.NewFromFloat(0.000001)) {
+		if diff.GreaterThan(decimal.NewFromFloat(0.01)) {
 			return dte_errors.NewDTEErrorSimple("InvalidTaxedAmount",
 				item.TaxedSale.GetValue(),
 				expectedTaxed.InexactFloat64())

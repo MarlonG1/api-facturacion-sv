@@ -34,6 +34,7 @@ func (r *ControlNumberRepository) GetNext(ctx context.Context, dteType string, b
 		// 1.1 Si no existe la secuencia, crear una nueva
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 			sequence = db_models.ControlNumberSequence{
+				BranchID:   branchID,
 				DTEType:    dteType,
 				LastNumber: 0,
 				Year:       currentYear,

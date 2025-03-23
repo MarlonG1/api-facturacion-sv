@@ -33,7 +33,6 @@ func MapInvoiceRequestSummary(summary *structs.InvoiceSummaryRequest) (*invoice_
 		PaymentTypes:       summary.PaymentTypes,
 		TotalInWords:       summary.TotalInWords,
 	})
-
 	if err != nil {
 		return nil, err
 	}

@@ -13,6 +13,7 @@ import (
 func MapCommonRequestReceiver(receiver *structs.ReceiverRequest) (*models.Receiver, error) {
 	var nrc *identification.NRC
 	var address *models.Address
+	var activityDesc *string
 	var err error
 
 	if receiver == nil {
@@ -79,9 +80,8 @@ func MapCommonRequestReceiver(receiver *structs.ReceiverRequest) (*models.Receiv
 		}
 	}
 
-	activityDesc := ""
 	if receiver.ActivityDesc != nil {
-		activityDesc = *receiver.ActivityDesc
+		activityDesc = receiver.ActivityDesc
 	}
 
 	return &models.Receiver{
@@ -93,6 +93,6 @@ func MapCommonRequestReceiver(receiver *structs.ReceiverRequest) (*models.Receiv
 		Address:             address,
 		Phone:               phone,
 		ActivityCode:        activityCode,
-		ActivityDescription: &activityDesc,
+		ActivityDescription: activityDesc,
 	}, nil
 }

@@ -28,27 +28,52 @@ func (r *Receiver) GetName() *string {
 	return r.Name
 }
 func (r *Receiver) GetDocumentType() *string {
+	if r.DocumentType == nil {
+		return nil
+	}
+
 	return utils.ToStringPointer(r.DocumentType.GetValue())
 }
 func (r *Receiver) GetDocumentNumber() *string {
+	if r.DocumentNumber == nil {
+		return nil
+	}
+
 	return utils.ToStringPointer(r.DocumentNumber.GetValue())
 }
 func (r *Receiver) GetAddress() interfaces.Address {
 	return r.Address
 }
 func (r *Receiver) GetEmail() *string {
+	if r.Email == nil {
+		return nil
+	}
+
 	return utils.ToStringPointer(r.Email.GetValue())
 }
 func (r *Receiver) GetPhone() *string {
+	if r.Phone == nil {
+		return nil
+	}
+
 	return utils.ToStringPointer(r.Phone.GetValue())
 }
 func (r *Receiver) GetNRC() *string {
+	if r.NRC == nil {
+		return nil
+	}
 	return utils.ToStringPointer(r.NRC.GetValue())
 }
 func (r *Receiver) GetActivityCode() *string {
+	if r.ActivityCode == nil {
+		return nil
+	}
 	return utils.ToStringPointer(r.ActivityCode.GetValue())
 }
 func (r *Receiver) GetNIT() *string {
+	if r.NIT == nil {
+		return nil
+	}
 	return utils.ToStringPointer(r.NIT.GetValue())
 }
 func (r *Receiver) GetActivityDescription() *string {

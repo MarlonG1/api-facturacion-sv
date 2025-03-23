@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/MarlonG1/api-facturacion-sv/internal/bootstrap"
 	"github.com/MarlonG1/api-facturacion-sv/internal/infrastructure/api/server"
+	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/utils"
 
 	"github.com/MarlonG1/api-facturacion-sv/config/database_drivers"
 	"github.com/MarlonG1/api-facturacion-sv/config/env"
@@ -36,6 +37,13 @@ func main() {
 		return
 	}
 	logs.Info("Logger initialized successfully")
+
+	// 3. Inicializar el tiempo global
+	err = utils.TimeInit()
+	if err != nil {
+		logs.Fatal("Failed to initialize global time", map[string]interface{}{"error": err.Error()})
+		return
+	}
 
 	// 3. Iniciar la configuración de la base de datos y las migraciones
 	dbConnection, err := initDatabaseConfigurations()

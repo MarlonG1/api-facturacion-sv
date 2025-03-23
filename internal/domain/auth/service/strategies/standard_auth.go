@@ -60,7 +60,7 @@ func (s *StandardAuthStrategy) ValidateCredentials(credentials *models.AuthCrede
 // Authenticate autentica un cliente. Devuelve los claims del cliente autenticado.
 func (s *StandardAuthStrategy) Authenticate(ctx context.Context, credentials *models.AuthCredentials) (*models.AuthClaims, error) {
 	// 1. Obtener sucursal por API key
-	branch, err := s.authRepo.GetBranchByApiKey(ctx, credentials.APIKey)
+	branch, err := s.authRepo.GetBranchByBranchApiKey(ctx, credentials.APIKey)
 	if err != nil {
 		logs.Error("Invalid credentials", map[string]interface{}{
 			"apiKey": credentials.APIKey,
@@ -88,7 +88,7 @@ func (s *StandardAuthStrategy) Authenticate(ctx context.Context, credentials *mo
 	}
 
 	// 3. Obtener usuario por API key
-	user, err := s.authRepo.GetByBranchOfficeApiKey(ctx, credentials.APIKey)
+	user, err := s.authRepo.GetByBranchApiKey(ctx, credentials.APIKey)
 	if err != nil {
 		logs.Error("Invalid credentials", map[string]interface{}{
 			"apiKey": credentials.APIKey,
@@ -103,7 +103,7 @@ func (s *StandardAuthStrategy) Authenticate(ctx context.Context, credentials *mo
 	}
 
 	// 4. Verificar estado de cuenta de usuario
-	if user.Status {
+	if !user.Status {
 		logs.Error("Client account is not active", map[string]interface{}{
 			"clientID": user.ID,
 		})

@@ -18,18 +18,18 @@ func (s *ContingencyStrategy) Validate() *dte_errors.DTEError {
 
 	if s.Document.GetIdentification().GetOperationType() == constants.TransmisionContingencia {
 		// Si es transmisión por contingencia, debemos tener un tipo de contingencia válido (> 0)
-		if s.Document.GetIdentification().GetContingencyType() == 0 {
+		if s.Document.GetIdentification().GetContingencyType() == nil {
 			return dte_errors.NewDTEErrorSimple("MissingContingencyType")
 		}
 
 		// Si es otro motivo (5), requiere razón
-		if s.Document.GetIdentification().GetContingencyType() == constants.OtroMotivo &&
-			len(s.Document.GetIdentification().GetContingencyReason()) == 0 {
+		if *s.Document.GetIdentification().GetContingencyType() == constants.OtroMotivo &&
+			len(*s.Document.GetIdentification().GetContingencyReason()) == 0 {
 			return dte_errors.NewDTEErrorSimple("MissingContingencyReason")
 		}
 
 		// Validar que sea uno de los tipos permitidos
-		if !validateContingencyType(s.Document.GetIdentification().GetContingencyType()) {
+		if !validateContingencyType(*s.Document.GetIdentification().GetContingencyType()) {
 			return dte_errors.NewDTEErrorSimple("InvalidContingencyType",
 				s.Document.GetIdentification().GetContingencyType())
 		}

@@ -48,7 +48,7 @@ func (s *Server) ConfigureRoutes() {
 }
 
 func (s *Server) configureProtectedRoutes(protected *mux.Router) {
-
+	routes.RegisterInvoiceRoutes(protected, s.container.Handlers().InvoiceHandler())
 }
 
 func (s *Server) configureGlobalOptions() {
