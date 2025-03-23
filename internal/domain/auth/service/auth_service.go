@@ -105,8 +105,8 @@ func (s *AuthManager) GetHaciendaCredentials(ctx context.Context, nit, token str
 }
 
 // GetIssuer retorna el emisor por su id de sucursal
-func (s *AuthManager) GetIssuer(ctx context.Context, apiKey string) (*dte.IssuerDTE, error) {
-	return s.authRepo.GetIssuerInfoByApiKey(ctx, apiKey)
+func (s *AuthManager) GetIssuer(ctx context.Context, branchID uint) (*dte.IssuerDTE, error) {
+	return s.authRepo.GetIssuerInfoByBranchID(ctx, branchID)
 }
 
 // ValidateToken valida un token existente

@@ -16,12 +16,16 @@ type AuthRepositoryPort interface {
 	GetAuthTypeByNIT(context.Context, string) (string, error)
 	// GetByNIT obtiene un usuario por su NIT
 	GetByNIT(context.Context, string) (*user.User, error)
-	// GetIssuerInfoByApiKey obtiene la información del emisor
-	GetIssuerInfoByApiKey(context.Context, string) (*dte.IssuerDTE, error)
-	// GetByBranchOfficeApiKey obtiene un usuario por su API key de sucursal
-	GetByBranchOfficeApiKey(context.Context, string) (*user.User, error)
-	// GetBranchByApiKey obtiene la sucursal por su API key
-	GetBranchByApiKey(context.Context, string) (*user.BranchOffice, error)
+	// GetIssuerInfoByBranchID obtiene la información del emisor
+	GetIssuerInfoByBranchID(context.Context, uint) (*dte.IssuerDTE, error)
+	// GetByBranchID obtiene un usuario por su API key de sucursal
+	GetByBranchID(context.Context, uint) (*user.User, error)
+	// GetBranchByBranchID obtiene la sucursal por su API key
+	GetBranchByBranchID(context.Context, uint) (*user.BranchOffice, error)
+	// GetBranchByBranchApiKey obtiene la sucursal por su API key
+	GetBranchByBranchApiKey(context.Context, string) (*user.BranchOffice, error)
+	// GetByBranchApiKey obtiene un usuario por su API key de sucursal
+	GetByBranchApiKey(context.Context, string) (*user.User, error)
 	// Create crea un usuario con sus sucursales
 	Create(context.Context, *user.User) error
 	// Update actualiza un usuario
@@ -51,7 +55,7 @@ type AuthManager interface {
 	// Login maneja el proceso de autenticación
 	Login(ctx context.Context, credentials *models.AuthCredentials) (string, error)
 	// GetIssuer retorna el emisor por API key
-	GetIssuer(ctx context.Context, apiKey string) (*dte.IssuerDTE, error)
+	GetIssuer(ctx context.Context, branchID uint) (*dte.IssuerDTE, error)
 	// GetHaciendaCredentials obtiene las credenciales de hacienda segun el tipo de autenticación
 	GetHaciendaCredentials(ctx context.Context, nit, token string) (*models.HaciendaCredentials, error)
 	// Create crea un usuario con sus sucursales

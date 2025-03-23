@@ -16,6 +16,22 @@ type Amount struct {
 func NewAmount(value float64) (*Amount, error) {
 	decValue := decimal.NewFromFloat(value)
 
+	decValue = decValue.Round(8)
+	roundedValue, _ := decValue.Float64()
+	amount := &Amount{Value: roundedValue}
+
+	// Validar después del redondeo
+	if !amount.IsValid() {
+		return nil, dte_errors.NewValidationError("InvalidAmount",
+			fmt.Sprintf("%f", roundedValue))
+	}
+
+	return amount, nil
+}
+
+func NewAmountForTotal(value float64) (*Amount, error) {
+	decValue := decimal.NewFromFloat(value)
+
 	multiplier := decimal.NewFromInt(100)
 	scaled := decValue.Mul(multiplier)
 

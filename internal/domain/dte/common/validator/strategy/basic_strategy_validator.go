@@ -76,6 +76,10 @@ func requiresReceiver(docType string) bool {
 }
 
 func getDocumentNumberError(documentNumber, documentType *string) *dte_errors.DTEError {
+	if documentNumber == nil || documentType == nil {
+		return nil
+	}
+
 	switch *documentType {
 	case constants.NIT:
 		if !nitRegex.MatchString(*documentNumber) {

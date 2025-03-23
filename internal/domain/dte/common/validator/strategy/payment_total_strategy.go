@@ -24,13 +24,13 @@ func (s *PaymentTotalStrategy) Validate() *dte_errors.DTEError {
 				return dte_errors.NewDTEErrorSimple("InvalidPaymentTypeOP2")
 			}
 
-			if payment.GetTerm() == "" || payment.GetPeriod() == 0 {
+			if payment.GetTerm() == nil || payment.GetPeriod() == nil {
 				return dte_errors.NewDTEErrorSimple("InvalidPaymentTerms")
 			}
 		}
 
 		if s.Document.GetSummary().GetOperationCondition() == constants.Cash {
-			if payment.GetTerm() != "" || payment.GetPeriod() != 0 {
+			if payment.GetTerm() != nil || payment.GetPeriod() != nil {
 				return dte_errors.NewDTEErrorSimple("InvalidPaymentTermsOF")
 			}
 		}

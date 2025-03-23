@@ -105,7 +105,7 @@ func (s *CCFItemStrategy) validateTotalNonTaxed() *dte_errors.DTEError {
 
 	// Usar comparación con una pequeña tolerancia
 	diff := totalToPay.Sub(expectedTotalToPay).Abs()
-	if diff.GreaterThan(decimal.NewFromFloat(0.001)) {
+	if diff.GreaterThan(decimal.NewFromFloat(0.000001)) {
 		logs.Error("Total to pay must be equal to total operation plus sum of non_taxed amounts", map[string]interface{}{
 			"totalToPay":     totalToPay,
 			"totalOperation": totalOperation,

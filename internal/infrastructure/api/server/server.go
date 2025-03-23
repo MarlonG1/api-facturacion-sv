@@ -48,7 +48,8 @@ func (s *Server) ConfigureRoutes() {
 }
 
 func (s *Server) configureProtectedRoutes(protected *mux.Router) {
-
+	routes.RegisterInvoiceRoutes(protected, s.container.Handlers().InvoiceHandler())
+	routes.RegisterCCFRoutes(protected, s.container.Handlers().CCFHandler())
 }
 
 func (s *Server) configureGlobalOptions() {

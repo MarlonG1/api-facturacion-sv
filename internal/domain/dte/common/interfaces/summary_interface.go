@@ -21,6 +21,6 @@ type SummaryGetters interface {
 	GetPaymentTypes() []PaymentType // GetPaymentTypes retorna los tipos de pago
 	GetOperationCondition() int     // GetPaymentCondition retorna la condición de pago
 	GetElectronicPayment() *string  // GetElectronicPayment retorna el medio de pago electrónico
-	GetTotalInWords() *string       // GetTotalInWords retorna el total en palabras
+	GetTotalInWords() string        // GetTotalInWords retorna el total en palabras
 	GetTotalToPay() float64         // GetTotalToPay retorna el total a pagar
 }

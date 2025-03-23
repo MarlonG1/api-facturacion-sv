@@ -24,9 +24,17 @@ func (p *PaymentType) GetReference() string {
 	return p.Reference
 }
 func (p *PaymentType) GetTerm() *string {
+	if p.Term == nil {
+		return nil
+	}
+
 	return utils.ToStringPointer(p.Term.GetValue())
 }
 func (p *PaymentType) GetPeriod() *int {
+	if p == nil {
+		return nil
+	}
+
 	return p.Period
 }
 func (p *PaymentType) GetPeriodPointer() *int {

@@ -18,6 +18,7 @@ var modelsToMigrate = []schema.Tabler{
 	&db_models.DTEDocument{},
 	&db_models.ContingencyDocument{},
 	&db_models.ControlNumberSequence{},
+	&db_models.FailedSequenceNumber{},
 	&db_models.DomainEvent{},
 	&db_models.UserNotification{},
 	&db_models.NotifiableUser{},
