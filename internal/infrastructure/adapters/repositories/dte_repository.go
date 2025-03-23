@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/auth/models"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/constants"
-	"github.com/MarlonG1/api-facturacion-sv/internal/domain/transmission/ports"
+	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/dte_documents/ports"
 	"github.com/MarlonG1/api-facturacion-sv/internal/infrastructure/database/db_models"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/logs"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/shared_error"
@@ -70,6 +70,22 @@ func (D DTERepository) Create(ctx context.Context, document interface{}, recepti
 	result := D.db.WithContext(ctx).Create(dteDocument)
 	if result.Error != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (D DTERepository) Update(ctx context.Context, id, status string, receptionStamp *string) error {
+	// 1. Actualizar el estado de un documento DTE
+	result := D.db.WithContext(ctx).
+		Model(&db_models.DTEDetails{}).
+		Where("id = ?", id).
+		Updates(map[string]interface{}{
+			"status":          status,
+			"reception_stamp": receptionStamp,
+		})
+	if result.Error != nil {
+		return result.Error
 	}
 
 	return nil
