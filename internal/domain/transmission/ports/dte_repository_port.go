@@ -1,6 +1,8 @@
 package ports
 
-import "context"
+import (
+	"context"
+)
 
 // DTERepositoryPort es una interfaz que define los métodos de un repositorio de DTE.
 type DTERepositoryPort interface {

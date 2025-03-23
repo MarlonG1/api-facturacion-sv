@@ -1,6 +1,8 @@
 package interfaces
 
-import "context"
+import (
+	"context"
+)
 
 // DTEManager es una interfaz que define los métodos de un administrador de DTE.
 type DTEManager interface {
