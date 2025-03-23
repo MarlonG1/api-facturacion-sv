@@ -7,9 +7,8 @@ import "time"
 // La relación entre un documento tributario electrónico y una sucursal se almacena en la base de datos
 // para su posterior procesamiento y envío a Hacienda.
 type DTEDocument struct {
-	ID         string    `gorm:"column:id;type:varchar(36);primaryKey;not null"`
+	DocumentID string    `gorm:"column:document_id;type:varchar(36);primaryKey;not null;index:idx_dte_document"`
 	BranchID   uint      `gorm:"column:branch_id;type:uint;not null;index:idx_dte_branch"`
-	DocumentID string    `gorm:"column:document_id;type:varchar(36);not null;index:idx_dte_document"`
 	CreatedAt  time.Time `gorm:"column:created_at;type:timestamp;default:CURRENT_TIMESTAMP;index:idx_dte_date"`
 	UpdatedAt  time.Time `gorm:"column:updated_at;type:timestamp;default:CURRENT_TIMESTAMP"`
 

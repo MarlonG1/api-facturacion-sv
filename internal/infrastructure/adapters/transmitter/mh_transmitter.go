@@ -134,7 +134,7 @@ func (t *MHTransmitter) CheckDocumentStatus(ctx context.Context, document interf
 }
 
 func (t *MHTransmitter) SendToHacienda(ctx context.Context, request *models.HaciendaRequest, systemToken string) (*models.HaciendaResponse, error) {
-	err := t.getHaciendaToken(ctx, t.haciendaAuth, systemToken)
+	err := t.getHaciendaToken(ctx, systemToken)
 	if err != nil {
 		return nil, err
 	}
@@ -236,7 +236,7 @@ func (t *MHTransmitter) getProcessor(document interface{}) DocumentProcessor {
 	return t.processors["dte"]
 }
 
-func (t *MHTransmitter) getHaciendaToken(ctx context.Context, auth ports.HaciendaAuthManager, systemToken string) error {
+func (t *MHTransmitter) getHaciendaToken(ctx context.Context, systemToken string) error {
 	haciendaToken, err := t.haciendaAuth.GetOrCreateHaciendaToken(ctx, systemToken)
 	if err != nil {
 		logs.Error("Failed to get Hacienda token", map[string]interface{}{

@@ -436,6 +436,16 @@ func (r *AuthRepository) GetIssuerInfoByBranchID(ctx context.Context, branchID u
 		branch.Address = matrixBranch.Address
 	}
 
+	// 2.4 Recortar a 4 characteres el POS Code
+	if branch.POSCode != nil && len(*branch.POSCode) > 4 {
+		*branch.POSCode = (*branch.POSCode)[:4]
+	}
+
+	// 2.5 Recortar a 4 characteres el EstablishmentCode
+	if branch.EstablishmentCode != nil && len(*branch.EstablishmentCode) > 4 {
+		*branch.EstablishmentCode = (*branch.EstablishmentCode)[:4]
+	}
+
 	// 3. Formatear información para DTE
 	return &dte.IssuerDTE{
 		NIT:                  user.NIT,
