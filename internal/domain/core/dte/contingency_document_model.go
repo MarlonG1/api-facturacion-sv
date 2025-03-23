@@ -1,6 +1,9 @@
 package dte
 
-import "time"
+import (
+	"github.com/MarlonG1/api-facturacion-sv/internal/domain/core/user"
+	"time"
+)
 
 // ContingencyDocument representa un documento en estado de contingencia
 type ContingencyDocument struct {
@@ -14,4 +17,7 @@ type ContingencyDocument struct {
 	Observations    *string   `json:"observations,omitempty"`
 	CreatedAt       time.Time `json:"created_at,omitempty"`
 	UpdatedAt       time.Time `json:"updated_at,omitempty"`
+
+	Document *DTEDetails        `json:"document,omitempty"`
+	Branch   *user.BranchOffice `json:"branch,omitempty"`
 }
