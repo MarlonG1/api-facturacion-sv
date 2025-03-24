@@ -2,21 +2,21 @@ package main
 
 import (
 	"fmt"
+	"github.com/MarlonG1/api-facturacion-sv/config"
+	"github.com/MarlonG1/api-facturacion-sv/config/drivers"
 	"github.com/MarlonG1/api-facturacion-sv/internal/bootstrap"
 	"github.com/MarlonG1/api-facturacion-sv/internal/infrastructure/api/server"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/utils"
 
-	"github.com/MarlonG1/api-facturacion-sv/config/database_drivers"
-	"github.com/MarlonG1/api-facturacion-sv/config/env"
 	errPackage "github.com/MarlonG1/api-facturacion-sv/config/error"
 	"github.com/MarlonG1/api-facturacion-sv/internal/infrastructure/database"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/logs"
 )
 
 var (
-	SupportedDrivers = map[string]database_drivers.DriverConfig{
-		"mysql":    database_drivers.NewMysqlDriver(),
-		"postgres": database_drivers.NewPostgresDriver(),
+	SupportedDrivers = map[string]drivers.DriverConfig{
+		"mysql":    drivers.NewMysqlDriver(),
+		"postgres": drivers.NewPostgresDriver(),
 	}
 )
 
@@ -24,7 +24,7 @@ var (
 // correcto funcionamiento de la aplicación.
 func main() {
 	// 1. Inicializar la configuración del entorno
-	err := env.InitEnvConfig()
+	err := config.InitEnvConfig()
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -58,7 +58,7 @@ func main() {
 	// 5. Inicializar el servidor
 	sv := server.Initialize(container)
 
-	logs.Info("Server started successfully", map[string]interface{}{"port": env.Server.Port})
+	logs.Info("Server started successfully", map[string]interface{}{"port": config.Server.Port})
 	if err = sv.Start(); err != nil {
 		logs.Fatal("Failed to start server", map[string]interface{}{"error": err.Error()})
 		return
@@ -66,7 +66,7 @@ func main() {
 
 }
 
-func initDatabaseConfigurations() (*database_drivers.DbConnection, error) {
+func initDatabaseConfigurations() (*drivers.DbConnection, error) {
 	// 1. Seleccionar el driver de la base de datos
 	driver := selectDatabaseDriver()
 	if driver == nil {
@@ -76,7 +76,7 @@ func initDatabaseConfigurations() (*database_drivers.DbConnection, error) {
 	logs.Info("Database driver initialized successfully")
 
 	// 2. Inicializar la conexión a la base de datos
-	dbConnection := database_drivers.NewDatabaseConnection(driver)
+	dbConnection := drivers.NewDatabaseConnection(driver)
 	if dbConnection.Err != nil {
 		logs.Fatal("Failed to connect to the database", map[string]interface{}{"error": dbConnection.Err.Error()})
 		return nil, dbConnection.Err
@@ -102,8 +102,8 @@ func initDatabaseConfigurations() (*database_drivers.DbConnection, error) {
 // selectDatabaseDriver selecciona el driver de la base de datos según la configuración del entorno.
 // Retorna una instancia de la interfaz DriverConfig.
 // Si ha agregado un nuevo driver de base de datos, debe agregar un nuevo case en el switch.
-func selectDatabaseDriver() database_drivers.DriverConfig {
-	driver, ok := SupportedDrivers[env.Database.Driver]
+func selectDatabaseDriver() drivers.DriverConfig {
+	driver, ok := SupportedDrivers[config.Database.Driver]
 	if !ok {
 		return nil
 	}

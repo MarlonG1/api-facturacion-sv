@@ -5,7 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/MarlonG1/api-facturacion-sv/config/env"
+	"github.com/MarlonG1/api-facturacion-sv/config"
 	"github.com/MarlonG1/api-facturacion-sv/internal/application/ports"
 	models2 "github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/transmitter/models"
 	"github.com/MarlonG1/api-facturacion-sv/internal/infrastructure/adapters/transmitter/hacienda_error"
@@ -46,12 +46,12 @@ func NewMHTransmitter(haciendaAuth ports.HaciendaAuthManager) ports.DTETransmitt
 
 func (t *MHTransmitter) Transmit(ctx context.Context, document interface{}, signedDoc string, systemToken string) (*models2.TransmitResult, error) {
 	// Forzar modo de contingencia si está activado
-	if env.Server.ForceContingency && env.Server.AmbientCode == "00" {
+	if config.Server.ForceContingency && config.Server.AmbientCode == "00" {
 		logs.Info("Forcing contingency mode - simulating service unavailable")
 		return nil, &hacienda_error.HTTPResponseError{
 			StatusCode: http.StatusServiceUnavailable,
 			Body:       []byte("Forced contingency - service unavailable"),
-			URL:        env.MHPaths.ReceptionURL,
+			URL:        config.MHPaths.ReceptionURL,
 			Method:     "POST",
 		}
 	}
@@ -92,7 +92,7 @@ func (t *MHTransmitter) CheckDocumentStatus(ctx context.Context, document interf
 
 	jsonData, err := json.Marshal(haciendaReqBody)
 
-	req, err := http.NewRequestWithContext(ctx, "POST", env.MHPaths.ReceptionConsultURL, bytes.NewBuffer(jsonData))
+	req, err := http.NewRequestWithContext(ctx, "POST", config.MHPaths.ReceptionConsultURL, bytes.NewBuffer(jsonData))
 	if err != nil {
 		logs.Info("Failed to create request", map[string]interface{}{"error": err.Error()})
 		return nil, err
@@ -146,7 +146,7 @@ func (t *MHTransmitter) SendToHacienda(ctx context.Context, request *models2.Hac
 
 	url := request.URL
 	if url == "" {
-		url = env.MHPaths.ReceptionURL
+		url = config.MHPaths.ReceptionURL
 	}
 
 	req, err := http.NewRequestWithContext(ctx, "POST", url, bytes.NewBuffer(jsonData))

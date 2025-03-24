@@ -1,8 +1,8 @@
-package database_drivers
+package drivers
 
 import (
 	"fmt"
-	"github.com/MarlonG1/api-facturacion-sv/config/env"
+	"github.com/MarlonG1/api-facturacion-sv/config"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -19,17 +19,17 @@ func (p *PostgresDriver) GetDSN() gorm.Dialector {
 
 func (p *PostgresDriver) GetStringConnection() string {
 	return fmt.Sprintf("host=%s users=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=America/El_Salvador  options='-c client_encoding=%s'",
-		env.Database.User,
-		env.Database.Password,
-		env.Database.Host,
-		env.Database.Port,
-		env.Database.Name,
-		env.Database.Charset,
+		config.Database.User,
+		config.Database.Password,
+		config.Database.Host,
+		config.Database.Port,
+		config.Database.Name,
+		config.Database.Charset,
 	)
 }
 
 func (p *PostgresDriver) GetHost() string {
-	return env.Database.Port
+	return config.Database.Port
 }
 
 func (p *PostgresDriver) GetDriverName() string {

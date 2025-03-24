@@ -39,7 +39,7 @@ type ContingencyReason struct {
 	EndDate           string `json:"fFin"`
 	StartTime         string `json:"hInicio"`
 	EndTime           string `json:"hFin"`
-	ContingencyType   int    `json:"tipoContingencia"`
+	ContingencyType   int8   `json:"tipoContingencia"`
 	ContingencyReason string `json:"motivoContingencia,omitempty"`
 }
 

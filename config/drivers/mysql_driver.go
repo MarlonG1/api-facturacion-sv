@@ -1,8 +1,8 @@
-package database_drivers
+package drivers
 
 import (
 	"fmt"
-	"github.com/MarlonG1/api-facturacion-sv/config/env"
+	"github.com/MarlonG1/api-facturacion-sv/config"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
@@ -19,17 +19,17 @@ func (m *MysqlDriver) GetDSN() gorm.Dialector {
 
 func (m *MysqlDriver) GetStringConnection() string {
 	return fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=%s&parseTime=True&loc=America%%2FEl_Salvador",
-		env.Database.User,
-		env.Database.Password,
-		env.Database.Host,
-		env.Database.Port,
-		env.Database.Name,
-		env.Database.Charset,
+		config.Database.User,
+		config.Database.Password,
+		config.Database.Host,
+		config.Database.Port,
+		config.Database.Name,
+		config.Database.Charset,
 	)
 }
 
 func (m *MysqlDriver) GetHost() string {
-	return env.Database.Port
+	return config.Database.Port
 }
 
 func (m *MysqlDriver) GetDriverName() string {

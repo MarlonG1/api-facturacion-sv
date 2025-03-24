@@ -1,7 +1,7 @@
 package processors
 
 import (
-	"github.com/MarlonG1/api-facturacion-sv/config/env"
+	"github.com/MarlonG1/api-facturacion-sv/config"
 	models2 "github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/transmitter/models"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/logs"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/shared_error"
@@ -19,13 +19,13 @@ func (p *InvalidationProcessor) ProcessRequest(signedDoc string, document interf
 	}
 
 	return &models2.HaciendaRequest{
-		Ambient:        env.Server.AmbientCode,
+		Ambient:        config.Server.AmbientCode,
 		SendID:         sequenceNumber,
 		Version:        version,
 		Document:       signedDoc,
 		DTEType:        dteType,
 		GenerationCode: generationCode,
-		URL:            env.MHPaths.NullifyURL,
+		URL:            config.MHPaths.NullifyURL,
 	}, nil
 }
 

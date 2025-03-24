@@ -13,4 +13,5 @@ var (
 	ErrExpiredToken            = fmt.Errorf("token has expired, please login again")
 	ErrDTEDocumentNotFound     = errors.New("dte document not found")
 	ErrHaciendaTokenGeneration = fmt.Errorf("failed to generate Hacienda token")
+	ErrInvalidDocumentJSON     = fmt.Errorf("invalid document JSON")
 )

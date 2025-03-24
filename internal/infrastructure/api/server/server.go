@@ -1,10 +1,10 @@
 package server
 
 import (
+	"github.com/MarlonG1/api-facturacion-sv/config"
 	"net/http"
 	"time"
 
-	"github.com/MarlonG1/api-facturacion-sv/config/env"
 	"github.com/MarlonG1/api-facturacion-sv/internal/bootstrap"
 	"github.com/MarlonG1/api-facturacion-sv/internal/infrastructure/api/routes"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/logs"
@@ -83,14 +83,14 @@ func (s *Server) Start() error {
 
 	srv := &http.Server{
 		Handler:      s.router,
-		Addr:         ":" + env.Server.Port,
+		Addr:         ":" + config.Server.Port,
 		WriteTimeout: 15 * time.Second,
 		ReadTimeout:  15 * time.Second,
 		IdleTimeout:  60 * time.Second,
 	}
 
 	logs.Info("Server starting", map[string]interface{}{
-		"port": env.Server.Port,
+		"port": config.Server.Port,
 	})
 
 	if err := srv.ListenAndServe(); err != nil {

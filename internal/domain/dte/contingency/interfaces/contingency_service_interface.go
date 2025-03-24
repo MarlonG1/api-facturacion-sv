@@ -2,8 +2,10 @@ package interfaces
 
 import "context"
 
-// ContingencyManager es una interfaz que define los métodos para el manejo de documentos en estado de contingencia.
+// ContingencyManager interfaz para manejo de documentos en contingencia
 type ContingencyManager interface {
-	// SaveInContingency almacena un documento en la base de datos en estado de contingencia.
-	SaveInContingency(ctx context.Context, document interface{}, contingencyType int, reason string) error
+	// StoreDocumentInContingency almacena un documento en contingencia
+	StoreDocumentInContingency(ctx context.Context, document interface{}, dteType string, contingencyType int8, reason string) error
+	// RetransmitPendingDocuments retransmite los documentos pendientes
+	RetransmitPendingDocuments(ctx context.Context) error
 }

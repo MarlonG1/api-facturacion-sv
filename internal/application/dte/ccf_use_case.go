@@ -5,9 +5,10 @@ import (
 	appPorts "github.com/MarlonG1/api-facturacion-sv/internal/application/ports"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/auth/models"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/ccf/interfaces"
+	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/constants"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/dte_errors"
+	transmissionInterface "github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/dte_documents/interfaces"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/ports"
-	transmissionInterface "github.com/MarlonG1/api-facturacion-sv/internal/domain/transmission/interfaces"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/mapper/request_mapper"
 	requestDTO "github.com/MarlonG1/api-facturacion-sv/pkg/mapper/request_mapper/structs"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/mapper/response_mapper"
@@ -64,17 +65,17 @@ func (u *CCFUseCase) Create(ctx context.Context, req *requestDTO.CreateCreditFis
 	// 6. Comenzar la transmisión de la factura
 	result, err := u.transmitter.RetryTransmission(ctx, mhCCF, token, claims.NIT)
 	if err != nil {
-		return nil, nil, err
+		return mhCCF, nil, err
 	}
 	if result.Status != ReceivedStatus {
 		return mhCCF, result.ReceptionStamp, dte_errors.NewDTEErrorSimple("TransmissionFailed")
 	}
 
 	// 7. Guardar el CCF en la base de datos
-	err = u.dteService.Create(ctx, mhCCF, result.ReceptionStamp)
+	err = u.dteService.Create(ctx, mhCCF, constants.TransmissionNormal, constants.DocumentReceived, result.ReceptionStamp)
 	if err != nil {
 		return mhCCF, result.ReceptionStamp, err
 	}
 
-	return mhCCF, new(string), nil
+	return mhCCF, result.ReceptionStamp, nil
 }

@@ -1,4 +1,4 @@
-package env
+package config
 
 import (
 	"errors"
@@ -315,7 +315,7 @@ func validateSignerFields() error {
 	return nil
 }
 
-// validateEnvVariables valida que los campos de la estructura sean requeridos
+// validateEnvVariables valida que los campos de la estructura sean requeridos y del tipo correcto
 func validateEnvVariables(v reflect.Value, bt map[string]bool, exceptions []string) error {
 	t := v.Type()
 	// Se crea un mapa con las excepciones
@@ -336,19 +336,33 @@ func validateEnvVariables(v reflect.Value, bt map[string]bool, exceptions []stri
 			continue
 		}
 
-		// Solo se valida si el campo es de tipo string
-		if f.Kind() != reflect.String {
-			return fmt.Errorf("%s must be string", fn)
-		}
+		// Comprobar el tipo de campo y validarlo adecuadamente
+		switch f.Kind() {
+		case reflect.String:
+			// Si el campo está en la lista de excepciones, no se valida
+			if exMap[fn] {
+				continue
+			}
 
-		// Si el campo está en la lista de excepciones, no se valida
-		if exMap[fn] {
-			continue
-		}
-
-		// Si el campo está vacío, regresa un error
-		if f.String() == "" {
-			return fmt.Errorf("%s is required", fn)
+			// Si el campo está vacío, regresa un error
+			if f.String() == "" {
+				return fmt.Errorf("%s is required", fn)
+			}
+		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+			if exMap[fn] {
+				continue
+			}
+		case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+			if exMap[fn] {
+				continue
+			}
+		case reflect.Float32, reflect.Float64:
+			if exMap[fn] {
+				continue
+			}
+		default:
+			// Para otros tipos, podríamos agregar manejo específico o rechazarlos
+			return fmt.Errorf("unsupported type %s for field %s", f.Kind(), fn)
 		}
 	}
 

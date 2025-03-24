@@ -1,4 +1,4 @@
-package env
+package config
 
 // envConfig es una estructura que contiene la configuración del archivo .env
 type envConfig struct {

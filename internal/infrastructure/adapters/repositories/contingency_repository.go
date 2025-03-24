@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 	"time"
 
@@ -17,14 +18,14 @@ type ContingencyRepository struct {
 	db *gorm.DB
 }
 
-func NewContingencyRepository(db *gorm.DB) ports.ContingencyRepositoryInterface {
+func NewContingencyRepository(db *gorm.DB) ports.ContingencyRepositoryPort {
 	return &ContingencyRepository{db: db}
 }
 
 // Create almacena un documento de contingencia en la base de datos
 func (r *ContingencyRepository) Create(ctx context.Context, doc *dte.ContingencyDocument) error {
 	contingencyDoc := &db_models.ContingencyDocument{
-		ID:              doc.ID,
+		ID:              uuid.NewString(),
 		BranchID:        doc.BranchID,
 		DocumentID:      doc.DocumentID,
 		ContingencyType: doc.ContingencyType,

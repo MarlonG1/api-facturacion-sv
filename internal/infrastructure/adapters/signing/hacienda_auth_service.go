@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/MarlonG1/api-facturacion-sv/config"
 	ports2 "github.com/MarlonG1/api-facturacion-sv/internal/application/ports"
 	"io"
 	"net/http"
@@ -11,7 +12,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/MarlonG1/api-facturacion-sv/config/env"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/auth/models"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/ports"
 	errPackage "github.com/MarlonG1/api-facturacion-sv/internal/infrastructure/error"
@@ -167,7 +167,7 @@ func (s *HaciendaAuthService) createHTTPRequest(ctx context.Context, creds hacie
 	req, err := http.NewRequestWithContext(
 		ctx,
 		"POST",
-		env.MHPaths.AuthURL,
+		config.MHPaths.AuthURL,
 		strings.NewReader(formData.Encode()),
 	)
 	if err != nil {

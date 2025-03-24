@@ -41,7 +41,7 @@ func (c *Container) Initialize() error {
 	c.middleware = NewMiddlewareContainer(c.services)
 	c.middleware.Initialize()
 
-	c.handlers = NewHandlerContainer(c.useCases)
+	c.handlers = NewHandlerContainer(c.useCases, c.services)
 	c.handlers.Initialize()
 
 	return nil

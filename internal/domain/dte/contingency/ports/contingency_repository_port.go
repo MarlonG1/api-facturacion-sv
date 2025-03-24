@@ -6,8 +6,8 @@ import (
 	"time"
 )
 
-// ContingencyRepositoryInterface interfaz para el repositorio de contingencia (ya existe)
-type ContingencyRepositoryInterface interface {
+// ContingencyRepositoryPort interfaz para el repositorio de contingencia (ya existe)
+type ContingencyRepositoryPort interface {
 	// Create almacena un documento de contingencia en la base de datos
 	Create(ctx context.Context, doc *dte.ContingencyDocument) error
 	// GetPending obtiene los documentos en estado PENDING para procesar

@@ -1,4 +1,4 @@
-package interfaces
+package ports
 
 import "time"
 

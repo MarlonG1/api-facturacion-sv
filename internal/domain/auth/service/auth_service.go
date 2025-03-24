@@ -134,6 +134,24 @@ func (s *AuthManager) Create(ctx context.Context, user *user.User) error {
 	return nil
 }
 
+func (s *AuthManager) GetByNIT(ctx context.Context, nit string) (*user.User, error) {
+	user, err := s.authRepo.GetByNIT(ctx, nit)
+	if err != nil {
+		return nil, handleGormError("get by nit", err)
+	}
+
+	return user, nil
+}
+
+func (s *AuthManager) GetBranchByBranchID(ctx context.Context, branchID uint) (*user.BranchOffice, error) {
+	branch, err := s.authRepo.GetBranchByBranchID(ctx, branchID)
+	if err != nil {
+		return nil, handleGormError("get branch by branch id", err)
+	}
+
+	return branch, nil
+}
+
 func handleGormError(operation string, err error) error {
 	if errors.Is(err, gorm.ErrInvalidData) {
 		return shared_error.NewGeneralServiceError("AuthService", operation, "invalid data", nil)
