@@ -21,6 +21,7 @@ type BranchOffice struct {
 	POSCodeMH           *string  `json:"pos_code_mh,omitempty"`
 	IsActive            bool     `json:"is_active"`
 	Address             *Address `json:"address,omitempty"`
+	User                *User    `json:"user,omitempty"`
 }
 
 func (b *BranchOffice) Validate() error {

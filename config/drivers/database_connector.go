@@ -1,4 +1,4 @@
-package database_drivers
+package drivers
 
 import (
 	"fmt"

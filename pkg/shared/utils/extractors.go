@@ -8,21 +8,55 @@ type AuxiliarIdentificationExtractor struct {
 		ControlNumber  string `json:"numeroControl"`
 		GenerationCode string `json:"codigoGeneracion"`
 	} `json:"identificacion"`
+	Issuer struct {
+		NIT string `json:"nit"`
+	} `json:"emisor"`
 }
 
 func ExtractAuxiliarIdentification(document interface{}) (AuxiliarIdentificationExtractor, error) {
 	var identification AuxiliarIdentificationExtractor
 
-	// Convertir a formato JSON el documento
+	// 1. Convertir a formato JSON el documento
 	jsonData, err := json.Marshal(document)
 	if err != nil {
 		return identification, err
 	}
 
-	// Extraer parte de la informacion de Identificacion
+	// 2. Extraer parte de la información de Identificación
 	if err := json.Unmarshal(jsonData, &identification); err != nil {
 		return identification, err
 	}
 
 	return identification, nil
+}
+
+func ExtractAuxiliarIdentificationFromStringJSON(document interface{}) (AuxiliarIdentificationExtractor, error) {
+	var identification AuxiliarIdentificationExtractor
+
+	// 1. Convertir a formato JSON el documento
+	jsonData := []byte(document.(string))
+
+	// 2. Extraer parte de la información de Identificación
+	if err := json.Unmarshal(jsonData, &identification); err != nil {
+		return identification, err
+	}
+
+	return identification, nil
+}
+
+func ExtractAuxiliarDTEInfo(document interface{}) (AuxiliarIdentificationExtractor, error) {
+	var dteInfo AuxiliarIdentificationExtractor
+
+	// 1. Convertir a formato JSON el documento
+	jsonData, err := json.Marshal(document)
+	if err != nil {
+		return dteInfo, err
+	}
+
+	// 2. Extraer parte de la información del DTE
+	if err := json.Unmarshal(jsonData, &dteInfo); err != nil {
+		return dteInfo, err
+	}
+
+	return dteInfo, nil
 }

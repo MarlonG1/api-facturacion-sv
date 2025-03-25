@@ -2,10 +2,10 @@ package checkers
 
 import (
 	"fmt"
+	"github.com/MarlonG1/api-facturacion-sv/config"
 	"os"
 	"path/filepath"
 
-	"github.com/MarlonG1/api-facturacion-sv/config/env"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/health/constants"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/health/models"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/health/ports"
@@ -19,7 +19,7 @@ type fileSystemChecker struct {
 
 func NewFileSystemChecker() ports.ComponentChecker {
 	// Obtener la ruta absoluta del proyecto
-	logFilePath := filepath.Join(utils.FindProjectRoot()+env.Log.Path, "dte_microservice.log")
+	logFilePath := filepath.Join(utils.FindProjectRoot()+config.Log.Path, "dte_microservice.log")
 
 	return &fileSystemChecker{
 		logPath: logFilePath,

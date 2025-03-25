@@ -5,8 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/auth/models"
-	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/constants"
-	"github.com/MarlonG1/api-facturacion-sv/internal/domain/transmission/ports"
+	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/dte_documents/ports"
 	"github.com/MarlonG1/api-facturacion-sv/internal/infrastructure/database/db_models"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/logs"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/shared_error"
@@ -24,7 +23,7 @@ func NewDTERepository(db *gorm.DB) ports.DTERepositoryPort {
 	}
 }
 
-func (D DTERepository) Create(ctx context.Context, document interface{}, receptionStamp *string) error {
+func (D DTERepository) Create(ctx context.Context, document interface{}, transmission, status string, receptionStamp *string) error {
 	// 1. Extraer los claims del contexto
 	claims := ctx.Value("claims").(*models.AuthClaims)
 	var dteResponse utils.AuxiliarIdentificationExtractor
@@ -57,8 +56,8 @@ func (D DTERepository) Create(ctx context.Context, document interface{}, recepti
 		BranchID: claims.BranchID,
 		Document: &db_models.DTEDetails{
 			ID:             dteResponse.Identification.GenerationCode,
-			Transmission:   constants.TransmissionNormal,
-			Status:         constants.DocumentReceived,
+			Transmission:   transmission,
+			Status:         status,
 			DTEType:        dteResponse.Identification.DTEType,
 			ControlNumber:  dteResponse.Identification.ControlNumber,
 			ReceptionStamp: receptionStamp,
@@ -70,6 +69,22 @@ func (D DTERepository) Create(ctx context.Context, document interface{}, recepti
 	result := D.db.WithContext(ctx).Create(dteDocument)
 	if result.Error != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (D DTERepository) Update(ctx context.Context, id, status string, receptionStamp *string) error {
+	// 1. Actualizar el estado de un documento DTE
+	result := D.db.WithContext(ctx).
+		Model(&db_models.DTEDetails{}).
+		Where("id = ?", id).
+		Updates(map[string]interface{}{
+			"status":          status,
+			"reception_stamp": receptionStamp,
+		})
+	if result.Error != nil {
+		return result.Error
 	}
 
 	return nil

@@ -5,7 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/MarlonG1/api-facturacion-sv/config/env"
+	"github.com/MarlonG1/api-facturacion-sv/config"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/ports"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/shared_error"
 	"io/ioutil"
@@ -70,7 +70,7 @@ func (s *DTESigner) SignDTE(ctx context.Context, dte json.RawMessage, nit string
 
 	httpReq, err := http.NewRequestWithContext(ctx,
 		"POST",
-		env.Signer.Path,
+		config.Signer.Path,
 		bytes.NewBuffer(jsonData))
 	if err != nil {
 		return "", fmt.Errorf("error creating sign request: %w", err)

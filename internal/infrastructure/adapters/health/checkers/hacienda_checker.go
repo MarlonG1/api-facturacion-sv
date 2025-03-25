@@ -5,11 +5,11 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/MarlonG1/api-facturacion-sv/config"
 	"io"
 	"net/http"
 	"time"
 
-	"github.com/MarlonG1/api-facturacion-sv/config/env"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/health/constants"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/health/models"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/health/ports"
@@ -33,9 +33,9 @@ func (c *haciendaChecker) Name() string {
 func (c *haciendaChecker) Check() models.Health {
 	// 1. Primero verificamos disponibilidad básica de los endpoints
 	endpoints := map[string]string{
-		"signing":     env.MHPaths.AuthURL,
-		"reception":   env.MHPaths.ReceptionURL,
-		"contingency": env.MHPaths.ContingencyURL,
+		"signing":     config.MHPaths.AuthURL,
+		"reception":   config.MHPaths.ReceptionURL,
+		"contingency": config.MHPaths.ContingencyURL,
 	}
 
 	for name, url := range endpoints {
@@ -117,7 +117,7 @@ func (c *haciendaChecker) checkAuthProcessing() error {
 
 	req, err := http.NewRequestWithContext(ctx,
 		"POST",
-		env.MHPaths.AuthURL,
+		config.MHPaths.AuthURL,
 		bytes.NewBuffer(jsonData))
 	if err != nil {
 		return err

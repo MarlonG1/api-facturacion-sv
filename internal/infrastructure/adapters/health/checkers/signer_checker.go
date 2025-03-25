@@ -2,10 +2,10 @@ package checkers
 
 import (
 	"context"
+	"github.com/MarlonG1/api-facturacion-sv/config"
 	"net/http"
 	"time"
 
-	"github.com/MarlonG1/api-facturacion-sv/config/env"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/health/constants"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/health/models"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/health/ports"
@@ -30,7 +30,7 @@ func (s *signerChecker) Check() models.Health {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
-	req, err := http.NewRequestWithContext(ctx, "GET", env.Signer.Health, nil)
+	req, err := http.NewRequestWithContext(ctx, "GET", config.Signer.Health, nil)
 	if err != nil {
 		logs.Error("Error creating signer service request", map[string]interface{}{
 			"error": err.Error(),

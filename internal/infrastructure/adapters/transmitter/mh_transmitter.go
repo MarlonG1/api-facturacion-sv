@@ -5,9 +5,9 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/MarlonG1/api-facturacion-sv/config/env"
+	"github.com/MarlonG1/api-facturacion-sv/config"
 	"github.com/MarlonG1/api-facturacion-sv/internal/application/ports"
-	"github.com/MarlonG1/api-facturacion-sv/internal/domain/transmission/models"
+	models2 "github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/transmitter/models"
 	"github.com/MarlonG1/api-facturacion-sv/internal/infrastructure/adapters/transmitter/hacienda_error"
 	"github.com/MarlonG1/api-facturacion-sv/internal/infrastructure/adapters/transmitter/processors"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/logs"
@@ -44,14 +44,14 @@ func NewMHTransmitter(haciendaAuth ports.HaciendaAuthManager) ports.DTETransmitt
 	return t
 }
 
-func (t *MHTransmitter) Transmit(ctx context.Context, document interface{}, signedDoc string, systemToken string) (*models.TransmitResult, error) {
+func (t *MHTransmitter) Transmit(ctx context.Context, document interface{}, signedDoc string, systemToken string) (*models2.TransmitResult, error) {
 	// Forzar modo de contingencia si está activado
-	if env.Server.ForceContingency && env.Server.AmbientCode == "00" {
+	if config.Server.ForceContingency && config.Server.AmbientCode == "00" {
 		logs.Info("Forcing contingency mode - simulating service unavailable")
 		return nil, &hacienda_error.HTTPResponseError{
 			StatusCode: http.StatusServiceUnavailable,
 			Body:       []byte("Forced contingency - service unavailable"),
-			URL:        env.MHPaths.ReceptionURL,
+			URL:        config.MHPaths.ReceptionURL,
 			Method:     "POST",
 		}
 	}
@@ -81,7 +81,7 @@ func (t *MHTransmitter) Transmit(ctx context.Context, document interface{}, sign
 	return processor.ProcessResponse(resp)
 }
 
-func (t *MHTransmitter) CheckDocumentStatus(ctx context.Context, document interface{}, nit string) (*models.TransmitResult, error) {
+func (t *MHTransmitter) CheckDocumentStatus(ctx context.Context, document interface{}, nit string) (*models2.TransmitResult, error) {
 	_, dteType, generationCode, _, err := processors.GetDocumentRequestData(document)
 
 	haciendaReqBody := HaciendaConsultRequest{
@@ -92,7 +92,7 @@ func (t *MHTransmitter) CheckDocumentStatus(ctx context.Context, document interf
 
 	jsonData, err := json.Marshal(haciendaReqBody)
 
-	req, err := http.NewRequestWithContext(ctx, "POST", env.MHPaths.ReceptionConsultURL, bytes.NewBuffer(jsonData))
+	req, err := http.NewRequestWithContext(ctx, "POST", config.MHPaths.ReceptionConsultURL, bytes.NewBuffer(jsonData))
 	if err != nil {
 		logs.Info("Failed to create request", map[string]interface{}{"error": err.Error()})
 		return nil, err
@@ -118,12 +118,12 @@ func (t *MHTransmitter) CheckDocumentStatus(ctx context.Context, document interf
 		return nil, fmt.Errorf("failed to check document status: %s", resp.Status)
 	}
 
-	var haciendaResp models.HaciendaResponse
+	var haciendaResp models2.HaciendaResponse
 	if err := json.NewDecoder(resp.Body).Decode(&haciendaResp); err != nil {
 		return nil, err
 	}
 
-	return &models.TransmitResult{
+	return &models2.TransmitResult{
 		Status:         haciendaResp.Status,
 		ReceptionStamp: &haciendaResp.ReceptionStamp,
 		ProcessingDate: haciendaResp.ProcessingDate,
@@ -133,7 +133,7 @@ func (t *MHTransmitter) CheckDocumentStatus(ctx context.Context, document interf
 	}, nil
 }
 
-func (t *MHTransmitter) SendToHacienda(ctx context.Context, request *models.HaciendaRequest, systemToken string) (*models.HaciendaResponse, error) {
+func (t *MHTransmitter) SendToHacienda(ctx context.Context, request *models2.HaciendaRequest, systemToken string) (*models2.HaciendaResponse, error) {
 	err := t.getHaciendaToken(ctx, systemToken)
 	if err != nil {
 		return nil, err
@@ -146,7 +146,7 @@ func (t *MHTransmitter) SendToHacienda(ctx context.Context, request *models.Haci
 
 	url := request.URL
 	if url == "" {
-		url = env.MHPaths.ReceptionURL
+		url = config.MHPaths.ReceptionURL
 	}
 
 	req, err := http.NewRequestWithContext(ctx, "POST", url, bytes.NewBuffer(jsonData))
@@ -173,7 +173,7 @@ func (t *MHTransmitter) SendToHacienda(ctx context.Context, request *models.Haci
 		return nil, fmt.Errorf("error reading response body: %w", err)
 	}
 
-	var haciendaResp models.HaciendaResponse
+	var haciendaResp models2.HaciendaResponse
 	if err := json.Unmarshal(body, &haciendaResp); err == nil {
 
 		if haciendaResp.Status == "RECHAZADO" {
@@ -189,7 +189,7 @@ func (t *MHTransmitter) SendToHacienda(ctx context.Context, request *models.Haci
 		return &haciendaResp, nil
 	}
 
-	var response models.HaciendaResponse
+	var response models2.HaciendaResponse
 	if err := json.Unmarshal(body, &response); err != nil {
 		return nil, fmt.Errorf("error decoding response: %w, body: %s", err, string(body))
 	}

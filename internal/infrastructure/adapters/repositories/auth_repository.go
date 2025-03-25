@@ -120,7 +120,7 @@ func (r *AuthRepository) GetBranchByBranchApiKey(ctx context.Context, apiKey str
 		return nil, result.Error
 	}
 
-	return &user.BranchOffice{
+	localUser := &user.BranchOffice{
 		ID:                  branch.ID,
 		UserID:              branch.UserID,
 		EstablishmentCode:   branch.EstablishmentCode,
@@ -133,12 +133,17 @@ func (r *AuthRepository) GetBranchByBranchApiKey(ctx context.Context, apiKey str
 		POSCode:             branch.POSCode,
 		POSCodeMH:           branch.POSCodeMH,
 		IsActive:            branch.IsActive,
-		Address: &user.Address{
+	}
+
+	if localUser.Address != nil {
+		localUser.Address = &user.Address{
 			Municipality: branch.Address.Municipality,
 			Department:   branch.Address.Department,
 			Complement:   branch.Address.Complement,
-		},
-	}, nil
+		}
+	}
+
+	return localUser, nil
 }
 
 // GetByBranchID obtiene un usuario por el ID de una sucursal
@@ -361,7 +366,10 @@ func (r *AuthRepository) DeleteBranchOffice(ctx context.Context, userID uint, br
 func (r *AuthRepository) GetBranchByBranchID(ctx context.Context, branchID uint) (*user.BranchOffice, error) {
 	var branch db_models.BranchOffice
 
-	result := r.db.WithContext(ctx).Preload("Address").Where("id = ?", branchID).First(&branch)
+	result := r.db.WithContext(ctx).
+		Preload("Address").
+		Preload("User").
+		Where("id = ?", branchID).First(&branch)
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 			return nil, errPackage.ErrBranchOfficeNotFound
@@ -369,7 +377,7 @@ func (r *AuthRepository) GetBranchByBranchID(ctx context.Context, branchID uint)
 		return nil, result.Error
 	}
 
-	return &user.BranchOffice{
+	localBranch := &user.BranchOffice{
 		ID:                  branch.ID,
 		UserID:              branch.UserID,
 		EstablishmentCode:   branch.EstablishmentCode,
@@ -382,12 +390,28 @@ func (r *AuthRepository) GetBranchByBranchID(ctx context.Context, branchID uint)
 		POSCode:             branch.POSCode,
 		POSCodeMH:           branch.POSCodeMH,
 		IsActive:            branch.IsActive,
-		Address: &user.Address{
+		User: &user.User{
+			ID:                   branch.User.ID,
+			Status:               branch.User.Status,
+			Email:                branch.User.Email,
+			Phone:                branch.User.Phone,
+			NIT:                  branch.User.NIT,
+			NRC:                  branch.User.NRC,
+			AuthType:             branch.User.AuthType,
+			EconomicActivity:     branch.User.EconomicActivity,
+			EconomicActivityDesc: branch.User.EconomicActivityDesc,
+		},
+	}
+
+	if localBranch.Address != nil {
+		localBranch.Address = &user.Address{
 			Municipality: branch.Address.Municipality,
 			Department:   branch.Address.Department,
 			Complement:   branch.Address.Complement,
-		},
-	}, nil
+		}
+	}
+
+	return localBranch, nil
 }
 
 // GetAuthTypeByNIT obtiene el tipo de autenticación de un usuario por su NIT

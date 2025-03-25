@@ -18,7 +18,7 @@ func NewInvoiceMapper() *InvoiceMapper {
 	return &InvoiceMapper{}
 }
 
-// MapToInvoiceData convierte una solicitud de invoice a datos de invoice.
+// MapToInvoiceData convierte una solicitud de invoice a datos de invoice_models.
 func (m *InvoiceMapper) MapToInvoiceData(req *structs.CreateInvoiceRequest, client *dte.IssuerDTE) (*invoice_models.InvoiceData, error) {
 	if err := validateInvoiceRequest(req); err != nil {
 		return nil, err
@@ -66,7 +66,7 @@ func (m *InvoiceMapper) MapToInvoiceData(req *structs.CreateInvoiceRequest, clie
 	return result, nil
 }
 
-// validateInvoiceRequest valida los campos requeridos en la solicitud de invoice.
+// validateInvoiceRequest valida los campos requeridos en la solicitud de invoice_models.
 func validateInvoiceRequest(req *structs.CreateInvoiceRequest) error {
 	if req == nil {
 		return shared_error.NewGeneralServiceError("InvoiceMapper", "MapToInvoiceData", "The request is empty", nil)

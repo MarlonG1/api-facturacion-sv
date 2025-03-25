@@ -3,8 +3,8 @@ package service
 import (
 	"context"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/constants"
-	"github.com/MarlonG1/api-facturacion-sv/internal/domain/transmission/interfaces"
-	"github.com/MarlonG1/api-facturacion-sv/internal/domain/transmission/ports"
+	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/dte_documents/interfaces"
+	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/dte_documents/ports"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/mapper/response_mapper/structs"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/shared_error"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/utils"
@@ -20,15 +20,26 @@ func NewDTEManager(repo ports.DTERepositoryPort) interfaces.DTEManager {
 	}
 }
 
-func (m *DTEManager) Create(ctx context.Context, document interface{}, receptionStamp *string) error {
+func (m *DTEManager) Create(ctx context.Context, document interface{}, transmission, status string, receptionStamp *string) error {
 	// 1. Establecer el sello de recepción en el apéndice del DTE
-	if err := m.setReceptionStampIntoAppendix(document, receptionStamp); err != nil {
-		return shared_error.NewGeneralServiceError("DTEManager", "CreateDTE", "failed to set reception stamp into appendix", err)
+	if transmission != constants.TransmissionContingency {
+		if err := m.setReceptionStampIntoAppendix(document, receptionStamp); err != nil {
+			return shared_error.NewGeneralServiceError("DTEManager", "CreateDTE", "failed to set reception stamp into appendix", err)
+		}
 	}
 
 	// 2. Crear el DTE en la base de datos
-	if err := m.repo.Create(ctx, document, receptionStamp); err != nil {
+	if err := m.repo.Create(ctx, document, transmission, status, receptionStamp); err != nil {
 		return shared_error.NewGeneralServiceError("DTEManager", "CreateDTE", "failed to create DTE", err)
+	}
+
+	return nil
+}
+
+func (m *DTEManager) UpdateDTE(ctx context.Context, id, status string, receptionStamp *string) error {
+	// 1. Actualizar el DTE en la base de datos
+	if err := m.repo.Update(ctx, id, status, receptionStamp); err != nil {
+		return shared_error.NewGeneralServiceError("DTEManager", "UpdateDTE", "failed to update DTE", err)
 	}
 
 	return nil

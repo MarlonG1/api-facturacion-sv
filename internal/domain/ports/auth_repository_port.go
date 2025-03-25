@@ -54,6 +54,10 @@ type AuthStrategy interface {
 type AuthManager interface {
 	// Login maneja el proceso de autenticación
 	Login(ctx context.Context, credentials *models.AuthCredentials) (string, error)
+	// GetByNIT obtiene un usuario por su NIT
+	GetByNIT(ctx context.Context, nit string) (*user.User, error)
+	// GetBranchByBranchID obtiene la sucursal por su ID
+	GetBranchByBranchID(ctx context.Context, branchID uint) (*user.BranchOffice, error)
 	// GetIssuer retorna el emisor por API key
 	GetIssuer(ctx context.Context, branchID uint) (*dte.IssuerDTE, error)
 	// GetHaciendaCredentials obtiene las credenciales de hacienda segun el tipo de autenticación

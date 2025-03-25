@@ -2,7 +2,7 @@ package logs
 
 import (
 	"fmt"
-	"github.com/MarlonG1/api-facturacion-sv/config/env"
+	"github.com/MarlonG1/api-facturacion-sv/config"
 	errPackage "github.com/MarlonG1/api-facturacion-sv/pkg/error"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/utils"
 	"github.com/sirupsen/logrus"
@@ -67,7 +67,7 @@ func InitLogger() error {
 	}
 
 	Logger.SetFormatter(formatter)
-	Logger.SetLevel(determineLogLevel(env.Log.Level))
+	Logger.SetLevel(determineLogLevel(config.Log.Level))
 	Logger.SetOutput(os.Stdout)
 	logDir := utils.FindProjectRoot()
 
@@ -76,7 +76,7 @@ func InitLogger() error {
 	if err != nil {
 		return errPackage.ErrLogDirectoryNotFound
 	}
-	logFilePath := filepath.Join(logDir+env.Log.Path, "dte_microservice.log")
+	logFilePath := filepath.Join(logDir+config.Log.Path, "dte_microservice.log")
 
 	logFile, err := os.OpenFile(
 		logFilePath,

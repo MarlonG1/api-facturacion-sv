@@ -1,10 +1,10 @@
 package constants
 
 const (
-	FallaConexionSistema  = iota + 1 // Falla en conexiones del sistema del emisor
+	NoDisponibilidadMH    = iota + 1 // No disponibilidad de sistema del MH
+	FallaConexionSistema             // Falla en conexiones del sistema del emisor
 	FallaServicioInternet            // Falla en el suministro del servicio de Internet
 	FallaEnergiaElectrica            // Falla en el suministro del servicio de energía eléctrica
-	NoDisponibilidadMH               // No disponibilidad de sistema del MH
 	OtroMotivo                       // Otro motivo
 )
 
@@ -19,7 +19,7 @@ var (
 	}
 
 	// ContingencyReasons contiene los motivos de contingencia permitidos, usado para validaciones
-	ContingencyReasons = map[int]string{
+	ContingencyReasons = map[int8]string{
 		FallaConexionSistema:  "Error de conexión con sistemas internos",
 		FallaServicioInternet: "Falla en el servicio de internet",
 		FallaEnergiaElectrica: "Interrupción del servicio eléctrico",
@@ -28,7 +28,7 @@ var (
 	}
 )
 
-func GetContingencyReason(contingencyType int) string {
+func GetContingencyReason(contingencyType int8) string {
 	if reason, exists := ContingencyReasons[contingencyType]; exists {
 		return reason
 	}
