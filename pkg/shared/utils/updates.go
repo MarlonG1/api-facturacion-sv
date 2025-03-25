@@ -43,7 +43,7 @@ func SetReceptionStampIntoAppendix(document string, receptionStamp *string) (str
 			}
 		} else {
 			// Si existe, añadir el sello de recepción al apéndice
-			appendices := appendix.([]map[string]interface{})
+			appendices := appendix.([]interface{})
 			newAppendices := append(appendices, map[string]interface{}{
 				"Campo":    "Datos del documento",
 				"Etiqueta": "Sello de recepción",
