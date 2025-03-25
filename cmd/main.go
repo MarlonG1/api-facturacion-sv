@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/MarlonG1/api-facturacion-sv/cmd/setup"
 	"github.com/MarlonG1/api-facturacion-sv/config"
 	"github.com/MarlonG1/api-facturacion-sv/config/drivers"
 	"github.com/MarlonG1/api-facturacion-sv/internal/bootstrap"
@@ -54,10 +55,23 @@ func main() {
 
 	// 4. Inicializar el contenedor de dependencias
 	container := bootstrap.NewContainer(dbConnection.Db)
+	err = container.Initialize()
+	if err != nil {
+		logs.Error("Failed to initialize container", map[string]interface{}{"error": err.Error()})
+		return
+	}
 
 	// 5. Inicializar el servidor
 	sv := server.Initialize(container)
 
+	// 6. Inicializar los jobs
+	err = setup.SetupJobs(container.Services().ContingencyManager())
+	if err != nil {
+		logs.Error("Failed to setup jobs", map[string]interface{}{"error": err.Error()})
+		return
+	}
+
+	// 7. Iniciar el servidor
 	logs.Info("Server started successfully", map[string]interface{}{"port": config.Server.Port})
 	if err = sv.Start(); err != nil {
 		logs.Fatal("Failed to start server", map[string]interface{}{"error": err.Error()})

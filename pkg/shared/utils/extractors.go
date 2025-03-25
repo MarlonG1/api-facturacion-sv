@@ -30,6 +30,20 @@ func ExtractAuxiliarIdentification(document interface{}) (AuxiliarIdentification
 	return identification, nil
 }
 
+func ExtractAuxiliarIdentificationFromStringJSON(document interface{}) (AuxiliarIdentificationExtractor, error) {
+	var identification AuxiliarIdentificationExtractor
+
+	// 1. Convertir a formato JSON el documento
+	jsonData := []byte(document.(string))
+
+	// 2. Extraer parte de la información de Identificación
+	if err := json.Unmarshal(jsonData, &identification); err != nil {
+		return identification, err
+	}
+
+	return identification, nil
+}
+
 func ExtractAuxiliarDTEInfo(document interface{}) (AuxiliarIdentificationExtractor, error) {
 	var dteInfo AuxiliarIdentificationExtractor
 

@@ -74,11 +74,6 @@ func (s *Server) configureProtectedMiddlewares(protected *mux.Router) {
 }
 
 func (s *Server) Start() error {
-	err := s.container.Initialize()
-	if err != nil {
-		return err
-	}
-
 	s.ConfigureRoutes()
 
 	srv := &http.Server{

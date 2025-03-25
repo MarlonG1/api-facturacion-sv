@@ -6,54 +6,58 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/google/uuid"
+	"github.com/MarlonG1/api-facturacion-sv/config"
+	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/contingency/ports"
 	"io"
 	"net"
 	"net/http"
 	"strings"
 	"time"
 
-	"github.com/MarlonG1/api-facturacion-sv/config/env"
 	authPorts "github.com/MarlonG1/api-facturacion-sv/internal/application/ports"
 	authModels "github.com/MarlonG1/api-facturacion-sv/internal/domain/auth/models"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/core/dte"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/constants"
-	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/contingency/interfaces"
-	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/dte_documents/ports"
+	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/dte_documents/interfaces"
+	ports2 "github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/ports"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/transmitter/models"
+	batchPorts "github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/transmitter/ports"
 	"github.com/MarlonG1/api-facturacion-sv/internal/infrastructure/adapters/circuit"
 	"github.com/MarlonG1/api-facturacion-sv/internal/infrastructure/adapters/transmitter/hacienda_error"
-	errPackage "github.com/MarlonG1/api-facturacion-sv/internal/infrastructure/error"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/logs"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/shared_error"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/utils"
+	"github.com/google/uuid"
 )
 
 // BatchTransmitterService implementa la lógica de transmisión de lotes a Hacienda
 type BatchTransmitterService struct {
-	haciendaAuth   authPorts.HaciendaAuthManager
-	signer         authPorts.SignerManager
-	dteRepo        ports.DTERepositoryPort
-	httpClient     *http.Client
-	config         models.BatchConfig
-	timeProvider   interfaces.TimeProvider
-	circuitBreaker *circuit.CircuitBreaker
+	haciendaAuth    authPorts.HaciendaAuthManager
+	signer          authPorts.SignerManager
+	dteManager      interfaces.DTEManager
+	contingencyRepo ports.ContingencyRepositoryPort
+	timeProvider    ports2.TimeProvider
+	config          *models.TransmissionConfig
+	httpClient      *http.Client
+	circuitBreaker  *circuit.CircuitBreaker
 }
 
 // NewBatchTransmitterService constructor para BatchTransmitterService
 func NewBatchTransmitterService(
 	haciendaAuth authPorts.HaciendaAuthManager,
 	signer authPorts.SignerManager,
-	dteRepo ports.DTERepositoryPort,
-	config models.BatchConfig,
-	timeProvider interfaces.TimeProvider,
-) *BatchTransmitterService {
+	dteManager interfaces.DTEManager,
+	contingencyRepo ports.ContingencyRepositoryPort,
+	config *models.TransmissionConfig,
+	timeProvider ports2.TimeProvider,
+) batchPorts.BatchTransmitterPort {
 	return &BatchTransmitterService{
-		haciendaAuth: haciendaAuth,
-		signer:       signer,
-		dteRepo:      dteRepo,
-		config:       config,
-		timeProvider: timeProvider,
+		haciendaAuth:    haciendaAuth,
+		signer:          signer,
+		contingencyRepo: contingencyRepo,
+		dteManager:      dteManager,
+		config:          config,
+		timeProvider:    timeProvider,
 		httpClient: &http.Client{
 			Timeout: 30 * time.Second,
 			Transport: &http.Transport{
@@ -89,9 +93,9 @@ func (s *BatchTransmitterService) TransmitBatch(
 	signedDocs []string,
 	token string,
 	creds authModels.HaciendaCredentials,
-) (*models.BatchResponse, error) {
+) (*models.BatchResponse, string, error) {
 	if len(signedDocs) == 0 {
-		return nil, errors.New("no documents to transmit")
+		return nil, "", errors.New("no documents to transmit")
 	}
 
 	batchID := strings.ToUpper(uuid.New().String())
@@ -103,9 +107,14 @@ func (s *BatchTransmitterService) TransmitBatch(
 		Documents: signedDocs,
 	}
 
+	jsonData, _ := json.Marshal(batch)
+	logs.Debug("BATCH REQUEST: ", map[string]interface{}{
+		"data": string(jsonData),
+	})
+
 	haciendaToken, err := s.getHaciendaTokenWithRetry(ctx, token, creds)
 	if err != nil {
-		return nil, fmt.Errorf("%w: %v", errPackage.ErrHaciendaTokenGeneration, err)
+		return nil, "", shared_error.NewGeneralServiceError("BatchTransmitterService", "TransmitBatch", "failed to get hacienda token", err)
 	}
 
 	response, err := s.sendBatchWithRetry(ctx, batch, haciendaToken)
@@ -114,7 +123,7 @@ func (s *BatchTransmitterService) TransmitBatch(
 			"error":   err.Error(),
 			"batchId": batchID,
 		})
-		return nil, err
+		return nil, "", err
 	}
 
 	logs.Info("Batch sent successfully", map[string]interface{}{
@@ -124,7 +133,7 @@ func (s *BatchTransmitterService) TransmitBatch(
 		"idEnvio": response.SendID,
 	})
 
-	return response, nil
+	return response, haciendaToken, nil
 }
 
 // getHaciendaTokenWithRetry obtiene un token de autenticación de Hacienda con reintentos
@@ -150,7 +159,7 @@ func (s *BatchTransmitterService) getHaciendaTokenWithRetry(
 		s.sleep(attempt)
 	}
 
-	return "", fmt.Errorf("max retry attempts reached: %w", err)
+	return "", shared_error.NewGeneralServiceError("BatchTransmitterService", "getHaciendaTokenWithRetry", "max retry attempts reached", err)
 }
 
 // sendBatchWithRetry envía un lote con reintentos
@@ -176,7 +185,7 @@ func (s *BatchTransmitterService) sendBatchWithRetry(
 		s.sleep(attempt)
 	}
 
-	return nil, fmt.Errorf("max retry attempts reached: %w", err)
+	return nil, shared_error.NewGeneralServiceError("BatchTransmitterService", "sendBatchWithRetry", "max retry attempts reached", err)
 }
 
 // transmitToHacienda envía el lote a Hacienda
@@ -205,12 +214,12 @@ func (s *BatchTransmitterService) transmitToHacienda(
 
 	reqBody, err := json.Marshal(batch)
 	if err != nil {
-		return nil, fmt.Errorf("failed to marshal batch: %w", err)
+		return nil, shared_error.NewGeneralServiceError("BatchTransmitterService", "transmitToHacienda", "failed to marshal request", err)
 	}
 
-	req, err := http.NewRequestWithContext(ctx, "POST", env.MHPaths.LoteReceptionURL, bytes.NewBuffer(reqBody))
+	req, err := http.NewRequestWithContext(ctx, "POST", config.MHPaths.LoteReceptionURL, bytes.NewBuffer(reqBody))
 	if err != nil {
-		return nil, fmt.Errorf("failed to create request: %w", err)
+		return nil, shared_error.NewGeneralServiceError("BatchTransmitterService", "transmitToHacienda", "failed to create request", err)
 	}
 
 	req.Header.Set("Content-Type", "application/json")
@@ -223,32 +232,32 @@ func (s *BatchTransmitterService) transmitToHacienda(
 			"error":        err.Error(),
 			"failureCount": s.circuitBreaker.GetFailureCount(),
 		})
-		return nil, fmt.Errorf("failed to send request: %w", err)
+		return nil, shared_error.NewGeneralServiceError("BatchTransmitterService", "transmitToHacienda", "failed to send request", err)
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
 		s.circuitBreaker.RecordFailure()
-		return nil, fmt.Errorf("hacienda returned status: %d", resp.StatusCode)
+		return nil, shared_error.NewGeneralServiceError("BatchTransmitterService", "transmitToHacienda", "unexpected status code", nil)
 	}
 
 	var batchResp models.BatchResponse
 	if err := json.NewDecoder(resp.Body).Decode(&batchResp); err != nil {
 		s.circuitBreaker.RecordFailure()
-		return nil, fmt.Errorf("failed to decode response: %w", err)
+		return nil, shared_error.NewGeneralServiceError("BatchTransmitterService", "transmitToHacienda", "failed to decode response", err)
 	}
 
 	s.circuitBreaker.RecordSuccess()
 	return &batchResp, nil
 }
 
-// VerifyBatchStatus verifica el estado de un lote
-func (s *BatchTransmitterService) VerifyBatchStatus(
+// VerifyContingencyBatchStatus verifica el estado de un lote
+func (s *BatchTransmitterService) VerifyContingencyBatchStatus(
 	ctx context.Context,
 	batchID string,
 	mhBatchID string,
 	token string,
-	docsMap map[string]dte.DTEDetails,
+	docsMap map[string]dte.ContingencyDocument,
 ) error {
 	ticker := time.NewTicker(10 * time.Second)
 	defer ticker.Stop()
@@ -267,7 +276,7 @@ func (s *BatchTransmitterService) VerifyBatchStatus(
 					"error":   err.Error(),
 					"batchID": mhBatchID,
 				})
-				return fmt.Errorf("failed to check batch status err: %w", err)
+				return shared_error.NewGeneralServiceError("BatchTransmitterService", "VerifyContingencyBatchStatus", "failed to check batch status", err)
 			}
 
 			if !isProcessed {
@@ -276,13 +285,17 @@ func (s *BatchTransmitterService) VerifyBatchStatus(
 				})
 
 				if utils.TimeNow().After(deadline) {
-					return fmt.Errorf("timeout waiting for batch processing")
+					return shared_error.NewGeneralServiceError("BatchTransmitterService", "VerifyContingencyBatchStatus", "batch processing timeout", nil)
 				}
 				continue
 			}
 
 			// Procesar documentos procesados
 			if len(status.Processed) > 0 {
+				var processedIDs []string
+				var processedStamps map[string]string
+				var proccesedObservations []string
+				processedStamps = make(map[string]string)
 				for _, processed := range status.Processed {
 					if doc, exists := docsMap[processed.GenerationCode]; exists {
 						logs.Info("Document processed", map[string]interface{}{
@@ -292,19 +305,29 @@ func (s *BatchTransmitterService) VerifyBatchStatus(
 							"processedAt":     processed.ProcessingDate,
 							"reception_stamp": processed.ReceptionStamp,
 						})
-
-						if err := s.registerProcessedDocument(ctx, doc, constants.DocumentReceived, processed.ReceptionStamp); err != nil {
-							logs.Error("Failed to register received document in dte_documents", map[string]interface{}{
-								"error": err.Error(),
-								"id":    doc.ID,
-							})
-						}
+						processedStamps[doc.ID] = processed.ReceptionStamp
+						proccesedObservations = append(proccesedObservations, processed.DescriptionMessage)
+						processedIDs = append(processedIDs, doc.ID)
 					}
 				}
+
+				if err := s.contingencyRepo.UpdateBatch(ctx, processedIDs, proccesedObservations, processedStamps, batchID, mhBatchID, constants.DocumentReceived); err != nil {
+					logs.Error("Failed to update processed documents", map[string]interface{}{
+						"error":   err.Error(),
+						"batchID": batchID,
+					})
+					return shared_error.NewGeneralServiceError("BatchTransmitterService", "VerifyContingencyBatchStatus", "failed to update processed documents", err)
+				}
+
+				logs.Info("Processed documents updated", map[string]interface{}{
+					"batchID": batchID,
+				})
 			}
 
 			// Procesar documentos rechazados
 			if len(status.Rejected) > 0 {
+				var rejectedIDs []string
+				var rejectedObservations []string
 				for _, rejected := range status.Rejected {
 					if doc, exists := docsMap[rejected.GenerationCode]; exists {
 						logs.Info("Document rejected", map[string]interface{}{
@@ -313,15 +336,21 @@ func (s *BatchTransmitterService) VerifyBatchStatus(
 							"observations": rejected.Observations,
 							"processedAt":  rejected.ProcessingDate,
 						})
-
-						if err := s.registerProcessedDocument(ctx, doc, constants.DocumentRejected, ""); err != nil {
-							logs.Error("Failed to register document in dte_documents", map[string]interface{}{
-								"error": err.Error(),
-								"id":    doc.ID,
-							})
-						}
+						rejectedIDs = append(rejectedIDs, doc.ID)
+						rejectedObservations = append(rejectedObservations, rejected.DescriptionMessage)
 					}
 				}
+
+				if err := s.contingencyRepo.UpdateBatch(ctx, rejectedIDs, rejectedObservations, nil, batchID, mhBatchID, constants.DocumentRejected); err != nil {
+					logs.Error("Failed to update rejected documents", map[string]interface{}{
+						"error":   err.Error(),
+						"batchID": batchID,
+					})
+				}
+
+				logs.Info("Rejected documents updated", map[string]interface{}{
+					"batchID": batchID,
+				})
 			}
 
 			logs.Info("Batch status verified", map[string]interface{}{
@@ -340,7 +369,7 @@ func (s *BatchTransmitterService) checkBatchStatus(ctx context.Context, batchID 
 	req, err := http.NewRequestWithContext(
 		ctx,
 		"GET",
-		fmt.Sprintf("%s/%s", env.MHPaths.LoteReceptionConsultURL, batchID),
+		fmt.Sprintf("%s/%s", config.MHPaths.LoteReceptionConsultURL, batchID),
 		nil,
 	)
 	if err != nil {
@@ -387,22 +416,7 @@ func (s *BatchTransmitterService) checkBatchStatus(ctx context.Context, batchID 
 		"Processed": len(batchResp.Processed),
 		"Rejected":  len(batchResp.Rejected),
 	})
-
 	return &batchResp, true, nil
-}
-
-// registerProcessedDocument registra un documento procesado en el repositorio
-func (s *BatchTransmitterService) registerProcessedDocument(ctx context.Context, doc dte.DTEDetails, status string, stamp string) error {
-	err := s.dteRepo.Update(ctx, doc.ID, status, utils.ToStringPointer(stamp))
-	if err != nil {
-		logs.Error("Failed to register document in dte_documents", map[string]interface{}{
-			"error": err.Error(),
-			"id":    doc.ID,
-		})
-		return err
-	}
-
-	return nil
 }
 
 // shouldRetry determina si se debe reintentar una operación

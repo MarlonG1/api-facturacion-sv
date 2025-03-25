@@ -4,8 +4,12 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/MarlonG1/api-facturacion-sv/internal/domain/core/user"
+	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/logs"
+	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/utils"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
+	"log"
 	"time"
 
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/core/dte"
@@ -30,6 +34,8 @@ func (r *ContingencyRepository) Create(ctx context.Context, doc *dte.Contingency
 		DocumentID:      doc.DocumentID,
 		ContingencyType: doc.ContingencyType,
 		Reason:          doc.Reason,
+		CreatedAt:       utils.TimeNow(),
+		UpdatedAt:       utils.TimeNow(),
 	}
 
 	return r.db.WithContext(ctx).Create(contingencyDoc).Error
@@ -40,6 +46,9 @@ func (r *ContingencyRepository) GetPending(ctx context.Context, limit int) ([]dt
 	// 1. Obtener los documentos en estado PENDING para procesar (JOIN con dte_details)
 	err := r.db.WithContext(ctx).
 		Preload("Document").
+		Preload("Branch").
+		Preload("Branch.User").
+		Preload("Branch.Address").
 		Joins("JOIN dte_details ON contingency_documents.document_id = dte_details.id").
 		Where("dte_details.status = ?", constants.DocumentPending).
 		Limit(limit).
@@ -68,6 +77,7 @@ func (r *ContingencyRepository) UpdateBatch(ctx context.Context, ids []string, o
 	// Rollback en caso de error
 	defer func() {
 		if r := recover(); r != nil {
+			log.Println("recovered from panic", r)
 			tx.Rollback()
 		}
 	}()
@@ -108,6 +118,37 @@ func (r *ContingencyRepository) UpdateBatch(ctx context.Context, ids []string, o
 		if stamps != nil {
 			if stamp, exists := stamps[id]; exists {
 				dteUpdate["reception_stamp"] = stamp
+
+				// 8. Actualizar el apéndice del DTE
+				var dteDoc db_models.DTEDetails
+				if err := tx.Where("id = ?", contingencyDoc.DocumentID).First(&dteDoc).Error; err != nil {
+					logs.Error("Failed to get user", map[string]interface{}{
+						"error": err.Error(),
+					})
+					tx.Rollback()
+					return fmt.Errorf("failed to get DTE for appendix update %s: %w", contingencyDoc.DocumentID, err)
+				}
+
+				// Actualizamos el apéndice
+				updatedJSON, err := utils.SetReceptionStampIntoAppendix(dteDoc.JSONData, &stamp)
+				if err != nil {
+					logs.Error("Failed to set reception stamp into appendix", map[string]interface{}{
+						"error": err.Error(),
+					})
+					tx.Rollback()
+					return fmt.Errorf("failed to update appendix: %w", err)
+				}
+
+				// Actualizamos el documento en la misma transacción
+				if err := tx.Model(&db_models.DTEDetails{}).
+					Where("id = ?", contingencyDoc.DocumentID).
+					Update("json_data", updatedJSON).Error; err != nil {
+					logs.Error("Failed to update DTE json_data", map[string]interface{}{
+						"error": err.Error(),
+					})
+					tx.Rollback()
+					return fmt.Errorf("failed to update DTE json_data %s: %w", contingencyDoc.DocumentID, err)
+				}
 			}
 		}
 
@@ -160,6 +201,19 @@ func convertToDomainModel(doc *db_models.ContingencyDocument) dte.ContingencyDoc
 			Status:         doc.Document.Status,
 			ReceptionStamp: doc.Document.ReceptionStamp,
 			JSONData:       doc.Document.JSONData,
+		},
+		Branch: &user.BranchOffice{
+			User: &user.User{
+				ID:                   doc.Branch.User.ID,
+				Status:               doc.Branch.User.Status,
+				Email:                doc.Branch.User.Email,
+				Phone:                doc.Branch.User.Phone,
+				NIT:                  doc.Branch.User.NIT,
+				NRC:                  doc.Branch.User.NRC,
+				AuthType:             doc.Branch.User.AuthType,
+				EconomicActivity:     doc.Branch.User.EconomicActivity,
+				EconomicActivityDesc: doc.Branch.User.EconomicActivityDesc,
+			},
 		},
 	}
 }

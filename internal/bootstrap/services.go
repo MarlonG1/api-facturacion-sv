@@ -25,6 +25,7 @@ import (
 	"github.com/MarlonG1/api-facturacion-sv/internal/infrastructure/adapters/tokens"
 	"github.com/MarlonG1/api-facturacion-sv/internal/infrastructure/adapters/transmitter"
 	"github.com/MarlonG1/api-facturacion-sv/internal/infrastructure/adapters/transmitter/batch"
+	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/logs"
 	"time"
 )
 
@@ -75,6 +76,7 @@ func (c *ServicesContainer) Initialize() error {
 		c.haciendaAuthManager,
 		c.signerManager,
 		c.dteManager,
+		c.repos.contingencyRepo,
 		transmissionConf,
 		&transmitter2.RealTimeProvider{},
 	)
@@ -103,7 +105,15 @@ func (c *ServicesContainer) Initialize() error {
 		transmissionConf,
 	)
 
+	logs.Debug("ServicesContainer initialized", map[string]interface{}{
+		"cacheManager": c.cacheManager == nil,
+	})
+
 	return nil
+}
+
+func (c *ServicesContainer) ContingencyManager() interfaces.ContingencyManager {
+	return c.contingencyManager
 }
 
 func (c *ServicesContainer) DTEManager() transmissionPorts.DTEManager {

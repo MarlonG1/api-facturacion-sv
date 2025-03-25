@@ -48,7 +48,6 @@ func (h *CCFHandler) CreateCCF(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		logs.Debug(*reason)
 		// 2.2. Actualizar la identificación de contingencia en el JSON del DTE
 		utils.UpdateContingencyIdentification(resp.Identificacion, contiType, reason)
 	}

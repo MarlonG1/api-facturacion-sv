@@ -36,7 +36,7 @@ func (m *DTEManager) Create(ctx context.Context, document interface{}, transmiss
 	return nil
 }
 
-func (m *DTEManager) Update(ctx context.Context, id, status string, receptionStamp *string) error {
+func (m *DTEManager) UpdateDTE(ctx context.Context, id, status string, receptionStamp *string) error {
 	// 1. Actualizar el DTE en la base de datos
 	if err := m.repo.Update(ctx, id, status, receptionStamp); err != nil {
 		return shared_error.NewGeneralServiceError("DTEManager", "UpdateDTE", "failed to update DTE", err)

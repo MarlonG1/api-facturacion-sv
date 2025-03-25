@@ -196,32 +196,7 @@ func (s *ContingencyService) processSystemDocumentsByType(ctx context.Context, s
 		docIds := make([]string, 0)
 
 		for _, doc := range batchDocs {
-			var dteDoc map[string]interface{}
-			if err := json.Unmarshal([]byte(doc.Document.JSONData), &dteDoc); err != nil {
-				logs.Error("Failed to unmarshal DTE JSON", map[string]interface{}{
-					"error": err.Error(),
-					"id":    doc.ID,
-				})
-				continue
-			}
-
-			// Actualizar la fecha y hora de emisión
-			now := s.timeProvider.Now()
-			if identificacion, ok := dteDoc["identificacion"].(map[string]interface{}); ok {
-				identificacion["fecEmi"] = now.Format("2006-01-02")
-				identificacion["horEmi"] = now.Format("15:04:05")
-			}
-
-			updatedJSON, err := json.Marshal(dteDoc)
-			if err != nil {
-				logs.Error("Failed to marshal updated DTE", map[string]interface{}{
-					"error": err.Error(),
-					"id":    doc.ID,
-				})
-				continue
-			}
-
-			signedDoc, err := s.signer.SignDTE(ctx, updatedJSON, systemNIT)
+			signedDoc, err := s.signer.SignDTE(ctx, []byte(doc.Document.JSONData), systemNIT)
 			if err != nil {
 				logs.Error("Failed to sign document", map[string]interface{}{
 					"error": err.Error(),
@@ -245,7 +220,7 @@ func (s *ContingencyService) processSystemDocumentsByType(ctx context.Context, s
 		batchID := strings.ToUpper(uuid.New().String())
 
 		// Transmitir el lote
-		response, err := s.batchTransmitter.TransmitBatch(ctx, systemNIT, dteType, signedDocs, token, *encryptedCreds)
+		response, haciendaToken, err := s.batchTransmitter.TransmitBatch(ctx, systemNIT, dteType, signedDocs, token, *encryptedCreds)
 		if err != nil {
 			logs.Error("Failed to transmit batch", map[string]interface{}{
 				"error":    err.Error(),
@@ -257,7 +232,7 @@ func (s *ContingencyService) processSystemDocumentsByType(ctx context.Context, s
 		}
 
 		// Verificar el estado del lote y procesar resultados
-		err = s.batchTransmitter.VerifyContingencyBatchStatus(ctx, batchID, response.BatchCode, token, docsMap)
+		err = s.batchTransmitter.VerifyContingencyBatchStatus(ctx, batchID, response.BatchCode, haciendaToken, docsMap)
 		if err != nil {
 			logs.Error("Failed to verify batch status", map[string]interface{}{
 				"error":   err.Error(),
@@ -284,10 +259,10 @@ func (s *ContingencyService) groupBySystemAndType(docs []dte.ContingencyDocument
 
 // generateMatchingToken genera un token para el cliente
 func (s *ContingencyService) generateMatchingToken(client *user.BranchOffice) (string, error) {
-	key := fmt.Sprintf("token:timestamps:%d", client.ID)
+	key := fmt.Sprintf("token:timestamps:%d", client.User.ID)
 	var timestamps struct {
-		IssuedAt  int64 `json:"iat"`
-		ExpiresAt int64 `json:"exp"`
+		IssuedAt  int64 `json:"IssuedAt"`
+		ExpiresAt int64 `json:"ExpiresAt"`
 	}
 
 	jsonTimestamps, err := s.cache.Get(key)
