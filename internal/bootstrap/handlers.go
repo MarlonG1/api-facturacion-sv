@@ -10,8 +10,7 @@ type HandlerContainer struct {
 	services *ServicesContainer
 
 	authHandler        *handlers.AuthHandler
-	invoiceHandler     *handlers.InvoiceHandler
-	ccfHandler         *handlers.CCFHandler
+	dteHandler         *handlers.DTEHandler
 	contingencyHandler *helpers.ContingencyHandler
 }
 
@@ -25,18 +24,13 @@ func NewHandlerContainer(useCases *UseCaseContainer, services *ServicesContainer
 func (c *HandlerContainer) Initialize() {
 	c.contingencyHandler = helpers.NewContingencyHandler(c.services.contingencyManager)
 	c.authHandler = handlers.NewAuthHandler(c.useCases.AuthUseCase())
-	c.invoiceHandler = handlers.NewInvoiceHandler(c.useCases.InvoiceUseCase(), c.contingencyHandler)
-	c.ccfHandler = handlers.NewCCFHandler(c.useCases.CCFUseCase(), c.contingencyHandler)
+	c.dteHandler = handlers.NewDTEHandler(c.useCases.InvoiceUseCase(), c.useCases.CCFUseCase(), c.useCases.DTEConsultUseCase(), c.contingencyHandler)
+}
+
+func (c *HandlerContainer) DTEHandler() *handlers.DTEHandler {
+	return c.dteHandler
 }
 
 func (c *HandlerContainer) AuthHandler() *handlers.AuthHandler {
 	return c.authHandler
-}
-
-func (c *HandlerContainer) InvoiceHandler() *handlers.InvoiceHandler {
-	return c.invoiceHandler
-}
-
-func (c *HandlerContainer) CCFHandler() *handlers.CCFHandler {
-	return c.ccfHandler
 }

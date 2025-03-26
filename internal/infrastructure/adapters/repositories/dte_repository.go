@@ -3,12 +3,10 @@ package repositories
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/auth/models"
+	"github.com/MarlonG1/api-facturacion-sv/internal/domain/core/dte"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/dte_documents/ports"
 	"github.com/MarlonG1/api-facturacion-sv/internal/infrastructure/database/db_models"
-	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/logs"
-	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/shared_error"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/utils"
 	"gorm.io/gorm"
 )
@@ -23,7 +21,7 @@ func NewDTERepository(db *gorm.DB) ports.DTERepositoryPort {
 	}
 }
 
-func (D DTERepository) Create(ctx context.Context, document interface{}, transmission, status string, receptionStamp *string) error {
+func (D *DTERepository) Create(ctx context.Context, document interface{}, transmission, status string, receptionStamp *string) error {
 	// 1. Extraer los claims del contexto
 	claims := ctx.Value("claims").(*models.AuthClaims)
 	var dteResponse utils.AuxiliarIdentificationExtractor
@@ -31,29 +29,17 @@ func (D DTERepository) Create(ctx context.Context, document interface{}, transmi
 	// 2. Extraer los datos básicos para el modelo DTEDocument
 	jsonData, err := json.Marshal(document)
 	if err != nil {
-		logs.Error("Failed to marshal DTE", map[string]interface{}{
-			"error": err,
-			"type":  fmt.Sprintf("%T", document),
-		})
-		return shared_error.NewGeneralServiceError(
-			"BaseDTERepository",
-			"Create",
-			"failed to marshal DTE",
-			err,
-		)
+		return err
 	}
-	if err := json.Unmarshal(jsonData, &dteResponse); err != nil {
-		return shared_error.NewGeneralServiceError(
-			"BaseDTERepository",
-			"Create",
-			"failed to extract DTE fields",
-			err,
-		)
+	if err = json.Unmarshal(jsonData, &dteResponse); err != nil {
+		return err
 	}
 
 	// 3. Crear un modelo DTEDocument
 	dteDocument := &db_models.DTEDocument{
-		BranchID: claims.BranchID,
+		BranchID:  claims.BranchID,
+		CreatedAt: utils.TimeNow(),
+		UpdatedAt: utils.TimeNow(),
 		Document: &db_models.DTEDetails{
 			ID:             dteResponse.Identification.GenerationCode,
 			Transmission:   transmission,
@@ -74,7 +60,7 @@ func (D DTERepository) Create(ctx context.Context, document interface{}, transmi
 	return nil
 }
 
-func (D DTERepository) Update(ctx context.Context, id, status string, receptionStamp *string) error {
+func (D *DTERepository) Update(ctx context.Context, id, status string, receptionStamp *string) error {
 	// 1. Actualizar el estado de un documento DTE
 	result := D.db.WithContext(ctx).
 		Model(&db_models.DTEDetails{}).
@@ -88,4 +74,34 @@ func (D DTERepository) Update(ctx context.Context, id, status string, receptionS
 	}
 
 	return nil
+}
+
+func (D *DTERepository) GetByGenerationCode(ctx context.Context, branchID uint, generationCode string) (*dte.DTEDocument, error) {
+	var document db_models.DTEDocument
+
+	// 1. Obtener un documento DTE por código de generación
+	result := D.db.WithContext(ctx).
+		Preload("Document").
+		Where("branch_id = ? AND document_id = ?", branchID, generationCode).
+		First(&document)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	// 3. Retornar el documento DTE
+	return &dte.DTEDocument{
+		DocumentID: document.Document.ID,
+		BranchID:   document.BranchID,
+		CreatedAt:  document.CreatedAt,
+		UpdatedAt:  document.UpdatedAt,
+		Details: &dte.DTEDetails{
+			ID:             document.Document.ID,
+			DTEType:        document.Document.DTEType,
+			ControlNumber:  document.Document.ControlNumber,
+			Transmission:   document.Document.Transmission,
+			Status:         document.Document.Status,
+			ReceptionStamp: document.Document.ReceptionStamp,
+			JSONData:       document.Document.JSONData,
+		},
+	}, nil
 }

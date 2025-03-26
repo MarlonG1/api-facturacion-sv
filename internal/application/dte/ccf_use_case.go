@@ -2,6 +2,7 @@ package dte
 
 import (
 	"context"
+	"github.com/MarlonG1/api-facturacion-sv/config"
 	appPorts "github.com/MarlonG1/api-facturacion-sv/internal/application/ports"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/auth/models"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/ccf/interfaces"
@@ -9,10 +10,12 @@ import (
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/dte_errors"
 	transmissionInterface "github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/dte_documents/interfaces"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/ports"
+	"github.com/MarlonG1/api-facturacion-sv/internal/infrastructure/api/response"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/mapper/request_mapper"
 	requestDTO "github.com/MarlonG1/api-facturacion-sv/pkg/mapper/request_mapper/structs"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/mapper/response_mapper"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/mapper/response_mapper/structs"
+	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/utils"
 )
 
 type CCFUseCase struct {
@@ -33,7 +36,7 @@ func NewCCFUseCase(authService ports.AuthManager, invoiceService interfaces.CCFM
 	}
 }
 
-func (u *CCFUseCase) Create(ctx context.Context, req *requestDTO.CreateCreditFiscalRequest) (*structs.CCFDTEResponse, *string, error) {
+func (u *CCFUseCase) Create(ctx context.Context, req *requestDTO.CreateCreditFiscalRequest) (*structs.CCFDTEResponse, *response.SuccessOptions, error) {
 	// 1. Obtener los claims y el token del contexto
 	claims := ctx.Value("claims").(*models.AuthClaims)
 	token := ctx.Value("token").(string)
@@ -62,20 +65,29 @@ func (u *CCFUseCase) Create(ctx context.Context, req *requestDTO.CreateCreditFis
 		return nil, nil, err
 	}
 
-	// 6. Comenzar la transmisión de la factura
+	// 6. Configurar detalles de respuesta
+	options := &response.SuccessOptions{
+		Ambient:        config.Server.AmbientCode,
+		GenerationCode: mhCCF.Identificacion.CodigoGeneracion,
+		EmissionDate:   utils.TimeNow(),
+	}
+
+	// 7. Comenzar la transmisión de la factura
 	result, err := u.transmitter.RetryTransmission(ctx, mhCCF, token, claims.NIT)
 	if err != nil {
-		return mhCCF, nil, err
+		return mhCCF, options, err
 	}
+	options.ReceptionStamp = result.ReceptionStamp
+
 	if result.Status != ReceivedStatus {
-		return mhCCF, result.ReceptionStamp, dte_errors.NewDTEErrorSimple("TransmissionFailed")
+		return mhCCF, options, dte_errors.NewDTEErrorSimple("TransmissionFailed")
 	}
 
-	// 7. Guardar el CCF en la base de datos
+	// 8. Guardar el CCF en la base de datos
 	err = u.dteService.Create(ctx, mhCCF, constants.TransmissionNormal, constants.DocumentReceived, result.ReceptionStamp)
 	if err != nil {
-		return mhCCF, result.ReceptionStamp, err
+		return mhCCF, options, err
 	}
 
-	return mhCCF, result.ReceptionStamp, nil
+	return mhCCF, options, nil
 }
