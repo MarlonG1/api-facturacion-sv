@@ -9,11 +9,12 @@ import (
 type UseCaseContainer struct {
 	services *ServicesContainer
 
-	authUseCase     *auth.AuthUseCase
-	invoiceUseCase  *dte.InvoiceUseCase
-	ccfUseCase      *dte.CCFUseCase
-	dteConsult      *dte.DTEConsultUseCase
-	baseTransmitter ports.BaseTransmitter
+	authUseCase         *auth.AuthUseCase
+	invoiceUseCase      *dte.InvoiceUseCase
+	ccfUseCase          *dte.CCFUseCase
+	dteConsult          *dte.DTEConsultUseCase
+	invalidationUseCase *dte.InvalidationUseCase
+	baseTransmitter     ports.BaseTransmitter
 }
 
 func NewUseCaseContainer(services *ServicesContainer) *UseCaseContainer {
@@ -28,6 +29,11 @@ func (c *UseCaseContainer) Initialize() {
 	c.invoiceUseCase = dte.NewInvoiceUseCase(c.services.AuthManager(), c.services.InvoiceService(), c.baseTransmitter, c.services.DTEManager())
 	c.ccfUseCase = dte.NewCCFUseCase(c.services.AuthManager(), c.services.CCFService(), c.baseTransmitter, c.services.DTEManager())
 	c.dteConsult = dte.NewDTEConsultUseCase(c.services.DTEManager())
+	c.invalidationUseCase = dte.NewInvalidationUseCase(c.services.DTEManager(), c.services.InvalidationManager(), c.services.AuthManager(), c.baseTransmitter)
+}
+
+func (c *UseCaseContainer) InvalidationUseCase() *dte.InvalidationUseCase {
+	return c.invalidationUseCase
 }
 
 func (c *UseCaseContainer) DTEConsultUseCase() *dte.DTEConsultUseCase {

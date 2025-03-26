@@ -38,20 +38,40 @@ func (m *DTEManager) Create(ctx context.Context, document interface{}, transmiss
 	return nil
 }
 
-func (m *DTEManager) UpdateDTE(ctx context.Context, id, status string, receptionStamp *string) error {
+func (m *DTEManager) UpdateDTE(ctx context.Context, branchID uint, document dte.DTEDetails) error {
 	// 1. Actualizar el DTE en la base de datos
-	if err := m.repo.Update(ctx, id, status, receptionStamp); err != nil {
+	if err := m.repo.Update(ctx, branchID, document); err != nil {
 		return shared_error.NewGeneralServiceError("DTEManager", "UpdateDTE", "failed to update DTE", err)
 	}
 
 	return nil
 }
 
-func (m *DTEManager) GetByGenerationCode(ctx context.Context, branchID uint, generationCode string) (*dte.DTEResponse, error) {
+func (m *DTEManager) VerifyStatus(ctx context.Context, branchID uint, id string) (string, error) {
+	// 1. Verificar el estado del DTE en la base de datos
+	status, err := m.repo.VerifyStatus(ctx, branchID, id)
+	if err != nil {
+		return "", shared_error.NewGeneralServiceError("DTEManager", "VerifyStatus", "failed to verify DTE status", err)
+	}
+
+	return status, nil
+}
+
+func (m *DTEManager) GetByGenerationCode(ctx context.Context, branchID uint, generationCode string) (*dte.DTEDocument, error) {
 	// 1. Obtener el DTE por su código de generación
 	dteDocument, err := m.repo.GetByGenerationCode(ctx, branchID, generationCode)
 	if err != nil {
 		return nil, shared_error.NewGeneralServiceError("DTEManager", "GetByGenerationCode", "failed to get DTE by generation code", err)
+	}
+
+	return dteDocument, nil
+}
+
+func (m *DTEManager) GetByGenerationCodeConsult(ctx context.Context, branchID uint, generationCode string) (*dte.DTEResponse, error) {
+	// 1. Obtener el DTE por su código de generación
+	dteDocument, err := m.repo.GetByGenerationCode(ctx, branchID, generationCode)
+	if err != nil {
+		return nil, shared_error.NewGeneralServiceError("DTEManager", "GetByGenerationCodeConsult", "failed to get DTE by generation code", err)
 	}
 
 	// 2. Deserializar JSON data

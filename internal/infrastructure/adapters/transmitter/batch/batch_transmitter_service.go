@@ -18,7 +18,6 @@ import (
 	authModels "github.com/MarlonG1/api-facturacion-sv/internal/domain/auth/models"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/core/dte"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/constants"
-	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/dte_documents/interfaces"
 	ports2 "github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/ports"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/transmitter/models"
 	batchPorts "github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/transmitter/ports"
@@ -34,7 +33,6 @@ import (
 type BatchTransmitterService struct {
 	haciendaAuth    authPorts.HaciendaAuthManager
 	signer          authPorts.SignerManager
-	dteManager      interfaces.DTEManager
 	contingencyRepo ports.ContingencyRepositoryPort
 	timeProvider    ports2.TimeProvider
 	config          *models.TransmissionConfig
@@ -46,7 +44,6 @@ type BatchTransmitterService struct {
 func NewBatchTransmitterService(
 	haciendaAuth authPorts.HaciendaAuthManager,
 	signer authPorts.SignerManager,
-	dteManager interfaces.DTEManager,
 	contingencyRepo ports.ContingencyRepositoryPort,
 	config *models.TransmissionConfig,
 	timeProvider ports2.TimeProvider,
@@ -55,7 +52,6 @@ func NewBatchTransmitterService(
 		haciendaAuth:    haciendaAuth,
 		signer:          signer,
 		contingencyRepo: contingencyRepo,
-		dteManager:      dteManager,
 		config:          config,
 		timeProvider:    timeProvider,
 		httpClient: &http.Client{

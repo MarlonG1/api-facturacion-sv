@@ -10,7 +10,11 @@ type DTEManager interface {
 	// Create almacena un DTE en la base de datos con el sello de recepción proporcionado.
 	Create(context.Context, interface{}, string, string, *string) error
 	// UpdateDTE actualiza el estado de un DTE en la base de datos.
-	UpdateDTE(ctx context.Context, id, status string, receptionStamp *string) error
-	// GetByGenerationCode obtiene un DTE por su código de generación para consultas.
-	GetByGenerationCode(ctx context.Context, branchID uint, generationCode string) (*dte.DTEResponse, error)
+	UpdateDTE(ctx context.Context, branchID uint, document dte.DTEDetails) error
+	// VerifyStatus verifica el estado de un DTE en la base de datos.
+	VerifyStatus(ctx context.Context, branchID uint, id string) (string, error)
+	// GetByGenerationCode obtiene un DTE por su código de generación para procesos internos.
+	GetByGenerationCode(ctx context.Context, branchID uint, generationCode string) (*dte.DTEDocument, error)
+	// GetByGenerationCodeConsult obtiene un DTE por su código de generación para consultas.
+	GetByGenerationCodeConsult(ctx context.Context, branchID uint, generationCode string) (*dte.DTEResponse, error)
 }

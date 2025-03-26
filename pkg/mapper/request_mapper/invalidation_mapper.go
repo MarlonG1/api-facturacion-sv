@@ -24,10 +24,6 @@ func (i *InvalidationMapper) MapToInvalidationDocument(req *structs.Invalidation
 		return nil, shared_error.NewGeneralServiceError("InvalidationMapper", "MapToInvalidationDocument", "Invalid request", nil)
 	}
 
-	if err := i.validateInvalidationReRequest(req); err != nil {
-		return nil, err
-	}
-
 	reason, err := invalidation.MapInvalidationReasonRequest(req.Reason)
 	if err != nil {
 		return nil, shared_error.NewGeneralServiceError("InvalidationMapper", "MapToInvalidationDocument", "Error mapping reason", err)
@@ -59,7 +55,14 @@ func (i *InvalidationMapper) MapToInvalidationDocument(req *structs.Invalidation
 	}, nil
 }
 
-func (i *InvalidationMapper) validateInvalidationReRequest(req *structs.InvalidationRequest) error {
+func (i *InvalidationMapper) ValidateInvalidationReRequest(req *structs.InvalidationRequest) error {
+	if req == nil {
+		return shared_error.NewGeneralServiceError("InvalidationMapper", "validateInvoiceRequest", "Empty request", nil)
+	}
+
+	if req.Reason == nil {
+		return shared_error.NewGeneralServiceError("InvalidationMapper", "validateInvoiceRequest", "Empty reason", nil)
+	}
 
 	if (req.Reason.Type == 1 || req.Reason.Type == 3) && req.ReplacementGenerationCode == nil {
 		return shared_error.NewGeneralServiceError("InvalidationMapper", "validateInvoiceRequest", "Replacement code is required for type 1 and 3", nil)
@@ -71,10 +74,6 @@ func (i *InvalidationMapper) validateInvalidationReRequest(req *structs.Invalida
 
 	if req.GenerationCode == "" {
 		return shared_error.NewGeneralServiceError("InvalidationMapper", "validateInvoiceRequest", "Empty generation code", nil)
-	}
-
-	if req.Reason == nil {
-		return shared_error.NewGeneralServiceError("InvalidationMapper", "validateInvoiceRequest", "Empty reason", nil)
 	}
 
 	if req.Reason.Type == 0 {

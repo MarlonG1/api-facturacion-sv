@@ -9,10 +9,6 @@ import (
 )
 
 func MapInvalidationReasonRequest(reason *structs.ReasonRequest) (*models.InvalidationReason, error) {
-	if reason == nil {
-		return nil, shared_error.NewGeneralServiceError("InvalidationMapper", "MapToInvalidationDocument", "Invalid request", nil)
-	}
-
 	invalidationType, err := document.NewInvalidationType(reason.Type)
 	if err != nil {
 		return nil, shared_error.NewGeneralServiceError("InvalidationMapper", "MapToInvalidationDocument", "Error creating invalidation type", err)
@@ -51,7 +47,7 @@ func MapInvalidationReasonRequest(reason *structs.ReasonRequest) (*models.Invali
 		RequesterDocNum:    *requestorDocNum,
 	}
 
-	if reason.Reason != nil && reason.Type != 3 {
+	if reason.Reason != nil && reason.Type == 3 {
 		invalidationReason, err := document.NewInvalidationReason(*reason.Reason)
 		if err != nil {
 			return nil, shared_error.NewGeneralServiceError("InvalidationMapper", "MapToInvalidationDocument", "Error creating invalidation reason", err)

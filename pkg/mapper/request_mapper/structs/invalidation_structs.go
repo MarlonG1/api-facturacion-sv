@@ -16,7 +16,7 @@ type ReasonRequest struct {
 	RequestorName      string  `json:"requestor_name"`
 	RequestorDocType   string  `json:"requestor_doc_type"`
 	RequestorNumDoc    string  `json:"requestor_num_doc"`
-	Reason             *string `json:"reason,omitempty"`
+	Reason             *string `json:"reason_field,omitempty"`
 }
 
 type InvalidationExtractor struct {

@@ -60,20 +60,54 @@ func (D *DTERepository) Create(ctx context.Context, document interface{}, transm
 	return nil
 }
 
-func (D *DTERepository) Update(ctx context.Context, id, status string, receptionStamp *string) error {
-	// 1. Actualizar el estado de un documento DTE
-	result := D.db.WithContext(ctx).
-		Model(&db_models.DTEDetails{}).
-		Where("id = ?", id).
+func (D *DTERepository) Update(ctx context.Context, branchID uint, document dte.DTEDetails) error {
+	// 1. Actualizar el DTE en la base de datos
+	dbModel := &db_models.DTEDetails{
+		ID:             document.ID,
+		DTEType:        document.DTEType,
+		ControlNumber:  document.ControlNumber,
+		Transmission:   document.Transmission,
+		Status:         document.Status,
+		ReceptionStamp: document.ReceptionStamp,
+		JSONData:       document.JSONData,
+	}
+
+	// 2. Actualizar el DTE en la base de datos
+	if err := D.db.WithContext(ctx).
+		Model(&db_models.DTEDocument{}).
+		Where("document_id = ? AND branch_id = ?", document.ID, branchID).
 		Updates(map[string]interface{}{
-			"status":          status,
-			"reception_stamp": receptionStamp,
-		})
-	if result.Error != nil {
-		return result.Error
+			"updated_at": utils.TimeNow(),
+		}).Error; err != nil {
+		return err
+	}
+
+	// 3. Actualizar los detalles del DTE
+	if err := D.db.WithContext(ctx).
+		Model(&db_models.DTEDetails{}).
+		Where("id = ?", document.ID).
+		Updates(dbModel).Error; err != nil {
+		return err
 	}
 
 	return nil
+}
+
+func (D *DTERepository) VerifyStatus(ctx context.Context, branchID uint, id string) (string, error) {
+	var status string
+
+	// 1. Verificar el estado de un DTE en la base de datos
+	result := D.db.WithContext(ctx).
+		Model(&db_models.DTEDocument{}).
+		Joins("JOIN dte_details ON dte_documents.document_id = dte_details.id").
+		Select("dte_details.status").
+		Where("document_id = ? AND branch_id = ?", id, branchID).
+		First(&status)
+	if result.Error != nil {
+		return "", result.Error
+	}
+
+	return status, nil
 }
 
 func (D *DTERepository) GetByGenerationCode(ctx context.Context, branchID uint, generationCode string) (*dte.DTEDocument, error) {

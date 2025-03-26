@@ -1,6 +1,7 @@
 package document
 
 import (
+	"fmt"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/dte_errors"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/interfaces"
 )
@@ -14,7 +15,7 @@ func NewInvalidationReason(value string) (*InvalidationReason, error) {
 	if ir.IsValid() {
 		return ir, nil
 	}
-	return nil, dte_errors.NewValidationError("InvalidInvalidationReason", value)
+	return nil, dte_errors.NewValidationError("InvalidLength", "Reason field", "5-250", fmt.Sprintf("%d", len(value)))
 }
 
 func (ir *InvalidationReason) IsValid() bool {
