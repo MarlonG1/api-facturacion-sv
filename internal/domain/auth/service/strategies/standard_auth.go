@@ -6,6 +6,7 @@ import (
 	"errors"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/auth/constants"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/ports"
+	"time"
 
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/auth/models"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/logs"
@@ -128,6 +129,25 @@ func (s *StandardAuthStrategy) Authenticate(ctx context.Context, credentials *mo
 	})
 
 	return claims, nil
+}
+
+func (s *StandardAuthStrategy) GetTokenLifetime(credentials *models.AuthCredentials) (time.Duration, error) {
+	// 1. Obtener informacion del usuario
+	user, err := s.authRepo.GetByBranchApiKey(context.Background(), credentials.APIKey)
+	if err != nil {
+		logs.Error("Failed to get user information", map[string]interface{}{
+			"apiKey": credentials.APIKey,
+			"error":  err.Error(),
+		})
+		return 0, shared_error.NewGeneralServiceError(
+			"StandardAuth",
+			"GetTokenLifetime",
+			"failed to get user information",
+			err,
+		)
+	}
+
+	return time.Duration(user.TokenLifetime) * 24 * time.Hour, nil
 }
 
 // GetHaciendaCredentials obtiene las credenciales de Hacienda. Devuelve las credenciales de Hacienda.

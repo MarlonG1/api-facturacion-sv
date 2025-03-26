@@ -48,6 +48,7 @@ type ServicesContainer struct {
 	haciendaAuthManager     appPorts.HaciendaAuthManager
 	signerManager           appPorts.SignerManager
 	dteManager              transmissionPorts.DTEManager
+	sequentialManager       transmissionPorts.SequentialNumberManager
 	invalidationManager     invalidationManager.InvalidationManager
 	invoiceManager          invoiceInterfaces.InvoiceManager
 	ccfManager              ccfInterfaces.CCFManager
@@ -80,8 +81,9 @@ func (c *ServicesContainer) Initialize() error {
 	c.haciendaAuthManager = signing.NewHaciendaAuthService(c.cacheManager, c.authManager)
 	c.transmitterManager = transmitter.NewMHTransmitter(c.haciendaAuthManager)
 	c.dteManager = transmission.NewDTEManager(c.repos.DTERepo())
-	c.invoiceManager = invoiceService.NewInvoiceService(c.repos.SequentialNumberRepo())
-	c.ccfManager = ccfService.NewCCFService(c.repos.SequentialNumberRepo())
+	c.sequentialManager = transmission.NewSequentialNumberManager(c.repos.SequentialNumberRepo(), c.repos.AuthRepo())
+	c.invoiceManager = invoiceService.NewInvoiceService(c.sequentialManager)
+	c.ccfManager = ccfService.NewCCFService(c.sequentialManager)
 	c.invalidationManager = invalidationService.NewInvalidationManager(c.dteManager)
 	c.testManager = test_endpoint.NewTestService(c.repos.db)
 	c.metricsManager = metrics.NewMetricManager(c.cacheManager)

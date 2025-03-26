@@ -24,6 +24,7 @@ type User struct {
 	Email                string    `json:"email"`
 	Phone                string    `json:"phone"`
 	YearInDTE            bool      `json:"year_in_dte"`
+	TokenLifetime        int       `json:"token_lifetime"`
 	CreatedAt            time.Time `json:"-"`
 	UpdatedAt            time.Time `json:"-"`
 
@@ -86,6 +87,10 @@ func (u *User) Validate() error {
 
 	if u.BranchOffices == nil {
 		return dte_errors.NewValidationError("RequiredField", "branch_offices")
+	}
+
+	if u.TokenLifetime < 0 {
+		return dte_errors.NewValidationError("InvalidValue", u.TokenLifetime, "greater than 0", "token_lifetime")
 	}
 
 	if err := u.ValidateBranchOffices(); err != nil {

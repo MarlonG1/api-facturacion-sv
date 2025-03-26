@@ -22,6 +22,7 @@ var ErrorCodesEn = map[string]string{
 	"ExcessiveDiscount":     "The discount %s is greater than the subtotal %s",
 	"NegativeTaxedAmount":   "The taxed sale %s is negative",
 	"ExcessiveTaxedAmount":  "The taxed sale %f is greater than the price * quantity %f",
+	"InvalidValue":          "The value %d is not valid, it must be %s for field %s",
 
 	// Identification errors
 	"InvalidVersion":     "The version %s is not valid, it must be a number between 1 and 3",

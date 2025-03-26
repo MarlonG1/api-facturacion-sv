@@ -45,14 +45,15 @@ x-app-environment: &app-environment
   # Configuración de Redis
   REDIS_HOST: redis
   REDIS_PORT: 6379
-  REDIS_PASSWORD: ""
+  REDIS_PASSWORD:
 
   # Configuración del firmador
   SIGNER_PATH: http://signer:8113/firmardocumento/
-  SIGNER_HEALTH: http://signer:8113/health
+  SIGNER_HEALTH: http://signer:8113/firmardocumento/status
 
   # Configuración de servicios de Hacienda
   MH_AMBIENT_CODE: "00"
+  MH_MAX_BATCH_SIZE: 100
   MH_AUTH_URL: https://apitest.dtes.mh.gob.sv/seguridad/auth
   MH_RECEPTION_URL: https://apitest.dtes.mh.gob.sv/fesv/recepciondte
   MH_LOTE_RECEPTION_URL: https://apitest.dtes.mh.gob.sv/fesv/recepcionlote/

@@ -28,9 +28,9 @@ type CacheListManager interface {
 
 // TokenManager define el comportamiento para la gestión de tokens
 type TokenManager interface {
-	GenerateToken(claims *models.AuthClaims) (string, error)                                     // GenerateToken genera un nuevo token JWT con los claims proporcionados
-	ValidateToken(token string) (*models.AuthClaims, error)                                      // ValidateToken valida un token y retorna sus claims
-	RevokeToken(token string) error                                                              // RevokeToken revoca un token específico
-	SaveTimestampsForContingency(issuedAt, expiresAt time.Time, claims *models.AuthClaims) error // SaveTimestampsForContingency guarda los timestamps de un token en contingencia
-	GetSecretKey() string                                                                        // GetSecretKey retorna la clave secreta para firmar los tokens
+	GenerateToken(claims *models.AuthClaims, tokenLifetime time.Duration) (string, error)                                     // GenerateToken genera un nuevo token JWT con los claims proporcionados
+	ValidateToken(token string) (*models.AuthClaims, error)                                                                   // ValidateToken valida un token y retorna sus claims
+	RevokeToken(token string) error                                                                                           // RevokeToken revoca un token específico
+	SaveTimestampsForContingency(issuedAt, expiresAt time.Time, tokenLifetime time.Duration, claims *models.AuthClaims) error // SaveTimestampsForContingency guarda los timestamps de un token en contingencia
+	GetSecretKey() string                                                                                                     // GetSecretKey retorna la clave secreta para firmar los tokens
 }

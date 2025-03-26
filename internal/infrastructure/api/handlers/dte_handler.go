@@ -3,6 +3,8 @@ package handlers
 import (
 	"context"
 	"encoding/json"
+	"net/http"
+
 	"github.com/MarlonG1/api-facturacion-sv/internal/application/dte"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/constants"
 	"github.com/MarlonG1/api-facturacion-sv/internal/infrastructure/api/helpers"
@@ -10,7 +12,6 @@ import (
 	"github.com/MarlonG1/api-facturacion-sv/pkg/mapper/request_mapper/structs"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/logs"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/utils"
-	"net/http"
 )
 
 type DTEHandler struct {
@@ -46,17 +47,8 @@ func (h *DTEHandler) CreateInvoice(w http.ResponseWriter, r *http.Request) {
 	resp, options, err := h.invoiceUseCase.Create(r.Context(), &req)
 	if err != nil {
 		// 2.1. Verificar si aplica a contingencia
-		logs.Warn("Error transmitting CCF because", map[string]interface{}{"error": err.Error()})
-		contiType, reason := h.contingencyHandler.HandleContingency(r.Context(), resp, constants.CCFElectronico, err)
-
-		if contiType == nil || reason == nil {
-			logs.Error("Error creating CCF", map[string]interface{}{"error": err.Error()})
-			h.respWriter.HandleError(w, err)
-			return
-		}
-
-		// 2.2. Actualizar la identificación de contingencia en el JSON del DTE
-		err = h.handleErrorForContingency(r.Context(), resp, options, err, w)
+		logs.Warn("Error transmitting invoice because", map[string]interface{}{"error": err.Error()})
+		err = h.handleErrorForContingency(r.Context(), resp, constants.FacturaElectronica, options, err, w)
 		if err != nil {
 			h.respWriter.HandleError(w, err)
 			return
@@ -80,23 +72,13 @@ func (h *DTEHandler) CreateCCF(w http.ResponseWriter, r *http.Request) {
 	// 2. Ejecutar el caso de uso de creación de CCF
 	resp, options, err := h.ccfUseCase.Create(r.Context(), &req)
 	if err != nil {
-		// 2.1. Verificar si aplica a contingencia
 		logs.Warn("Error transmitting CCF because", map[string]interface{}{"error": err.Error()})
-		contiType, reason := h.contingencyHandler.HandleContingency(r.Context(), resp, constants.CCFElectronico, err)
-
-		if contiType == nil || reason == nil {
-			logs.Error("Error creating CCF", map[string]interface{}{"error": err.Error()})
-			h.respWriter.HandleError(w, err)
-			return
-		}
-
-		// 2.2. Actualizar la identificación de contingencia en el JSON del DTE
-		err = h.handleErrorForContingency(r.Context(), resp, options, err, w)
+		// 2.1. Verificar si aplica a contingencia
+		err = h.handleErrorForContingency(r.Context(), resp, constants.CCFElectronico, options, err, w)
 		if err != nil {
 			h.respWriter.HandleError(w, err)
 			return
 		}
-
 		return
 	}
 
@@ -148,13 +130,13 @@ func (h *DTEHandler) InvalidateDocument(w http.ResponseWriter, r *http.Request) 
 	h.respWriter.Success(w, http.StatusOK, "DTE invalidated successfully", nil)
 }
 
-func (h *DTEHandler) handleErrorForContingency(ctx context.Context, dte interface{}, options *response.SuccessOptions, err error, w http.ResponseWriter) error {
+func (h *DTEHandler) handleErrorForContingency(ctx context.Context, dte interface{}, dteType string, options *response.SuccessOptions, err error, w http.ResponseWriter) error {
 	// 1. Verificar si aplica a contingencia
 	logs.Warn("Error transmitting DTE because", map[string]interface{}{
 		"error": err.Error(),
 	})
 
-	contiType, reason := h.contingencyHandler.HandleContingency(ctx, dte, constants.CCFElectronico, err)
+	contiType, reason := h.contingencyHandler.HandleContingency(ctx, dte, dteType, err)
 	if contiType == nil || reason == nil {
 		logs.Error("Error creating DTE contingency", map[string]interface{}{"error": err.Error()})
 		return err
