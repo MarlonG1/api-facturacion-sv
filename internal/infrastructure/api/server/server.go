@@ -49,6 +49,7 @@ func (s *Server) ConfigureRoutes() {
 
 func (s *Server) configureProtectedRoutes(protected *mux.Router) {
 	routes.RegisterDTERoutes(protected, s.container.Handlers().DTEHandler())
+	routes.RegisterMetricsRoutes(protected, s.container.Handlers().MetricsHandler())
 }
 
 func (s *Server) configureGlobalOptions() {
@@ -59,6 +60,8 @@ func (s *Server) configureGlobalOptions() {
 
 func (s *Server) configurePublicRoutes(public *mux.Router) {
 	routes.RegisterPublicAuthRoutes(public, s.container.Handlers().AuthHandler())
+	routes.RegisterHealthRoutes(public, s.container.Handlers().HealthHandler())
+	routes.RegisterTestRoutes(public, s.container.Handlers().TestHandler())
 }
 
 func (s *Server) configureGlobalMiddlewares() {

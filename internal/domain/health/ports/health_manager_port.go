@@ -1,8 +1,6 @@
 package ports
 
 import (
-	"context"
-
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/health/models"
 )
 
@@ -14,5 +12,5 @@ type ComponentChecker interface {
 
 // HealthManager es una interfaz que define los métodos para verificar el estado de todos los componentes
 type HealthManager interface {
-	CheckHealth(context.Context) (*models.HealthStatus, error) // CheckHealth verifica el estado de todos los componentes y devuelve un modelo de models.HealthStatus
+	CheckHealth() (*models.HealthStatus, error) // CheckHealth verifica el estado de todos los componentes y devuelve un modelo de models.HealthStatus
 }

@@ -1,7 +1,6 @@
 package health
 
 import (
-	"context"
 	"gorm.io/gorm"
 	"time"
 
@@ -35,7 +34,7 @@ func NewHealthService(cfg *HealthServiceConfig) ports.HealthManager {
 	return service
 }
 
-func (s *healthService) CheckHealth(ctx context.Context) (*models.HealthStatus, error) {
+func (s *healthService) CheckHealth() (*models.HealthStatus, error) {
 	components := make(map[string]models.Health)
 	status := constants.StatusUp
 

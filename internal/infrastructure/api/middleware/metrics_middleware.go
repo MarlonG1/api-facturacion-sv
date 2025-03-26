@@ -6,6 +6,7 @@ import (
 	metricsModels "github.com/MarlonG1/api-facturacion-sv/internal/domain/metrics/models"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/ports"
 	"net/http"
+	"regexp"
 	"strings"
 	"time"
 
@@ -19,6 +20,18 @@ type MetricsMiddleware struct {
 	maxMetrics int
 }
 
+var (
+	uuidRegex = regexp.MustCompile(`^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$`)
+
+	endpointMappings = map[string]string{
+		"GET:/api/v1/dte":               "dte",
+		"GET:/api/v1/dte/{id}":          "dte/{id}",
+		"POST:/api/v1/dte/invoices":     "invoices",
+		"POST:/api/v1/dte/ccf":          "ccf",
+		"POST:/api/v1/dte/invalidation": "invalidation",
+	}
+)
+
 func NewMetricsMiddleware(cache ports.CacheManager) *MetricsMiddleware {
 	return &MetricsMiddleware{
 		cache:      cache,
@@ -26,13 +39,46 @@ func NewMetricsMiddleware(cache ports.CacheManager) *MetricsMiddleware {
 	}
 }
 
-func extractEndpoint(path string) string {
-	path = strings.TrimPrefix(path, "/api/v1/")
-	parts := strings.Split(path, "/")
-	if len(parts) > 0 {
+func extractEndpoint(method, path string) string {
+	// Normalizar la ruta
+	path = strings.TrimSuffix(path, "/")
+
+	// Primero intentar coincidencia directa
+	if endpoint, exists := endpointMappings[method+":"+path]; exists {
+		return endpoint
+	}
+
+	// Si no hay coincidencia directa, intentar con patrones
+	parts := strings.Split(strings.TrimPrefix(path, "/api/v1/dte/"), "/")
+
+	if len(parts) == 0 || parts[0] == "" {
+		return "dte"
+	}
+
+	// Verificar si el primer segmento es un UUID
+	if uuidRegex.MatchString(parts[0]) {
+		// Transformar la ruta reemplazando el UUID con {uuid}
+		templatePath := "/api/v1/dte/{id}"
+		if len(parts) > 1 {
+			templatePath += "/" + strings.Join(parts[1:], "/")
+		}
+
+		if endpoint, exists := endpointMappings[method+":"+templatePath]; exists {
+			return endpoint
+		}
+
+		// Si no hay mapeo específico, usar "consult" como valor predeterminado para GETs con UUID
+		if method == "GET" {
+			return "consult"
+		}
+	}
+
+	// Para rutas que no coinciden con ningún patrón específico, usar el primer segmento
+	if len(parts) > 0 && parts[0] != "" {
 		return parts[0]
 	}
-	return path
+
+	return "dte"
 }
 
 func (m *MetricsMiddleware) Handle(next http.Handler) http.Handler {
@@ -49,7 +95,7 @@ func (m *MetricsMiddleware) Handle(next http.Handler) http.Handler {
 		next.ServeHTTP(rw, r)
 		duration := time.Since(start)
 
-		endpoint := extractEndpoint(r.URL.Path)
+		endpoint := extractEndpoint(r.Method, r.URL.Path)
 		durationsKey := fmt.Sprintf("metrics:%s:%s:%s:durations", systemNIT, r.Method, endpoint)
 		countersKey := fmt.Sprintf("metrics:%s:%s:%s:counters", systemNIT, r.Method, endpoint)
 

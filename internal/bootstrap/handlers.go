@@ -11,6 +11,9 @@ type HandlerContainer struct {
 
 	authHandler        *handlers.AuthHandler
 	dteHandler         *handlers.DTEHandler
+	healthHandler      *handlers.HealthHandler
+	testHandler        *handlers.TestHandler
+	metricsHandler     *handlers.MetricsHandler
 	contingencyHandler *helpers.ContingencyHandler
 }
 
@@ -23,8 +26,23 @@ func NewHandlerContainer(useCases *UseCaseContainer, services *ServicesContainer
 
 func (c *HandlerContainer) Initialize() {
 	c.contingencyHandler = helpers.NewContingencyHandler(c.services.contingencyManager)
+	c.healthHandler = handlers.NewHealthHandler(c.services.HealthManager())
+	c.testHandler = handlers.NewTestHandler(c.services.TestManager())
 	c.authHandler = handlers.NewAuthHandler(c.useCases.AuthUseCase())
+	c.metricsHandler = handlers.NewMetricsHandler(c.services.MetricsManager())
 	c.dteHandler = handlers.NewDTEHandler(c.useCases.InvoiceUseCase(), c.useCases.CCFUseCase(), c.useCases.DTEConsultUseCase(), c.useCases.InvalidationUseCase(), c.contingencyHandler)
+}
+
+func (c *HandlerContainer) MetricsHandler() *handlers.MetricsHandler {
+	return c.metricsHandler
+}
+
+func (c *HandlerContainer) HealthHandler() *handlers.HealthHandler {
+	return c.healthHandler
+}
+
+func (c *HandlerContainer) TestHandler() *handlers.TestHandler {
+	return c.testHandler
 }
 
 func (c *HandlerContainer) DTEHandler() *handlers.DTEHandler {

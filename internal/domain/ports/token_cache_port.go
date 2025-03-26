@@ -2,6 +2,7 @@ package ports
 
 import (
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/auth/models"
+	"github.com/go-redis/redis/v8"
 	"time"
 )
 
@@ -12,6 +13,7 @@ type CacheManager interface {
 	GetCredentials(token string) (*models.HaciendaCredentials, error)                             // GetCredentials obtiene las credenciales del cache
 	Get(key string) (string, error)                                                               // Get obtiene un token del cache
 	Delete(token string) error                                                                    // Delete elimina un token del cache
+	GetRedisClient() *redis.Client                                                                // GetRedisClient retorna el cliente de Redis
 	CacheListManager
 }
 
