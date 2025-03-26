@@ -348,3 +348,7 @@ func (c *RedisTokenCache) LTrim(key string, start, stop int64) error {
 	})
 	return nil
 }
+
+func (c *RedisTokenCache) GetRedisClient() *redis.Client {
+	return c.client
+}

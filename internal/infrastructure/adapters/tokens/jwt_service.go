@@ -16,7 +16,6 @@ import (
 
 type JWTService struct {
 	SecretKey    string
-	tokenTTL     time.Duration
 	cacheService ports.CacheManager
 }
 
@@ -24,15 +23,14 @@ type JWTService struct {
 func NewJWTService(secretKey string, cache ports.CacheManager) *JWTService {
 	return &JWTService{
 		SecretKey:    secretKey,
-		tokenTTL:     30 * 24 * time.Hour, // 30 días
 		cacheService: cache,
 	}
 }
 
 // GenerateToken genera un token JWT con los claims proporcionados.
-func (s *JWTService) GenerateToken(claims *models.AuthClaims) (string, error) {
+func (s *JWTService) GenerateToken(claims *models.AuthClaims, tokenLifetime time.Duration) (string, error) {
 	now := utils.TimeNow()
-	exp := now.Add(s.tokenTTL)
+	exp := now.Add(tokenLifetime)
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"sub":        claims.ClientID,
@@ -56,7 +54,7 @@ func (s *JWTService) GenerateToken(claims *models.AuthClaims) (string, error) {
 		)
 	}
 
-	err = s.SaveTimestampsForContingency(now, exp, claims)
+	err = s.SaveTimestampsForContingency(now, exp, tokenLifetime, claims)
 	if err != nil {
 		logs.Error("Failed to save timestamps for contingency", map[string]interface{}{
 			"error": err.Error(),
@@ -84,7 +82,7 @@ func (s *JWTService) GenerateToken(claims *models.AuthClaims) (string, error) {
 		)
 	}
 
-	err = s.cacheService.Set(key, jsonClaims, s.tokenTTL)
+	err = s.cacheService.Set(key, jsonClaims, tokenLifetime)
 	if err != nil {
 		logs.Error("Failed to store token in cacheService", map[string]interface{}{
 			"error": err.Error(),
@@ -105,7 +103,7 @@ func (s *JWTService) GenerateToken(claims *models.AuthClaims) (string, error) {
 }
 
 // SaveTimestampsForContingency guarda los timestamps de un token en contingencia.
-func (s *JWTService) SaveTimestampsForContingency(issuedAt, expiresAt time.Time, claims *models.AuthClaims) error {
+func (s *JWTService) SaveTimestampsForContingency(issuedAt, expiresAt time.Time, tokenLifetime time.Duration, claims *models.AuthClaims) error {
 	timestamps := TokenTimestamps{
 		IssuedAt:  issuedAt.Unix(),
 		ExpiresAt: expiresAt.Unix(),
@@ -125,7 +123,7 @@ func (s *JWTService) SaveTimestampsForContingency(issuedAt, expiresAt time.Time,
 		)
 	}
 
-	if err = s.cacheService.Set(key, jsonTimestamps, s.tokenTTL); err != nil {
+	if err = s.cacheService.Set(key, jsonTimestamps, tokenLifetime); err != nil {
 		logs.Error("Failed to store timestamps in cacheService", map[string]interface{}{
 			"error": err.Error(),
 		})

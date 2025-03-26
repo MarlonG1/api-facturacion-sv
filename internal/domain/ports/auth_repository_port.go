@@ -2,6 +2,7 @@ package ports
 
 import (
 	"context"
+	"time"
 
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/auth/models"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/core/dte"
@@ -48,6 +49,8 @@ type AuthStrategy interface {
 	ValidateCredentials(credentials *models.AuthCredentials) error
 	// GetHaciendaCredentials obtiene las credenciales de hacienda segun el tipo de autenticación
 	GetHaciendaCredentials(token string) (*models.HaciendaCredentials, error)
+	// GetTokenLifetime obtiene la duración de vida de un token
+	GetTokenLifetime(credentials *models.AuthCredentials) (time.Duration, error)
 }
 
 // AuthManager define el comportamiento de un servicio de autenticación

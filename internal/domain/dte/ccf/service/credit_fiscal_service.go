@@ -2,9 +2,8 @@ package service
 
 import (
 	"context"
-	"fmt"
 	localInterfaces "github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/ccf/interfaces"
-	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/ports"
+	seqPorts "github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/dte_documents/interfaces"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/shared_error"
 
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/ccf/ccf_models"
@@ -17,15 +16,15 @@ import (
 )
 
 type creditFiscalService struct {
-	validator     *validator.CCFRulesValidator
-	seqNumberRepo ports.SequentialNumberRepositoryPort
+	validator        *validator.CCFRulesValidator
+	seqNumberManager seqPorts.SequentialNumberManager
 }
 
 // NewCCFService Crea un nuevo servicio Comprobante de Crédito Fiscal.
-func NewCCFService(seqNumberRepo ports.SequentialNumberRepositoryPort) localInterfaces.CCFManager {
+func NewCCFService(seqNumberManager seqPorts.SequentialNumberManager) localInterfaces.CCFManager {
 	return &creditFiscalService{
-		validator:     validator.NewCCFRulesValidator(nil),
-		seqNumberRepo: seqNumberRepo,
+		validator:        validator.NewCCFRulesValidator(nil),
+		seqNumberManager: seqNumberManager,
 	}
 }
 
@@ -69,38 +68,26 @@ func (c *creditFiscalService) Validate(ccf *ccf_models.CreditFiscalDocument) err
 	return nil
 }
 
-func (c *creditFiscalService) generateControlNumber(ctx context.Context, ccf *ccf_models.CreditFiscalDocument, branchID uint) error {
+// generateControlNumber Genera un número de control único para la invoice.
+func (s *creditFiscalService) generateControlNumber(ctx context.Context, ccf *ccf_models.CreditFiscalDocument, branchID uint) error {
 	establishmentCode := ccf.Issuer.GetEstablishmentCode()
 	posCode := ccf.Issuer.GetPOSCode()
-	defaultCode := "0000"
 
-	if posCode == nil {
-		posCode = &defaultCode
-	}
-	if establishmentCode == nil {
-		establishmentCode = &defaultCode
-	}
-
-	correlativeNumber, err := c.seqNumberRepo.GetNext(
+	controlNumber, err := s.seqNumberManager.GetNextControlNumber(
 		ctx,
 		constants.CCFElectronico,
 		branchID,
+		posCode,
+		establishmentCode,
 	)
 	if err != nil {
 		return err
 	}
 
-	controlNumber := fmt.Sprintf("DTE-%s-%s%s-%015d",
-		constants.CCFElectronico,
-		*establishmentCode,
-		*posCode,
-		correlativeNumber,
-	)
-
 	err = ccf.Identification.SetControlNumber(controlNumber)
 	if err != nil {
 		return shared_error.NewGeneralServiceError(
-			"InvoiceService",
+			"CCFService",
 			"GenerateControlNumber",
 			"failed to set control number",
 			err,

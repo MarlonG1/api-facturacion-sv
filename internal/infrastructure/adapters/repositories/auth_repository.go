@@ -58,6 +58,8 @@ func (r *AuthRepository) GetByNIT(ctx context.Context, nit string) (*user.User, 
 		Business:       dbUser.Business,
 		Email:          dbUser.Email,
 		YearInDTE:      dbUser.YearInDTE,
+		Phone:          dbUser.Phone,
+		TokenLifetime:  dbUser.TokenLifetime,
 		CreatedAt:      dbUser.CreatedAt,
 		UpdatedAt:      dbUser.UpdatedAt,
 	}
@@ -102,6 +104,7 @@ func (r *AuthRepository) GetByBranchApiKey(ctx context.Context, apiKey string) (
 		Phone:                dbUser.Phone,
 		Business:             dbUser.Business,
 		Email:                dbUser.Email,
+		TokenLifetime:        dbUser.TokenLifetime,
 		YearInDTE:            dbUser.YearInDTE,
 		CreatedAt:            dbUser.CreatedAt,
 		UpdatedAt:            dbUser.UpdatedAt,
@@ -183,6 +186,7 @@ func (r *AuthRepository) GetByBranchID(ctx context.Context, branchID uint) (*use
 		Phone:                dbUser.Phone,
 		Business:             dbUser.Business,
 		Email:                dbUser.Email,
+		TokenLifetime:        dbUser.TokenLifetime,
 		YearInDTE:            dbUser.YearInDTE,
 		CreatedAt:            dbUser.CreatedAt,
 		UpdatedAt:            dbUser.UpdatedAt,
@@ -206,6 +210,10 @@ func (r *AuthRepository) Create(ctx context.Context, user *user.User) error {
 			Email:                user.Email,
 			Phone:                user.Phone,
 			YearInDTE:            user.YearInDTE,
+		}
+
+		if user.TokenLifetime != 0 {
+			dbUser.TokenLifetime = user.TokenLifetime
 		}
 
 		// 2. Crear usuario
@@ -272,6 +280,8 @@ func (r *AuthRepository) Update(ctx context.Context, user *user.User) error {
 		Business:       user.Business,
 		Email:          user.Email,
 		YearInDTE:      user.YearInDTE,
+		Phone:          user.Phone,
+		TokenLifetime:  user.TokenLifetime,
 	}
 
 	// 2. Actualizar usuario

@@ -2,28 +2,27 @@ package service
 
 import (
 	"context"
-	"fmt"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/constants"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/interfaces"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/models"
 	buisnessValidator "github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/validator"
+	seqPorts "github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/dte_documents/interfaces"
 	localInterfaces "github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/invoice/interfaces"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/invoice/invoice_models"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/invoice/validator"
-	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/ports"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/shared_error"
 )
 
 type invoiceService struct {
-	validator     *validator.InvoiceRulesValidator
-	seqNumberRepo ports.SequentialNumberRepositoryPort
+	validator        *validator.InvoiceRulesValidator
+	seqNumberManager seqPorts.SequentialNumberManager
 }
 
 // NewInvoiceService Crea un nuevo servicio de facturas electrónicas.
-func NewInvoiceService(seqNumberRepo ports.SequentialNumberRepositoryPort) localInterfaces.InvoiceManager {
+func NewInvoiceService(seqNumberManager seqPorts.SequentialNumberManager) localInterfaces.InvoiceManager {
 	return &invoiceService{
-		validator:     validator.NewInvoiceRulesValidator(nil),
-		seqNumberRepo: seqNumberRepo,
+		validator:        validator.NewInvoiceRulesValidator(nil),
+		seqNumberManager: seqNumberManager,
 	}
 }
 
@@ -136,30 +135,17 @@ func createBaseDocument(data *invoice_models.InvoiceData) *models.DTEDocument {
 func (s *invoiceService) generateControlNumber(ctx context.Context, invoice *invoice_models.ElectronicInvoice, branchID uint) error {
 	establishmentCode := invoice.Issuer.GetEstablishmentCode()
 	posCode := invoice.Issuer.GetPOSCode()
-	defaultCode := "0000"
 
-	if posCode == nil {
-		posCode = &defaultCode
-	}
-	if establishmentCode == nil {
-		establishmentCode = &defaultCode
-	}
-
-	correlativeNumber, err := s.seqNumberRepo.GetNext(
+	controlNumber, err := s.seqNumberManager.GetNextControlNumber(
 		ctx,
 		constants.FacturaElectronica,
 		branchID,
+		posCode,
+		establishmentCode,
 	)
 	if err != nil {
 		return err
 	}
-
-	controlNumber := fmt.Sprintf("DTE-%s-%s%s-%015d",
-		constants.FacturaElectronica,
-		*establishmentCode,
-		*posCode,
-		correlativeNumber,
-	)
 
 	err = invoice.Identification.SetControlNumber(controlNumber)
 	if err != nil {

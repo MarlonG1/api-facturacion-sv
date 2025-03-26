@@ -27,6 +27,7 @@ type User struct {
 	Email                string    `gorm:"column:email;type:varchar(100);not null;uniqueIndex:idx_user_email"`
 	Phone                string    `gorm:"column:phone;type:varchar(30);not null;uniqueIndex:idx_user_phone"`
 	YearInDTE            bool      `gorm:"column:year_in_dte;type:tinyint;not null"`
+	TokenLifetime        int       `gorm:"column:token_lifetime;type:int;not null;default:14"`
 	CreatedAt            time.Time `gorm:"column:created_at;type:timestamp;default:CURRENT_TIMESTAMP"`
 	UpdatedAt            time.Time `gorm:"column:updated_at;type:timestamp;default:CURRENT_TIMESTAMP"`
 }

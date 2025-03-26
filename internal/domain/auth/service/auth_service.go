@@ -3,18 +3,16 @@ package service
 import (
 	"context"
 	"errors"
-	"github.com/MarlonG1/api-facturacion-sv/internal/domain/core/dte"
-	"github.com/MarlonG1/api-facturacion-sv/internal/domain/core/user"
-	tokenPorts "github.com/MarlonG1/api-facturacion-sv/internal/domain/ports"
-	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/shared_error"
-	"gorm.io/gorm"
-	"strings"
-	"time"
-
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/auth/constants"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/auth/models"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/auth/service/strategies"
+	"github.com/MarlonG1/api-facturacion-sv/internal/domain/core/dte"
+	"github.com/MarlonG1/api-facturacion-sv/internal/domain/core/user"
+	tokenPorts "github.com/MarlonG1/api-facturacion-sv/internal/domain/ports"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/logs"
+	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/shared_error"
+	"gorm.io/gorm"
+	"strings"
 )
 
 type AuthManager struct {
@@ -69,14 +67,22 @@ func (s *AuthManager) Login(ctx context.Context, credentials *models.AuthCredent
 		return "", err
 	}
 
-	// 5. Generar token JWT
-	token, err := s.tokenService.GenerateToken(claims)
+	// 5. Obtener duración de vida del token
+	tokenLifetime, err := strategy.GetTokenLifetime(credentials)
 	if err != nil {
 		return "", err
 	}
 
+	// 5. Generar token JWT
+	token, err := s.tokenService.GenerateToken(claims, tokenLifetime)
+	if err != nil {
+		return "", err
+	}
+
+	logs.Debug("TOKEN", map[string]interface{}{"DURATION": tokenLifetime.String()})
+
 	//6. Guardar credenciales en cache
-	if err = s.cacheService.SetCredentials(token, credentials.MHCredentials, 30*24*time.Hour); err != nil {
+	if err = s.cacheService.SetCredentials(token, credentials.MHCredentials, tokenLifetime); err != nil {
 		return "", err
 	}
 
@@ -165,6 +171,10 @@ func handleGormError(operation string, err error) error {
 
 		if strings.Contains(errMsg, "email") {
 			return shared_error.NewGeneralServiceError("AuthService", operation, "email already exists", nil)
+		}
+
+		if strings.Contains(errMsg, "phone") {
+			return shared_error.NewGeneralServiceError("AuthService", operation, "phone already exists", nil)
 		}
 
 		if strings.Contains(errMsg, "nrc") {

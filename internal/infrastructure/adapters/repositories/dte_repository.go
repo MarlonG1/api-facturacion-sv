@@ -8,6 +8,7 @@ import (
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/constants"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/dte_documents/ports"
 	"github.com/MarlonG1/api-facturacion-sv/internal/infrastructure/database/db_models"
+	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/logs"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/utils"
 	"gorm.io/gorm"
 	"time"
@@ -27,6 +28,8 @@ func (D *DTERepository) Create(ctx context.Context, document interface{}, transm
 	// 1. Extraer los claims del contexto
 	claims := ctx.Value("claims").(*models.AuthClaims)
 	var dteResponse utils.AuxiliarIdentificationExtractor
+
+	logs.Debug("Creando DTE")
 
 	// 2. Extraer los datos básicos para el modelo DTEDocument
 	jsonData, err := json.Marshal(document)

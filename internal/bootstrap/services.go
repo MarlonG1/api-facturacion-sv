@@ -18,12 +18,18 @@ import (
 	transmitter2 "github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/transmitter"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/transmitter/models"
 	batchPorts "github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/transmitter/ports"
+	healthPorts "github.com/MarlonG1/api-facturacion-sv/internal/domain/health/ports"
+	metricsPort "github.com/MarlonG1/api-facturacion-sv/internal/domain/metrics/ports"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/ports"
+	testPorts "github.com/MarlonG1/api-facturacion-sv/internal/domain/test_endpoint/ports"
 	"github.com/MarlonG1/api-facturacion-sv/internal/infrastructure/adapters/cache"
 	"github.com/MarlonG1/api-facturacion-sv/internal/infrastructure/adapters/contingency"
 	"github.com/MarlonG1/api-facturacion-sv/internal/infrastructure/adapters/crypt"
+	"github.com/MarlonG1/api-facturacion-sv/internal/infrastructure/adapters/health"
+	"github.com/MarlonG1/api-facturacion-sv/internal/infrastructure/adapters/metrics"
 	"github.com/MarlonG1/api-facturacion-sv/internal/infrastructure/adapters/signing"
 	"github.com/MarlonG1/api-facturacion-sv/internal/infrastructure/adapters/signing/signer"
+	"github.com/MarlonG1/api-facturacion-sv/internal/infrastructure/adapters/test_endpoint"
 	"github.com/MarlonG1/api-facturacion-sv/internal/infrastructure/adapters/tokens"
 	"github.com/MarlonG1/api-facturacion-sv/internal/infrastructure/adapters/transmitter"
 	"github.com/MarlonG1/api-facturacion-sv/internal/infrastructure/adapters/transmitter/batch"
@@ -42,12 +48,16 @@ type ServicesContainer struct {
 	haciendaAuthManager     appPorts.HaciendaAuthManager
 	signerManager           appPorts.SignerManager
 	dteManager              transmissionPorts.DTEManager
+	sequentialManager       transmissionPorts.SequentialNumberManager
 	invalidationManager     invalidationManager.InvalidationManager
 	invoiceManager          invoiceInterfaces.InvoiceManager
 	ccfManager              ccfInterfaces.CCFManager
 	transmitterBatchManager batchPorts.BatchTransmitterPort
 	contingencyEventManager contiEventPort.ContingencyEventSender
 	contingencyManager      interfaces.ContingencyManager
+	healthManager           healthPorts.HealthManager
+	testManager             testPorts.TestManager
+	metricsManager          metricsPort.MetricsManager
 }
 
 func NewServicesContainer(repos *RepositoryContainer) *ServicesContainer {
@@ -71,9 +81,16 @@ func (c *ServicesContainer) Initialize() error {
 	c.haciendaAuthManager = signing.NewHaciendaAuthService(c.cacheManager, c.authManager)
 	c.transmitterManager = transmitter.NewMHTransmitter(c.haciendaAuthManager)
 	c.dteManager = transmission.NewDTEManager(c.repos.DTERepo())
-	c.invoiceManager = invoiceService.NewInvoiceService(c.repos.SequentialNumberRepo())
-	c.ccfManager = ccfService.NewCCFService(c.repos.SequentialNumberRepo())
+	c.sequentialManager = transmission.NewSequentialNumberManager(c.repos.SequentialNumberRepo(), c.repos.AuthRepo())
+	c.invoiceManager = invoiceService.NewInvoiceService(c.sequentialManager)
+	c.ccfManager = ccfService.NewCCFService(c.sequentialManager)
 	c.invalidationManager = invalidationService.NewInvalidationManager(c.dteManager)
+	c.testManager = test_endpoint.NewTestService(c.repos.db)
+	c.metricsManager = metrics.NewMetricManager(c.cacheManager)
+	c.healthManager = health.NewHealthService(&health.HealthServiceConfig{
+		DB:          c.repos.db,
+		RedisClient: c.cacheManager.GetRedisClient(),
+	})
 
 	transmissionConf := models.NewTransmissionConfig(5*time.Second, 2*time.Minute, 2.0)
 	c.transmitterBatchManager = batch.NewBatchTransmitterService(
@@ -113,6 +130,18 @@ func (c *ServicesContainer) Initialize() error {
 	})
 
 	return nil
+}
+
+func (c *ServicesContainer) MetricsManager() metricsPort.MetricsManager {
+	return c.metricsManager
+}
+
+func (c *ServicesContainer) HealthManager() healthPorts.HealthManager {
+	return c.healthManager
+}
+
+func (c *ServicesContainer) TestManager() testPorts.TestManager {
+	return c.testManager
 }
 
 func (c *ServicesContainer) InvalidationManager() invalidationManager.InvalidationManager {

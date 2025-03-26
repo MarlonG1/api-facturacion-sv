@@ -36,9 +36,3 @@ type APIError struct {
 	Details []string `json:"details"`
 	Code    string   `json:"code"`
 }
-
-type SuccessEndpoint struct {
-	Message  string `json:"message"`
-	ClientID string `json:"client_id"`
-	NIT      string `json:"nit"`
-}
