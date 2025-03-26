@@ -12,6 +12,7 @@ type UseCaseContainer struct {
 	authUseCase     *auth.AuthUseCase
 	invoiceUseCase  *dte.InvoiceUseCase
 	ccfUseCase      *dte.CCFUseCase
+	dteConsult      *dte.DTEConsultUseCase
 	baseTransmitter ports.BaseTransmitter
 }
 
@@ -26,6 +27,11 @@ func (c *UseCaseContainer) Initialize() {
 	c.baseTransmitter = dte.NewBaseTransmitter(c.services.TransmitterManager(), c.services.SignerManager())
 	c.invoiceUseCase = dte.NewInvoiceUseCase(c.services.AuthManager(), c.services.InvoiceService(), c.baseTransmitter, c.services.DTEManager())
 	c.ccfUseCase = dte.NewCCFUseCase(c.services.AuthManager(), c.services.CCFService(), c.baseTransmitter, c.services.DTEManager())
+	c.dteConsult = dte.NewDTEConsultUseCase(c.services.DTEManager())
+}
+
+func (c *UseCaseContainer) DTEConsultUseCase() *dte.DTEConsultUseCase {
+	return c.dteConsult
 }
 
 func (c *UseCaseContainer) CCFUseCase() *dte.CCFUseCase {

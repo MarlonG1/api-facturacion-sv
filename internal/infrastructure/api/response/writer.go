@@ -45,27 +45,6 @@ func (w *ResponseWriter) Success(rw http.ResponseWriter, status int, data interf
 
 	qrLink := GenerateQRLink(options.Ambient, options.GenerationCode, options.EmissionDate)
 
-	jsonData, err := json.Marshal(data)
-	if err != nil {
-		logs.Error("Failed to marshal response data", map[string]interface{}{
-			"error": err.Error(),
-		})
-		w.Error(rw, http.StatusInternalServerError, "Error processing response", nil)
-		return
-	}
-
-	var dataMap map[string]interface{}
-	if err := json.Unmarshal(jsonData, &dataMap); err != nil {
-		logs.Error("Failed to unmarshal response data", map[string]interface{}{
-			"error": err.Error(),
-		})
-		w.Error(rw, http.StatusInternalServerError, "Error processing response", nil)
-		return
-	}
-
-	dataMap["selloRecepcion"] = options.ReceptionStamp
-	data = dataMap
-
 	json.NewEncoder(rw).Encode(APIDTEResponse{
 		Success:        true,
 		ReceptionStamp: options.ReceptionStamp,

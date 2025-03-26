@@ -4,16 +4,35 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/constants"
-	"github.com/MarlonG1/api-facturacion-sv/pkg/mapper/response_mapper/structs"
 )
 
 // UpdateContingencyIdentification actualiza la identificación de contingencia en el JSON del DTE.
-func UpdateContingencyIdentification(identification *structs.DTEIdentification, contiType *int8, reason *string) {
-	identification.TipoModelo = constants.ModeloFacturacionDiferido
-	identification.TipoOperacion = constants.TransmisionContingencia
-	tipoContingencia := int(*contiType)
-	identification.TipoContingencia = &tipoContingencia
-	identification.MotivoContin = reason
+func UpdateContingencyIdentification(document interface{}, contiType *int8, reason *string) (map[string]interface{}, error) {
+	// 1. Convertir cualquier struct a map[string]interface{} mediante Marshal y Unmarshal
+	var dteDoc map[string]interface{}
+	jsonBytes, err := json.Marshal(document)
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal DTE JSON:  %w", err)
+	}
+
+	// 1.1 Luego convertimos ese JSON a map[string]interface{}
+	if err = json.Unmarshal(jsonBytes, &dteDoc); err != nil {
+		return nil, fmt.Errorf("failed to unmarshal DTE JSON: %w", err)
+	}
+
+	// 2. Actualizar la identificación de contingencia en el JSON del DTE
+	if identifi, exist := dteDoc["identificacion"]; exist {
+		identification, ok := identifi.(map[string]interface{})
+		if !ok {
+			return nil, fmt.Errorf("failed to assert identification as map[string]interface{}")
+		}
+		identification["tipoModelo"] = constants.ModeloFacturacionDiferido
+		identification["tipoOperacion"] = constants.TransmisionContingencia
+		identification["tipoContingencia"] = *contiType
+		identification["motivoContin"] = *reason
+	}
+
+	return dteDoc, nil
 }
 
 // SetReceptionStampIntoAppendix añade el sello de recepción al apéndice del documento.

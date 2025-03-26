@@ -2,6 +2,8 @@ package service
 
 import (
 	"context"
+	"encoding/json"
+	"github.com/MarlonG1/api-facturacion-sv/internal/domain/core/dte"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/constants"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/dte_documents/interfaces"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/dte_documents/ports"
@@ -43,6 +45,31 @@ func (m *DTEManager) UpdateDTE(ctx context.Context, id, status string, reception
 	}
 
 	return nil
+}
+
+func (m *DTEManager) GetByGenerationCode(ctx context.Context, branchID uint, generationCode string) (*dte.DTEResponse, error) {
+	// 1. Obtener el DTE por su código de generación
+	dteDocument, err := m.repo.GetByGenerationCode(ctx, branchID, generationCode)
+	if err != nil {
+		return nil, shared_error.NewGeneralServiceError("DTEManager", "GetByGenerationCode", "failed to get DTE by generation code", err)
+	}
+
+	// 2. Deserializar JSON data
+	var jsonData map[string]interface{}
+	if err = json.Unmarshal([]byte(dteDocument.Details.JSONData), &jsonData); err != nil {
+		return nil, err
+	}
+
+	// 3. Retornar la respuesta
+	return &dte.DTEResponse{
+		GenerationCode: dteDocument.Details.ID,
+		ControlNumber:  dteDocument.Details.ControlNumber,
+		Status:         dteDocument.Details.Status,
+		ReceptionStamp: dteDocument.Details.ReceptionStamp,
+		JSONData:       jsonData,
+		CreatedAt:      dteDocument.CreatedAt.Format("2006-01-02 15:04:05"),
+		UpdatedAt:      dteDocument.UpdatedAt.Format("2006-01-02 15:04:05"),
+	}, nil
 }
 
 func (m *DTEManager) setReceptionStampIntoAppendix(document interface{}, receptionStamp *string) error {
