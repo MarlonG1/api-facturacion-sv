@@ -24,18 +24,18 @@ const (
 
 var (
 	// ValidDTETypes Es una lista de valores permitidos para el campo DTEType
-	ValidDTETypes = []string{
-		FacturaElectronica,
-		CCFElectronico,
-		NotaRemisionElectronica,
-		NotaCreditoElectronica,
-		NotaDebitoElectronica,
-		ComprobanteRetencionElectronico,
-		ComprobanteLiquidacionElectronico,
-		DocContableLiquidacionElectronico,
-		FacturaExportacionElectronica,
-		FacturaSujetoExcluidoElectronica,
-		ComprobanteDonacionElectronico,
+	ValidDTETypes = map[string]bool{
+		FacturaElectronica:                true,
+		CCFElectronico:                    true,
+		NotaRemisionElectronica:           true,
+		NotaCreditoElectronica:            true,
+		NotaDebitoElectronica:             true,
+		ComprobanteRetencionElectronico:   true,
+		ComprobanteLiquidacionElectronico: true,
+		DocContableLiquidacionElectronico: true,
+		FacturaExportacionElectronica:     true,
+		FacturaSujetoExcluidoElectronica:  true,
+		ComprobanteDonacionElectronico:    true,
 	}
 
 	// ValidReceiverDTETypes Es una lista de valores permitidos para el campo DTEType de un receptor

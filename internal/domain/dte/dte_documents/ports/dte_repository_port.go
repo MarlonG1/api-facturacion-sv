@@ -15,4 +15,10 @@ type DTERepositoryPort interface {
 	GetByGenerationCode(ctx context.Context, branchID uint, id string) (*dte.DTEDocument, error)
 	// VerifyStatus verifica el estado de un DTE en la base de datos.
 	VerifyStatus(ctx context.Context, branchID uint, id string) (string, error)
+	// GetTotalCount obtiene el número total de DTEs en la base de datos.
+	GetTotalCount(ctx context.Context, filters *dte.DTEFilters) (int64, error)
+	// GetSummaryStats obtiene las estadísticas resumidas de los DTEs en la base de datos.
+	GetSummaryStats(ctx context.Context, filters *dte.DTEFilters) (*dte.ListSummary, error)
+	// GetPagedDocuments obtiene una lista paginada de DTEs en la base de datos.
+	GetPagedDocuments(ctx context.Context, filters *dte.DTEFilters) ([]dte.DTEModelResponse, error)
 }

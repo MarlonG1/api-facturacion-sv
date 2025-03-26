@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/auth/models"
-	"github.com/MarlonG1/api-facturacion-sv/internal/infrastructure/dto"
 	errPackage "github.com/MarlonG1/api-facturacion-sv/internal/infrastructure/error"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/logs"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/shared_error"
@@ -107,7 +106,7 @@ func (s *JWTService) GenerateToken(claims *models.AuthClaims) (string, error) {
 
 // SaveTimestampsForContingency guarda los timestamps de un token en contingencia.
 func (s *JWTService) SaveTimestampsForContingency(issuedAt, expiresAt time.Time, claims *models.AuthClaims) error {
-	timestamps := dto.TokenTimestamps{
+	timestamps := TokenTimestamps{
 		IssuedAt:  issuedAt.Unix(),
 		ExpiresAt: expiresAt.Unix(),
 	}

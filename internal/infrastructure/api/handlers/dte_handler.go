@@ -104,7 +104,7 @@ func (h *DTEHandler) CreateCCF(w http.ResponseWriter, r *http.Request) {
 	h.respWriter.Success(w, http.StatusCreated, resp, options)
 }
 
-func (h *DTEHandler) GetDTEByGenerationCode(w http.ResponseWriter, r *http.Request) {
+func (h *DTEHandler) GetByGenerationCode(w http.ResponseWriter, r *http.Request) {
 	// 1. Obtener el código de generación
 	generationCode := helpers.GetRequestVar(r, "id")
 
@@ -116,6 +116,17 @@ func (h *DTEHandler) GetDTEByGenerationCode(w http.ResponseWriter, r *http.Reque
 	}
 
 	h.respWriter.Success(w, http.StatusOK, dte, nil)
+}
+
+func (h *DTEHandler) GetAll(w http.ResponseWriter, r *http.Request) {
+	// 1. Obtener todos los DTEs ejecutando el caso de uso
+	dtes, err := h.dteConsultUseCase.GetAllDTEs(r.Context(), r)
+	if err != nil {
+		h.respWriter.HandleError(w, err)
+		return
+	}
+
+	h.respWriter.Success(w, http.StatusOK, dtes, nil)
 }
 
 func (h *DTEHandler) InvalidateDocument(w http.ResponseWriter, r *http.Request) {

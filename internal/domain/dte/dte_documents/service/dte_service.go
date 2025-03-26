@@ -92,6 +92,39 @@ func (m *DTEManager) GetByGenerationCodeConsult(ctx context.Context, branchID ui
 	}, nil
 }
 
+func (m *DTEManager) GetAllDTEs(ctx context.Context, filters *dte.DTEFilters) (*dte.DTEListResponse, error) {
+	// 1. Obtener las estadísticas resumidas de los DTEs
+	summaryStats, err := m.repo.GetSummaryStats(ctx, filters)
+	if err != nil {
+		return nil, shared_error.NewGeneralServiceError("DTEManager", "GetAll", "failed to get summary stats", err)
+	}
+
+	// 2. Crear la respuesta base
+	response := &dte.DTEListResponse{
+		Summary:   *summaryStats,
+		Documents: []dte.DTEModelResponse{},
+		Pagination: dte.DTEPaginationResponse{
+			Page:       filters.Page,
+			PageSize:   filters.PageSize,
+			TotalPages: calculateTotalPages(summaryStats.Total, filters.PageSize),
+		},
+	}
+
+	// 3. Si no hay documentos, retornar la respuesta vacía
+	if summaryStats.Total == 0 {
+		return response, nil
+	}
+
+	// 4. Obtener los documentos paginados
+	documents, err := m.repo.GetPagedDocuments(ctx, filters)
+	if err != nil {
+		return nil, shared_error.NewGeneralServiceError("DTEManager", "GetAll", "failed to get paged documents", err)
+	}
+	response.Documents = documents
+
+	return response, nil
+}
+
 func (m *DTEManager) setReceptionStampIntoAppendix(document interface{}, receptionStamp *string) error {
 	// 1. Determinar el tipo de DTE
 	dteType, err := m.determineDTEType(document)
@@ -127,4 +160,17 @@ func (m *DTEManager) determineDTEType(document interface{}) (string, error) {
 	}
 
 	return dteExtracted.Identification.DTEType, nil
+}
+
+func calculateTotalPages(totalItems int64, pageSize int) int {
+	if pageSize <= 0 {
+		return 0
+	}
+
+	pages := int(totalItems) / pageSize
+	if int(totalItems)%pageSize > 0 {
+		pages++
+	}
+
+	return pages
 }

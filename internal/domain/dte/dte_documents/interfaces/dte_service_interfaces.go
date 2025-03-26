@@ -17,4 +17,6 @@ type DTEManager interface {
 	GetByGenerationCode(ctx context.Context, branchID uint, generationCode string) (*dte.DTEDocument, error)
 	// GetByGenerationCodeConsult obtiene un DTE por su código de generación para consultas.
 	GetByGenerationCodeConsult(ctx context.Context, branchID uint, generationCode string) (*dte.DTEResponse, error)
+	// GetAllDTEs obtiene todos los DTEs en la base de datos con filtros y paginación.
+	GetAllDTEs(ctx context.Context, filters *dte.DTEFilters) (*dte.DTEListResponse, error)
 }
