@@ -14,20 +14,22 @@ import (
 )
 
 type DTEHandler struct {
-	invoiceUseCase     *dte.InvoiceUseCase
-	ccfUseCase         *dte.CCFUseCase
-	dteConsultUseCase  *dte.DTEConsultUseCase
-	contingencyHandler *helpers.ContingencyHandler
-	respWriter         *response.ResponseWriter
+	invoiceUseCase      *dte.InvoiceUseCase
+	ccfUseCase          *dte.CCFUseCase
+	dteConsultUseCase   *dte.DTEConsultUseCase
+	invalidationUseCase *dte.InvalidationUseCase
+	contingencyHandler  *helpers.ContingencyHandler
+	respWriter          *response.ResponseWriter
 }
 
-func NewDTEHandler(invoiceUseCase *dte.InvoiceUseCase, ccfUseCase *dte.CCFUseCase, dteConsultUseCase *dte.DTEConsultUseCase, contingencyHandler *helpers.ContingencyHandler) *DTEHandler {
+func NewDTEHandler(invoiceUseCase *dte.InvoiceUseCase, ccfUseCase *dte.CCFUseCase, dteConsultUseCase *dte.DTEConsultUseCase, invalidationUseCase *dte.InvalidationUseCase, contingencyHandler *helpers.ContingencyHandler) *DTEHandler {
 	return &DTEHandler{
-		invoiceUseCase:     invoiceUseCase,
-		ccfUseCase:         ccfUseCase,
-		dteConsultUseCase:  dteConsultUseCase,
-		contingencyHandler: contingencyHandler,
-		respWriter:         response.NewResponseWriter(),
+		invoiceUseCase:      invoiceUseCase,
+		ccfUseCase:          ccfUseCase,
+		dteConsultUseCase:   dteConsultUseCase,
+		invalidationUseCase: invalidationUseCase,
+		contingencyHandler:  contingencyHandler,
+		respWriter:          response.NewResponseWriter(),
 	}
 }
 
@@ -102,7 +104,7 @@ func (h *DTEHandler) CreateCCF(w http.ResponseWriter, r *http.Request) {
 	h.respWriter.Success(w, http.StatusCreated, resp, options)
 }
 
-func (h *DTEHandler) GetDTEByGenerationCode(w http.ResponseWriter, r *http.Request) {
+func (h *DTEHandler) GetByGenerationCode(w http.ResponseWriter, r *http.Request) {
 	// 1. Obtener el código de generación
 	generationCode := helpers.GetRequestVar(r, "id")
 
@@ -114,6 +116,36 @@ func (h *DTEHandler) GetDTEByGenerationCode(w http.ResponseWriter, r *http.Reque
 	}
 
 	h.respWriter.Success(w, http.StatusOK, dte, nil)
+}
+
+func (h *DTEHandler) GetAll(w http.ResponseWriter, r *http.Request) {
+	// 1. Obtener todos los DTEs ejecutando el caso de uso
+	dtes, err := h.dteConsultUseCase.GetAllDTEs(r.Context(), r)
+	if err != nil {
+		h.respWriter.HandleError(w, err)
+		return
+	}
+
+	h.respWriter.Success(w, http.StatusOK, dtes, nil)
+}
+
+func (h *DTEHandler) InvalidateDocument(w http.ResponseWriter, r *http.Request) {
+	// 1. Decodificar la solicitud de invalidación de documento a un DTO de solicitud
+	var req structs.InvalidationRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		logs.Error("Failed to decode request body", map[string]interface{}{"error": err.Error()})
+		h.respWriter.Error(w, http.StatusBadRequest, "Invalid request format", nil)
+		return
+	}
+
+	// 2. Ejecutar el caso de uso de invalidación de documento
+	err := h.invalidationUseCase.InvalidateDocument(r.Context(), req)
+	if err != nil {
+		h.respWriter.HandleError(w, err)
+		return
+	}
+
+	h.respWriter.Success(w, http.StatusOK, "DTE invalidated successfully", nil)
 }
 
 func (h *DTEHandler) handleErrorForContingency(ctx context.Context, dte interface{}, options *response.SuccessOptions, err error, w http.ResponseWriter) error {

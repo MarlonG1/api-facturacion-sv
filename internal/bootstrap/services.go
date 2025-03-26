@@ -11,6 +11,8 @@ import (
 	service2 "github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/contingency/service"
 	transmissionPorts "github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/dte_documents/interfaces"
 	transmission "github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/dte_documents/service"
+	invalidationManager "github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/invalidation/interfaces"
+	invalidationService "github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/invalidation/service"
 	invoiceInterfaces "github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/invoice/interfaces"
 	invoiceService "github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/invoice/service"
 	transmitter2 "github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/transmitter"
@@ -40,6 +42,7 @@ type ServicesContainer struct {
 	haciendaAuthManager     appPorts.HaciendaAuthManager
 	signerManager           appPorts.SignerManager
 	dteManager              transmissionPorts.DTEManager
+	invalidationManager     invalidationManager.InvalidationManager
 	invoiceManager          invoiceInterfaces.InvoiceManager
 	ccfManager              ccfInterfaces.CCFManager
 	transmitterBatchManager batchPorts.BatchTransmitterPort
@@ -70,12 +73,12 @@ func (c *ServicesContainer) Initialize() error {
 	c.dteManager = transmission.NewDTEManager(c.repos.DTERepo())
 	c.invoiceManager = invoiceService.NewInvoiceService(c.repos.SequentialNumberRepo())
 	c.ccfManager = ccfService.NewCCFService(c.repos.SequentialNumberRepo())
+	c.invalidationManager = invalidationService.NewInvalidationManager(c.dteManager)
 
 	transmissionConf := models.NewTransmissionConfig(5*time.Second, 2*time.Minute, 2.0)
 	c.transmitterBatchManager = batch.NewBatchTransmitterService(
 		c.haciendaAuthManager,
 		c.signerManager,
-		c.dteManager,
 		c.repos.contingencyRepo,
 		transmissionConf,
 		&transmitter2.RealTimeProvider{},
@@ -110,6 +113,10 @@ func (c *ServicesContainer) Initialize() error {
 	})
 
 	return nil
+}
+
+func (c *ServicesContainer) InvalidationManager() invalidationManager.InvalidationManager {
+	return c.invalidationManager
 }
 
 func (c *ServicesContainer) ContingencyManager() interfaces.ContingencyManager {

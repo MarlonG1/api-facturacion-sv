@@ -36,12 +36,7 @@ func NewDTETypeForReceiver(value string) (*DTEType, error) {
 
 // IsValid válido si el valor es un string y es un tipo de documento electrónico válido
 func (t *DTEType) IsValid() bool {
-	for _, v := range constants.ValidDTETypes {
-		if t.Value == v {
-			return true
-		}
-	}
-	return false
+	return constants.ValidDTETypes[t.Value]
 }
 
 func (t *DTEType) IsForReception() bool {
