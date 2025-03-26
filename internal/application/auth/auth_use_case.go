@@ -5,6 +5,7 @@ import (
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/auth/models"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/core/user"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/ports"
+	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/shared_error"
 )
 
 type AuthUseCase struct {
@@ -51,7 +52,7 @@ func (a *AuthUseCase) Register(ctx context.Context, user *user.User) ([]user.Lis
 
 	//4. Crear el usuario en la base de datos
 	if err = a.authManager.Create(ctx, user); err != nil {
-		return nil, err
+		return nil, shared_error.NewGeneralServiceError("AuthUseCase", "Register", "failed to create user", err)
 	}
 
 	return user.ListBranches(), nil

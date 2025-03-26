@@ -173,6 +173,10 @@ func handleGormError(operation string, err error) error {
 			return shared_error.NewGeneralServiceError("AuthService", operation, "email already exists", nil)
 		}
 
+		if strings.Contains(errMsg, "phone") {
+			return shared_error.NewGeneralServiceError("AuthService", operation, "phone already exists", nil)
+		}
+
 		if strings.Contains(errMsg, "nrc") {
 			return shared_error.NewGeneralServiceError("AuthService", operation, "nrc already exists", nil)
 		}

@@ -197,9 +197,8 @@ func ValidateConfig() error {
 // validateServerFields valida los campos de la estructura Server
 func validateServerFields() error {
 	bt := map[string]bool{
-		"DEBUG":               true,
-		"FORCECONTINGENCY":    true,
-		"ENABLECREATEACTIONS": true,
+		"DEBUG":            true,
+		"FORCECONTINGENCY": true,
 	}
 	v := reflect.ValueOf(EnvConfig.Server)
 
