@@ -23,5 +23,6 @@ go.work
 # Output of go tooling
 .env
 .idea
+*.sh
 *.log
 scripts/temp/*
