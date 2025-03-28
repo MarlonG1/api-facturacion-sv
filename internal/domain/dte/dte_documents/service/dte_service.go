@@ -85,6 +85,7 @@ func (m *DTEManager) GetByGenerationCodeConsult(ctx context.Context, branchID ui
 		GenerationCode: dteDocument.Details.ID,
 		ControlNumber:  dteDocument.Details.ControlNumber,
 		Status:         dteDocument.Details.Status,
+		Transmission:   dteDocument.Details.Transmission,
 		ReceptionStamp: dteDocument.Details.ReceptionStamp,
 		JSONData:       jsonData,
 		CreatedAt:      dteDocument.CreatedAt.Format("2006-01-02 15:04:05"),

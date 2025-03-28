@@ -6,6 +6,7 @@ type DTEResponse struct {
 	ControlNumber  string                 `json:"control_number"`
 	GenerationCode string                 `json:"generation_code"`
 	ReceptionStamp *string                `json:"reception_stamp"`
+	Transmission   string                 `json:"transmission"`
 	Status         string                 `json:"status"`
 	CreatedAt      string                 `json:"created_at"`
 	UpdatedAt      string                 `json:"updated_at"`
