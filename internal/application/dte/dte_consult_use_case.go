@@ -28,7 +28,7 @@ func (u *DTEConsultUseCase) GetByGenerationCode(ctx context.Context, id string) 
 	claims := ctx.Value("claims").(*models.AuthClaims)
 
 	// 2. Consultar el documento por código de generación
-	dte, err := u.dteService.GetByGenerationCode(ctx, claims.BranchID, id)
+	dte, err := u.dteService.GetByGenerationCodeConsult(ctx, claims.BranchID, id)
 	if err != nil {
 		return nil, err
 	}
