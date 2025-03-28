@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/MarlonG1/api-facturacion-sv/internal/infrastructure/adapters/transmitter/hacienda_error"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/shared_error"
 	"net/http"
 	"strings"
@@ -85,7 +86,7 @@ func (w *ResponseWriter) HandleError(rw http.ResponseWriter, err error) {
 	}
 }
 
-// GenerateQRLink Genera un link para consultar la invoice en la página de la DGI
+// GenerateQRLink Genera un link para consultar la invoice en la página de la Hacienda
 func GenerateQRLink(ambiente, codGeneracion string, fechaEmision time.Time) string {
 	return fmt.Sprintf("https://admin.factura.gob.sv/consultaPublica?ambiente=%s&codGen=%s&fechaEmi=%s",
 		ambiente, codGeneracion, fechaEmision.Format("2006-01-02"))
@@ -119,6 +120,29 @@ func (w *ResponseWriter) handleValidationError(rw http.ResponseWriter, err error
 
 // handleBusinessError maneja los errores de negocio y envía una respuesta de error con el código de estado y el mensaje correspondiente.
 func (w *ResponseWriter) handleBusinessError(rw http.ResponseWriter, err error) {
+	var haciendaErr *hacienda_error.HaciendaResponseError
+	if errors.As(err, &haciendaErr) {
+		details := []string{
+			fmt.Sprintf("State: %s", haciendaErr.Status),
+			fmt.Sprintf("Processed at: %s", haciendaErr.ProcessedAt),
+		}
+
+		if len(haciendaErr.Observations) > 0 {
+			details = append(details, haciendaErr.Observations...)
+		}
+
+		rw.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(rw).Encode(APIResponse{
+			Success: false,
+			Error: &APIError{
+				Message: haciendaErr.Description,
+				Code:    fmt.Sprintf("HACIENDA_%s", haciendaErr.Code),
+				Details: details,
+			},
+		})
+		return
+	}
+
 	var svcErr *shared_error.ServiceError
 	if errors.As(err, &svcErr) {
 		var details []string
@@ -136,6 +160,20 @@ func (w *ResponseWriter) handleBusinessError(rw http.ResponseWriter, err error) 
 				Message: svcErr.Message,
 				Details: details,
 				Code:    fmt.Sprintf("BUSINESS_%s_ERROR", strings.ToUpper(svcErr.Type)),
+			},
+		})
+		return
+	}
+
+	var httpErr *hacienda_error.HTTPResponseError
+	if errors.As(err, &httpErr) {
+		rw.WriteHeader(httpErr.StatusCode)
+		json.NewEncoder(rw).Encode(APIResponse{
+			Success: false,
+			Error: &APIError{
+				Message: httpErr.Error(),
+				Details: []string{"Contingency mode is active in this environment you can't send Invalidation to Hacienda but the others processes are working fine"},
+				Code:    fmt.Sprintf("HACIENDA_%d", httpErr.StatusCode),
 			},
 		})
 		return
@@ -189,7 +227,7 @@ func getErrorType(err error) errorType {
 	switch err.(type) {
 	case *dte_errors.DTEError, *dte_errors.ValidationError:
 		return errorValidation
-	case *shared_error.ServiceError:
+	case *shared_error.ServiceError, *hacienda_error.HaciendaResponseError, *hacienda_error.HTTPResponseError:
 		return errorBusiness
 	default:
 		return errorSystem
