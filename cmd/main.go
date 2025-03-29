@@ -24,15 +24,18 @@ var (
 // main es la función principal de la aplicación que se encarga de inicializar los componentes necesarios para el
 // correcto funcionamiento de la aplicación.
 func main() {
+	// 0. Obtener el root path del proyecto
+	rootPath := utils.FindProjectRoot()
+
 	// 1. Inicializar la configuración del entorno
-	err := config.InitEnvConfig()
+	err := config.InitEnvConfig(rootPath)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 
 	// 2. Inicializar el logger
-	err = logs.InitLogger()
+	err = logs.InitLogger(config.Log.Level, config.Log.Path)
 	if err != nil {
 		fmt.Printf("Error initializing logger: %v\n", err)
 		return
@@ -65,7 +68,7 @@ func main() {
 	sv := server.Initialize(container)
 
 	// 6. Inicializar los jobs
-	err = setup.SetupJobs(container.Services().ContingencyManager())
+	err = setup.SetupJobs(container.Services().ContingencyManager(), config.Server.AmbientCode)
 	if err != nil {
 		logs.Error("Failed to setup jobs", map[string]interface{}{"error": err.Error()})
 		return

@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	errPackage "github.com/MarlonG1/api-facturacion-sv/config/error"
-	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/utils"
 	"github.com/spf13/viper"
 	"reflect"
 	"regexp"
@@ -123,11 +122,11 @@ var Signer *signer
 var MHPaths *mhPaths
 
 // InitEnvConfig inicializa la configuración del archivo .env
-func InitEnvConfig() error {
+func InitEnvConfig(rootPath string) error {
 	v := viper.New()
 	v.SetConfigName(".env")
 	v.SetConfigType("env")
-	v.AddConfigPath(utils.FindProjectRoot())
+	v.AddConfigPath(rootPath)
 	v.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 
 	if err := v.ReadInConfig(); err != nil {

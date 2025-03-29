@@ -103,11 +103,6 @@ func (s *BatchTransmitterService) TransmitBatch(
 		Documents: signedDocs,
 	}
 
-	jsonData, _ := json.Marshal(batch)
-	logs.Debug("BATCH REQUEST: ", map[string]interface{}{
-		"data": string(jsonData),
-	})
-
 	haciendaToken, err := s.getHaciendaTokenWithRetry(ctx, token, creds)
 	if err != nil {
 		return nil, "", shared_error.NewGeneralServiceError("BatchTransmitterService", "TransmitBatch", "failed to get hacienda token", err)

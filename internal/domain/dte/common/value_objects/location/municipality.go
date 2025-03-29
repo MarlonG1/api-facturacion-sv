@@ -5,7 +5,6 @@ import (
 
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/dte_errors"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/interfaces"
-	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/logs"
 )
 
 type Municipality struct {
@@ -36,11 +35,6 @@ func NewValidatedMunicipality(value string, department string) *Municipality {
 func (m *Municipality) IsValid() bool {
 	pattern := m.getMunicipalityPattern()
 	matched, _ := regexp.MatchString(pattern, m.Value)
-	logs.Debug("Municipality VO", map[string]interface{}{
-		"pattern":      pattern,
-		"municipality": m.Value,
-		"matched":      matched,
-	})
 	return matched
 }
 
