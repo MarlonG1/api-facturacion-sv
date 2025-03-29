@@ -79,8 +79,6 @@ func (s *AuthManager) Login(ctx context.Context, credentials *models.AuthCredent
 		return "", err
 	}
 
-	logs.Debug("TOKEN", map[string]interface{}{"DURATION": tokenLifetime.String()})
-
 	//6. Guardar credenciales en cache
 	if err = s.cacheService.SetCredentials(token, credentials.MHCredentials, tokenLifetime); err != nil {
 		return "", err
