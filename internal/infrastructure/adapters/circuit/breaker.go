@@ -42,9 +42,6 @@ func (cb *CircuitBreaker) AllowRequest() bool {
 			cb.state = constants.StateHalfOpen
 			return true
 		}
-		logs.Debug("Circuit breaker is open, blocking request", map[string]interface{}{
-			"remainingTime": cb.resetTime - time.Since(cb.lastFailure),
-		})
 		return false
 	case constants.StateHalfOpen:
 		return true

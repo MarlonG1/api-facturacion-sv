@@ -71,9 +71,7 @@ func (a *Amount) GetValue() float64 {
 		return 0
 	}
 
-	dec := decimal.NewFromFloat(a.Value)
-	val, _ := dec.Round(2).Float64()
-	return val
+	return a.Value
 }
 
 func (a *Amount) ToString() string {
