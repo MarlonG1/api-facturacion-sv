@@ -46,7 +46,8 @@ func (s *PaymentTotalStrategy) Validate() *dte_errors.DTEError {
 	operationTotal := decimal.NewFromFloat(s.Document.GetSummary().GetTotalToPay())
 
 	// Validar que el total de pagos sea igual al total de operaciones
-	if !paymentsTotal.Equal(operationTotal) {
+	diff := operationTotal.Sub(paymentsTotal)
+	if diff.Abs().GreaterThan(decimal.NewFromFloat(0.01)) {
 		return dte_errors.NewDTEErrorSimple("InvalidPaymentTotal",
 			paymentsTotal.InexactFloat64(), operationTotal.InexactFloat64())
 	}
