@@ -61,7 +61,10 @@ func (s *DTESigner) SignDTE(ctx context.Context, dte json.RawMessage, nit string
 		DteJson:     dte,
 	}
 
-	logs.Debug("DTE", map[string]interface{}{"dte": string(dte)})
+	logs.Debug("Signing request", map[string]interface{}{
+		"nit":     nit,
+		"DteJson": string(dte),
+	})
 
 	jsonData, err := json.Marshal(req)
 	if err != nil {

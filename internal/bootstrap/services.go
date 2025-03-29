@@ -33,7 +33,6 @@ import (
 	"github.com/MarlonG1/api-facturacion-sv/internal/infrastructure/adapters/tokens"
 	"github.com/MarlonG1/api-facturacion-sv/internal/infrastructure/adapters/transmitter"
 	"github.com/MarlonG1/api-facturacion-sv/internal/infrastructure/adapters/transmitter/batch"
-	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/logs"
 	"time"
 )
 
@@ -124,10 +123,6 @@ func (c *ServicesContainer) Initialize() error {
 		&transmitter2.RealTimeProvider{},
 		transmissionConf,
 	)
-
-	logs.Debug("ServicesContainer initialized", map[string]interface{}{
-		"cacheManager": c.cacheManager == nil,
-	})
 
 	return nil
 }

@@ -2,7 +2,6 @@ package setup
 
 import (
 	"fmt"
-	"github.com/MarlonG1/api-facturacion-sv/config"
 	"github.com/go-co-op/gocron"
 	"time"
 
@@ -19,13 +18,13 @@ type JobConfig struct {
 	Environment string
 }
 
-func SetupJobs(contingencyService interfaces.ContingencyManager) error {
+func SetupJobs(contingencyService interfaces.ContingencyManager, ambientCode string) error {
 	scheduler := gocron.NewScheduler(time.UTC)
 	job := jobs.NewRetransmissionJob(contingencyService)
 
 	// Configuración segun ambiente
 	var jobConfig JobConfig
-	if config.Server.AmbientCode == "01" {
+	if ambientCode == "01" {
 		jobConfig = JobConfig{
 			StartTime:   "22:00",
 			EndTime:     "05:00",

@@ -2,6 +2,7 @@ package constants
 
 import (
 	"fmt"
+	"github.com/MarlonG1/api-facturacion-sv/config"
 	"reflect"
 	"strings"
 )
@@ -191,9 +192,9 @@ func GetErrorMessage(errorCode string, params ...interface{}) string {
 	message = fmt.Sprintf(template, params...)
 
 	// Si el modo debug está activado, se muestra el código de error
-	//if config.Server.Debug {
-	//	return fmt.Sprintf("[%s] %s", errorCode, message)
-	//}
+	if config.Server.Debug {
+		return fmt.Sprintf("[%s] %s", errorCode, message)
+	}
 
 	return message
 }
