@@ -2,6 +2,7 @@ package setup
 
 import (
 	"fmt"
+	"github.com/MarlonG1/api-facturacion-sv/config/drivers"
 	"github.com/go-co-op/gocron"
 	"time"
 
@@ -18,9 +19,9 @@ type JobConfig struct {
 	Environment string
 }
 
-func SetupJobs(contingencyService interfaces.ContingencyManager, ambientCode string) error {
+func SetupJobs(contingencyService interfaces.ContingencyManager, ambientCode string, connection *drivers.DbConnection) error {
 	scheduler := gocron.NewScheduler(time.UTC)
-	job := jobs.NewRetransmissionJob(contingencyService)
+	job := jobs.NewRetransmissionJob(contingencyService, connection)
 
 	// Configuración segun ambiente
 	var jobConfig JobConfig
