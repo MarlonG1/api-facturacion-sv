@@ -3,6 +3,7 @@ package jobs
 import (
 	"context"
 	"errors"
+	"github.com/MarlonG1/api-facturacion-sv/config/drivers"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/contingency/interfaces"
 	"sync/atomic"
 	"time"
@@ -12,13 +13,15 @@ import (
 )
 
 type RetransmissionJob struct {
+	connection         *drivers.DbConnection
 	ContingencyService interfaces.ContingencyManager
 	IsRunning          atomic.Bool
 	MaxExecutionTime   time.Duration
 }
 
-func NewRetransmissionJob(contingencyService interfaces.ContingencyManager) *RetransmissionJob {
+func NewRetransmissionJob(contingencyService interfaces.ContingencyManager, connection *drivers.DbConnection) *RetransmissionJob {
 	return &RetransmissionJob{
+		connection:         connection,
 		ContingencyService: contingencyService,
 		MaxExecutionTime:   10 * time.Minute,
 	}
@@ -40,6 +43,15 @@ func (j *RetransmissionJob) Execute() {
 		"MaxExecutionTime": j.MaxExecutionTime,
 		"timestamp":        utils.TimeNow().Format(time.RFC3339),
 	})
+
+	sqlDb, err := j.connection.Db.DB()
+	if err != nil {
+		logs.Error("Error connecting to database", map[string]interface{}{
+			"error": err.Error(),
+		})
+		return
+	}
+	sqlDb.Ping()
 
 	if err := j.ContingencyService.RetransmitPendingDocuments(ctx); err != nil {
 		j.handleExecutionError(err)
