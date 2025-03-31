@@ -83,11 +83,11 @@ func getDocumentNumberError(documentNumber, documentType *string) *dte_errors.DT
 	switch *documentType {
 	case constants.NIT:
 		if !nitRegex.MatchString(*documentNumber) {
-			return dte_errors.NewDTEErrorSimple("InvalidNITFormat", documentNumber)
+			return dte_errors.NewDTEErrorSimple("InvalidNITFormat", *documentNumber)
 		}
 	case constants.DUI:
 		if !duiRegex.MatchString(*documentNumber) {
-			return dte_errors.NewDTEErrorSimple("InvalidDUIFormat", documentNumber)
+			return dte_errors.NewDTEErrorSimple("InvalidDUIFormat", *documentNumber)
 		}
 	}
 
