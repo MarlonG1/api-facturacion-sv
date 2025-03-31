@@ -25,13 +25,20 @@
 x-app-environment: &app-environment
   # Configuración de la aplicación
   APP_NAME: DTE-Microservice
+
   DEBUG: true
   FORCE_CONTINGENCY: false
+
   SERVER_PORT: 7319
+  ADMIN_EMAIL: example@example.com
+  MH_AMBIENT_CODE: "00"
+  MH_MAX_BATCH_SIZE: 100
+  JWT_SECRET: TU-SECRET # Cambiar por tu cadena secreta
+
   LOG_LEVEL: debug
   LOG_PATH: /pkg/shared/logs/
   LOG_FILE_LOGGING: true
-  JWT_SECRET: TU-SECRET # Cambiar por tu cadena secreta
+
 
   # Configuración de bases de datos
   DB_DRIVER: mysql #mysql o postgres
@@ -52,8 +59,6 @@ x-app-environment: &app-environment
   SIGNER_HEALTH: http://signer:8113/firmardocumento/status
 
   # Configuración de servicios de Hacienda
-  MH_AMBIENT_CODE: "00"
-  MH_MAX_BATCH_SIZE: 100
   MH_AUTH_URL: https://apitest.dtes.mh.gob.sv/seguridad/auth
   MH_RECEPTION_URL: https://apitest.dtes.mh.gob.sv/fesv/recepciondte
   MH_LOTE_RECEPTION_URL: https://apitest.dtes.mh.gob.sv/fesv/recepcionlote/

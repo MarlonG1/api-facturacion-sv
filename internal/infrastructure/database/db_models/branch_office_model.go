@@ -15,7 +15,7 @@ type BranchOffice struct {
 	ID                  uint    `gorm:"column:id;type:uint;primaryKey;autoIncrement;not null"`
 	UserID              uint    `gorm:"column:user_id;type:uint;not null;index:idx_branch_offices_user"`
 	EstablishmentCode   *string `gorm:"column:establishment_code;type:varchar(10)"`
-	EstablishmentCodeMH *string `gorm:"column:establishment_code;type:varchar(4)"`
+	EstablishmentCodeMH *string `gorm:"column:establishment_code_mh;type:varchar(4)"`
 	Email               *string `gorm:"column:email;type:varchar(255)"`
 	APIKey              string  `gorm:"column:api_key;type:varchar(255);not null;uniqueIndex"`
 	APISecret           string  `gorm:"column:api_secret;type:varchar(255);not null"`
