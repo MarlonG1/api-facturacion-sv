@@ -1,6 +1,7 @@
 package bootstrap
 
 import (
+	"github.com/MarlonG1/api-facturacion-sv/config/drivers"
 	contiPorts "github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/contingency/ports"
 	dtePorts "github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/dte_documents/ports"
 	appPorts "github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/ports"
@@ -10,7 +11,8 @@ import (
 )
 
 type RepositoryContainer struct {
-	db *gorm.DB
+	connection *drivers.DbConnection
+	db         *gorm.DB
 
 	authRepo             ports.AuthRepositoryPort
 	sequentialNumberRepo appPorts.SequentialNumberRepositoryPort
@@ -18,9 +20,10 @@ type RepositoryContainer struct {
 	contingencyRepo      contiPorts.ContingencyRepositoryPort
 }
 
-func NewRepositoryContainer(db *gorm.DB) *RepositoryContainer {
+func NewRepositoryContainer(connection *drivers.DbConnection) *RepositoryContainer {
 	return &RepositoryContainer{
-		db: db,
+		connection: connection,
+		db:         connection.Db,
 	}
 }
 

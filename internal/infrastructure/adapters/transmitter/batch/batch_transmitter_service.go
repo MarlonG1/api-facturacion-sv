@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/MarlonG1/api-facturacion-sv/config"
+	"github.com/MarlonG1/api-facturacion-sv/config/drivers"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/contingency/ports"
 	"io"
 	"net"
@@ -38,6 +39,7 @@ type BatchTransmitterService struct {
 	config          *models.TransmissionConfig
 	httpClient      *http.Client
 	circuitBreaker  *circuit.CircuitBreaker
+	connection      *drivers.DbConnection
 }
 
 // NewBatchTransmitterService constructor para BatchTransmitterService
@@ -47,6 +49,7 @@ func NewBatchTransmitterService(
 	contingencyRepo ports.ContingencyRepositoryPort,
 	config *models.TransmissionConfig,
 	timeProvider ports2.TimeProvider,
+	connection *drivers.DbConnection,
 ) batchPorts.BatchTransmitterPort {
 	return &BatchTransmitterService{
 		haciendaAuth:    haciendaAuth,
@@ -54,6 +57,7 @@ func NewBatchTransmitterService(
 		contingencyRepo: contingencyRepo,
 		config:          config,
 		timeProvider:    timeProvider,
+		connection:      connection,
 		httpClient: &http.Client{
 			Timeout: 30 * time.Second,
 			Transport: &http.Transport{
@@ -280,6 +284,12 @@ func (s *BatchTransmitterService) VerifyContingencyBatchStatus(
 				}
 				continue
 			}
+
+			sqlDb, err := s.connection.Db.DB()
+			if err != nil {
+				return shared_error.NewGeneralServiceError("ContingencyEventService", "PrepareAndSendContingencyEvent", "failed to get sql db", err)
+			}
+			sqlDb.Ping()
 
 			// Procesar documentos procesados
 			if len(status.Processed) > 0 {

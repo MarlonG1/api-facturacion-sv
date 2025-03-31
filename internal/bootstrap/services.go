@@ -98,6 +98,7 @@ func (c *ServicesContainer) Initialize() error {
 		c.repos.contingencyRepo,
 		transmissionConf,
 		&transmitter2.RealTimeProvider{},
+		c.repos.connection,
 	)
 
 	c.contingencyEventManager = contingency.NewContingencyEventService(
@@ -108,6 +109,7 @@ func (c *ServicesContainer) Initialize() error {
 		c.signerManager,
 		c.repos.ContingencyRepo(),
 		&transmitter2.RealTimeProvider{},
+		c.repos.connection,
 	)
 
 	c.contingencyManager = service2.NewContingencyManager(
