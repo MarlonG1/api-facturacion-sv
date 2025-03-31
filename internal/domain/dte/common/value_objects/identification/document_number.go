@@ -3,6 +3,7 @@ package identification
 import (
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/dte_errors"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/interfaces"
+	"strings"
 )
 
 // DocumentNumber representa el número de documento de identificación, un atributo opcional de un receptor
@@ -11,6 +12,11 @@ type DocumentNumber struct {
 }
 
 func NewDocumentNumber(value string) (*DocumentNumber, error) {
+	//En caso de que el numero de doc tenga guiones, se eliminan para validar el patrón
+	if strings.Contains(value, "-") {
+		value = strings.ReplaceAll(value, "-", "")
+	}
+
 	documentNumber := &DocumentNumber{Value: value}
 	if documentNumber.IsValid() {
 		return documentNumber, nil
