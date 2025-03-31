@@ -80,7 +80,9 @@ func (s *testService) testDatabase() models.ComponentTest {
 			"error": err.Error(),
 		})
 		test.Success = false
-	} else if err := sqlDB.Ping(); err != nil {
+	}
+
+	if err := sqlDB.Ping(); err != nil {
 		logs.Error("Database ping test failed", map[string]interface{}{
 			"error": err.Error(),
 		})

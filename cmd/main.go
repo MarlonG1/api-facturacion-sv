@@ -7,10 +7,10 @@ import (
 	"github.com/MarlonG1/api-facturacion-sv/config/drivers"
 	"github.com/MarlonG1/api-facturacion-sv/internal/bootstrap"
 	"github.com/MarlonG1/api-facturacion-sv/internal/infrastructure/api/server"
+	"github.com/MarlonG1/api-facturacion-sv/internal/infrastructure/database"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/utils"
 
 	errPackage "github.com/MarlonG1/api-facturacion-sv/config/error"
-	"github.com/MarlonG1/api-facturacion-sv/internal/infrastructure/database"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/logs"
 )
 
@@ -57,7 +57,7 @@ func main() {
 	}
 
 	// 4. Inicializar el contenedor de dependencias
-	container := bootstrap.NewContainer(dbConnection.Db)
+	container := bootstrap.NewContainer(dbConnection)
 	err = container.Initialize()
 	if err != nil {
 		logs.Error("Failed to initialize container", map[string]interface{}{"error": err.Error()})

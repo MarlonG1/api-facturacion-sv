@@ -1,12 +1,12 @@
 package bootstrap
 
 import (
-	"gorm.io/gorm"
+	"github.com/MarlonG1/api-facturacion-sv/config/drivers"
 	"sync"
 )
 
 type Container struct {
-	db           *gorm.DB
+	connection   *drivers.DbConnection
 	repositories *RepositoryContainer
 	services     *ServicesContainer
 	useCases     *UseCaseContainer
@@ -15,9 +15,9 @@ type Container struct {
 	mu           sync.RWMutex
 }
 
-func NewContainer(db *gorm.DB) *Container {
+func NewContainer(connection *drivers.DbConnection) *Container {
 	return &Container{
-		db: db,
+		connection: connection,
 	}
 }
 
@@ -27,7 +27,7 @@ func (c *Container) Initialize() error {
 	defer c.mu.Unlock()
 
 	// Inicializar containers en orden de dependencia
-	c.repositories = NewRepositoryContainer(c.db)
+	c.repositories = NewRepositoryContainer(c.connection.Db)
 	c.repositories.Initialize()
 
 	c.services = NewServicesContainer(c.repositories)
@@ -38,7 +38,7 @@ func (c *Container) Initialize() error {
 	c.useCases = NewUseCaseContainer(c.services)
 	c.useCases.Initialize()
 
-	c.middleware = NewMiddlewareContainer(c.services)
+	c.middleware = NewMiddlewareContainer(c.services, c.connection)
 	c.middleware.Initialize()
 
 	c.handlers = NewHandlerContainer(c.useCases, c.services)
