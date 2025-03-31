@@ -36,9 +36,10 @@ func (s *Server) ConfigureRoutes() {
 	// Configurar rutas públicas y protegidas
 	public := s.router.PathPrefix(s.publicPath).Subrouter()
 	protected := s.router.PathPrefix(s.privatePath).Subrouter()
-
-	s.configurePublicRoutes(public)
 	s.configureProtectedMiddlewares(protected)
+
+	s.router.Use(s.container.Middleware().DBConnectionMiddleware().Handler)
+	s.configurePublicRoutes(public)
 	s.configureProtectedRoutes(protected)
 
 	logs.Info("Routes configured successfully", map[string]interface{}{
