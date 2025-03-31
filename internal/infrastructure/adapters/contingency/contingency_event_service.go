@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/MarlonG1/api-facturacion-sv/config"
+	"github.com/MarlonG1/api-facturacion-sv/config/drivers"
 	ports2 "github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/ports"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/shared_error"
 	"github.com/golang-jwt/jwt"
@@ -37,6 +38,7 @@ type ContingencyEventService struct {
 	repo         ports.ContingencyRepositoryPort
 	timeProvider ports2.TimeProvider
 	httpClient   *http.Client
+	connection   *drivers.DbConnection
 }
 
 // HaciendaContingencyRequest estructura para la petición de contingencia a Hacienda
@@ -54,6 +56,7 @@ func NewContingencyEventService(
 	signer haciendaPorts.SignerManager,
 	repo ports.ContingencyRepositoryPort,
 	timeProvider ports2.TimeProvider,
+	connection *drivers.DbConnection,
 ) *ContingencyEventService {
 	return &ContingencyEventService{
 		authManager:  authManager,
@@ -63,6 +66,7 @@ func NewContingencyEventService(
 		signer:       signer,
 		repo:         repo,
 		timeProvider: timeProvider,
+		connection:   connection,
 		httpClient: &http.Client{
 			Timeout: 30 * time.Second,
 			Transport: &http.Transport{
@@ -76,6 +80,12 @@ func NewContingencyEventService(
 
 // PrepareAndSendContingencyEvent prepara y envía un evento de contingencia
 func (s *ContingencyEventService) PrepareAndSendContingencyEvent(ctx context.Context, docs []dte.ContingencyDocument) error {
+	sqlDb, err := s.connection.Db.DB()
+	if err != nil {
+		return shared_error.NewGeneralServiceError("ContingencyEventService", "PrepareAndSendContingencyEvent", "failed to get sql db", err)
+	}
+	sqlDb.Ping()
+
 	client, err := s.authManager.GetIssuer(ctx, docs[0].BranchID)
 	if err != nil {
 		return shared_error.NewGeneralServiceError("ContingencyEventService", "PrepareAndSendContingencyEvent", "failed to get issuer info", err)

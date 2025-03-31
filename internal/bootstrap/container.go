@@ -27,7 +27,7 @@ func (c *Container) Initialize() error {
 	defer c.mu.Unlock()
 
 	// Inicializar containers en orden de dependencia
-	c.repositories = NewRepositoryContainer(c.connection.Db)
+	c.repositories = NewRepositoryContainer(c.connection)
 	c.repositories.Initialize()
 
 	c.services = NewServicesContainer(c.repositories)

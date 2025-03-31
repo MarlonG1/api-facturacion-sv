@@ -68,7 +68,7 @@ func main() {
 	sv := server.Initialize(container)
 
 	// 6. Inicializar los jobs
-	err = setup.SetupJobs(container.Services().ContingencyManager(), config.Server.AmbientCode)
+	err = setup.SetupJobs(container.Services().ContingencyManager(), config.Server.AmbientCode, dbConnection)
 	if err != nil {
 		logs.Error("Failed to setup jobs", map[string]interface{}{"error": err.Error()})
 		return
