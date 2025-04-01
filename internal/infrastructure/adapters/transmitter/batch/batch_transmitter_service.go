@@ -12,7 +12,6 @@ import (
 	"io"
 	"net"
 	"net/http"
-	"strconv"
 	"strings"
 	"time"
 
@@ -33,15 +32,14 @@ import (
 
 // BatchTransmitterService implementa la lógica de transmisión de lotes a Hacienda
 type BatchTransmitterService struct {
-	haciendaAuth       authPorts.HaciendaAuthManager
-	signer             authPorts.SignerManager
-	contingencyRepo    ports.ContingencyRepositoryPort
-	failedSequenceRepo ports2.FailedSequenceNumberRepositoryPort
-	timeProvider       ports2.TimeProvider
-	config             *models.TransmissionConfig
-	httpClient         *http.Client
-	circuitBreaker     *circuit.CircuitBreaker
-	connection         *drivers.DbConnection
+	haciendaAuth    authPorts.HaciendaAuthManager
+	signer          authPorts.SignerManager
+	contingencyRepo ports.ContingencyRepositoryPort
+	timeProvider    ports2.TimeProvider
+	config          *models.TransmissionConfig
+	httpClient      *http.Client
+	circuitBreaker  *circuit.CircuitBreaker
+	connection      *drivers.DbConnection
 }
 
 // NewBatchTransmitterService constructor para BatchTransmitterService
@@ -49,19 +47,17 @@ func NewBatchTransmitterService(
 	haciendaAuth authPorts.HaciendaAuthManager,
 	signer authPorts.SignerManager,
 	contingencyRepo ports.ContingencyRepositoryPort,
-	failedSequenceRepo ports2.FailedSequenceNumberRepositoryPort,
 	config *models.TransmissionConfig,
 	timeProvider ports2.TimeProvider,
 	connection *drivers.DbConnection,
 ) batchPorts.BatchTransmitterPort {
 	return &BatchTransmitterService{
-		haciendaAuth:       haciendaAuth,
-		signer:             signer,
-		contingencyRepo:    contingencyRepo,
-		failedSequenceRepo: failedSequenceRepo,
-		config:             config,
-		timeProvider:       timeProvider,
-		connection:         connection,
+		haciendaAuth:    haciendaAuth,
+		signer:          signer,
+		contingencyRepo: contingencyRepo,
+		config:          config,
+		timeProvider:    timeProvider,
+		connection:      connection,
 		httpClient: &http.Client{
 			Timeout: 30 * time.Second,
 			Transport: &http.Transport{
@@ -344,7 +340,6 @@ func (s *BatchTransmitterService) VerifyContingencyBatchStatus(
 						})
 						rejectedIDs = append(rejectedIDs, doc.ID)
 						rejectedObservations = append(rejectedObservations, rejected.DescriptionMessage)
-						s.registerDocumentRejected(ctx, rejected, doc, mhBatchID, branchID)
 					}
 				}
 
@@ -510,107 +505,4 @@ func (s *BatchTransmitterService) sleep(attempt int) {
 		backoff = retryPolicy.MaxInterval
 	}
 	s.timeProvider.Sleep(backoff)
-}
-
-// registerDocumentRejected registra un documento rechazado como secuencia fallida
-func (s *BatchTransmitterService) registerDocumentRejected(
-	ctx context.Context,
-	rejected models.HaciendaResponse,
-	doc dte.ContingencyDocument,
-	mhBatchID string,
-	branchID uint,
-) {
-
-	dteType := doc.Document.DTEType
-
-	// Extraer el número de secuencia del número de control (correlativo)
-	sequenceNumber := uint(0)
-	if doc.Document != nil && doc.Document.ControlNumber != "" {
-		sequenceNumber = s.extractSequenceNumber(doc.Document.ControlNumber)
-	}
-
-	currentYear := uint(utils.TimeNow().Year())
-
-	// Crear objeto de error para registro
-	errorResponse := map[string]interface{}{
-		"status":      constants.DocumentRejected,
-		"code":        rejected.MessageCode,
-		"description": rejected.DescriptionMessage,
-		"observations": map[string]interface{}{
-			"mhBatchID":    mhBatchID,
-			"observations": rejected.Observations,
-		},
-		"processedAt": rejected.ProcessingDate,
-	}
-
-	// Convertir a JSON para almacenamiento
-	mhResponseJSON, jsonErr := json.Marshal(errorResponse)
-	if jsonErr != nil {
-		logs.Error("Failed to marshal error response", map[string]interface{}{
-			"error": jsonErr.Error(),
-		})
-		return
-	}
-	mhResponse := string(mhResponseJSON)
-
-	// Convertir el dte original a Map[string]interface{}
-	var originalDTE map[string]interface{}
-	if doc.Document != nil && doc.Document.JSONData != "" {
-		if err := json.Unmarshal([]byte(doc.Document.JSONData), &originalDTE); err != nil {
-			logs.Error("Error al convertir documento original a mapa", map[string]interface{}{
-				"error": err.Error(),
-				"docID": doc.ID,
-			})
-		}
-	}
-	// Registrar secuencia fallida
-	registrationErr := s.failedSequenceRepo.RegisterFailedSequence(
-		ctx,
-		branchID,
-		dteType,
-		sequenceNumber,
-		currentYear,
-		rejected.DescriptionMessage,
-		rejected.MessageCode,
-		originalDTE,
-		mhResponse,
-	)
-
-	if registrationErr != nil {
-		logs.Error("Failed to register failed sequence", map[string]interface{}{
-			"error":       registrationErr.Error(),
-			"documentID":  doc.ID,
-			"branchID":    branchID,
-			"dteType":     dteType,
-			"messageCode": rejected.MessageCode,
-		})
-	} else {
-		logs.Info("Document rejected registered successfully", map[string]interface{}{
-			"documentID":  doc.ID,
-			"branchID":    branchID,
-			"dteType":     dteType,
-			"messageCode": rejected.MessageCode,
-			"sequence":    sequenceNumber,
-		})
-	}
-}
-
-func (s *BatchTransmitterService) extractSequenceNumber(controlNumber string) uint {
-	parts := strings.Split(controlNumber, "-")
-	if len(parts) != 4 {
-		return 0
-	}
-
-	lastPart := parts[3]
-	sequenceNum, err := strconv.ParseUint(lastPart, 10, 32)
-	if err != nil {
-		logs.Error("Failed to parse sequence number", map[string]interface{}{
-			"controlNumber": controlNumber,
-			"lastPart":      lastPart,
-			"error":         err.Error(),
-		})
-		return 0
-	}
-
-	return uint(sequenceNum)
 }
