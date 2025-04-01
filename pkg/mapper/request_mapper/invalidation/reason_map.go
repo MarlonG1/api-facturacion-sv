@@ -27,12 +27,12 @@ func MapInvalidationReasonRequest(reason *structs.ReasonRequest) (*models.Invali
 	responsibleName := reason.ResponsibleName
 	requestorName := reason.RequestorName
 
-	responsibleDocNum, err := identification.NewDocumentNumber(reason.ResponsibleNumDoc)
+	responsibleDocNum, err := identification.NewDocumentNumber(reason.ResponsibleNumDoc, reason.ResponsibleDocType)
 	if err != nil {
 		return nil, shared_error.NewGeneralServiceError("InvalidationMapper", "MapToInvalidationDocument", "Error creating responsible document number", err)
 	}
 
-	requestorDocNum, err := identification.NewDocumentNumber(reason.RequestorNumDoc)
+	requestorDocNum, err := identification.NewDocumentNumber(reason.RequestorNumDoc, reason.RequestorDocType)
 	if err != nil {
 		return nil, shared_error.NewGeneralServiceError("InvalidationMapper", "MapToInvalidationDocument", "Error creating requester document number", err)
 	}

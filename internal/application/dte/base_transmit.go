@@ -52,7 +52,7 @@ func (bt *BaseTransmitter) RetryTransmission(ctx context.Context, document inter
 	logs.Info("First attempt to transmit document")
 	// 1. Primer intento de transmisión
 	result, err := bt.transmitter.Transmit(ctx, document, signedDoc, token)
-	if err == nil && result.Status == "PROCESADO" {
+	if err == nil && result.Status == ReceivedStatus {
 		logs.Info("Document received on first attempt")
 		return result, nil
 	}
