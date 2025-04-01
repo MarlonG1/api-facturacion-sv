@@ -8,6 +8,7 @@ const (
 )
 
 var (
+	// AllowedAssociatedDocumentCodes contiene los tipos de documentos asociados permitidos, usado para validaciones
 	AllowedAssociatedDocumentCodes = []int{
 		DocumentoEmisor,
 		DocumentoReceptor,
