@@ -106,11 +106,13 @@ func initDatabaseConfigurations() (*drivers.DbConnection, error) {
 		return nil, err
 	}
 
-	// 4. Iniciar migraciones
-	err := database.RunMigrations(dbConnection.Db)
-	if err != nil {
-		logs.Fatal("Failed to run migrations", map[string]interface{}{"error": err.Error()})
-		return nil, err
+	// 4. Iniciar migraciones solo si asi esta definido en la configuracion
+	if config.Server.RunMigration {
+		err := database.RunMigrations(dbConnection.Db)
+		if err != nil {
+			logs.Fatal("Failed to run migrations", map[string]interface{}{"error": err.Error()})
+			return nil, err
+		}
 	}
 
 	return dbConnection, nil
