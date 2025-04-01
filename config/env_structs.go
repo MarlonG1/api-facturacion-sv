@@ -17,6 +17,7 @@ type server struct {
 	JWTSecret        string `map-structure:"JWT_SECRET"`
 	AmbientCode      string `map-structure:"MH_AMBIENT_CODE"`
 	Debug            bool   `map-structure:"DEBUG"`
+	RunMigration     bool   `map-structure:"RUN_MIGRATION"`
 	AdminEmail       string `map-structure:"ADMIN_EMAIL"`
 	ForceContingency bool   `map-structure:"FORCE_CONTINGENCY"`
 }
