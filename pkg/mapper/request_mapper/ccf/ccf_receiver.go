@@ -31,7 +31,7 @@ func MapCCFRequestReceiver(receiver *structs.ReceiverRequest) (*models.Receiver,
 
 	docNumber := identification.NewValidatedDocumentNumber("")
 	if receiver.DocumentNumber != nil {
-		docNumber, err = identification.NewDocumentNumber(*receiver.DocumentNumber)
+		docNumber, err = identification.NewDocumentNumber(*receiver.DocumentNumber, *receiver.DocumentType)
 		if err != nil {
 			return nil, err
 		}
