@@ -96,7 +96,6 @@ func (c *ServicesContainer) Initialize() error {
 		c.haciendaAuthManager,
 		c.signerManager,
 		c.repos.ContingencyRepo(),
-		c.repos.FailedSequentialNumberRepo(),
 		transmissionConf,
 		&transmitter2.RealTimeProvider{},
 		c.repos.connection,
