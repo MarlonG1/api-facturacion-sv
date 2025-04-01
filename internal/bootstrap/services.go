@@ -78,7 +78,7 @@ func (c *ServicesContainer) Initialize() error {
 	c.authManager = service.NewAuthService(c.tokenManager, c.repos.AuthRepo(), c.cacheManager)
 	c.signerManager = signer.NewDTESigner(c.repos.AuthRepo())
 	c.haciendaAuthManager = signing.NewHaciendaAuthService(c.cacheManager, c.authManager)
-	c.transmitterManager = transmitter.NewMHTransmitter(c.haciendaAuthManager)
+	c.transmitterManager = transmitter.NewMHTransmitter(c.haciendaAuthManager, c.repos.FailedSequentialNumberRepo())
 	c.dteManager = transmission.NewDTEManager(c.repos.DTERepo())
 	c.sequentialManager = transmission.NewSequentialNumberManager(c.repos.SequentialNumberRepo(), c.repos.AuthRepo())
 	c.invoiceManager = invoiceService.NewInvoiceService(c.sequentialManager)
@@ -95,7 +95,8 @@ func (c *ServicesContainer) Initialize() error {
 	c.transmitterBatchManager = batch.NewBatchTransmitterService(
 		c.haciendaAuthManager,
 		c.signerManager,
-		c.repos.contingencyRepo,
+		c.repos.ContingencyRepo(),
+		c.repos.FailedSequentialNumberRepo(),
 		transmissionConf,
 		&transmitter2.RealTimeProvider{},
 		c.repos.connection,
