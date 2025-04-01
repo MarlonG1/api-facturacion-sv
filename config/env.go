@@ -198,6 +198,7 @@ func validateServerFields() error {
 	bt := map[string]bool{
 		"DEBUG":            true,
 		"FORCECONTINGENCY": true,
+		"RUNMIGRATION":     true,
 	}
 	v := reflect.ValueOf(EnvConfig.Server)
 

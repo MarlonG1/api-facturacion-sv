@@ -4,13 +4,17 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/MarlonG1/api-facturacion-sv/config"
 	"github.com/MarlonG1/api-facturacion-sv/internal/application/ports"
+	"github.com/MarlonG1/api-facturacion-sv/internal/domain/auth/models"
+	ports2 "github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/ports"
 	models2 "github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/transmitter/models"
 	"github.com/MarlonG1/api-facturacion-sv/internal/infrastructure/adapters/transmitter/hacienda_error"
 	"github.com/MarlonG1/api-facturacion-sv/internal/infrastructure/adapters/transmitter/processors"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/logs"
+	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/utils"
 	"io/ioutil"
 	"net/http"
 	"time"
@@ -23,15 +27,17 @@ type HaciendaConsultRequest struct {
 }
 
 type MHTransmitter struct {
-	HaciendaToken string
-	haciendaAuth  ports.HaciendaAuthManager
-	httpClient    *http.Client
-	processors    map[string]DocumentProcessor
+	HaciendaToken      string
+	haciendaAuth       ports.HaciendaAuthManager
+	failedSequenceRepo ports2.FailedSequenceNumberRepositoryPort
+	httpClient         *http.Client
+	processors         map[string]DocumentProcessor
 }
 
-func NewMHTransmitter(haciendaAuth ports.HaciendaAuthManager) ports.DTETransmitter {
+func NewMHTransmitter(haciendaAuth ports.HaciendaAuthManager, failedSequenceRepo ports2.FailedSequenceNumberRepositoryPort) ports.DTETransmitter {
 	t := &MHTransmitter{
-		haciendaAuth: haciendaAuth,
+		haciendaAuth:       haciendaAuth,
+		failedSequenceRepo: failedSequenceRepo,
 		httpClient: &http.Client{
 			Timeout: 30 * time.Second,
 		},
@@ -74,6 +80,7 @@ func (t *MHTransmitter) Transmit(ctx context.Context, document interface{}, sign
 	// Enviar a Hacienda
 	resp, err := t.SendToHacienda(ctx, req, systemToken)
 	if err != nil {
+		t.handleFailedSequence(ctx, err, document, req)
 		return nil, err
 	}
 
@@ -195,6 +202,85 @@ func (t *MHTransmitter) SendToHacienda(ctx context.Context, request *models2.Hac
 	}
 
 	return &response, nil
+}
+
+func (t *MHTransmitter) handleFailedSequence(ctx context.Context, err error, document interface{}, req *models2.HaciendaRequest) {
+	// Only register if it's a Hacienda error
+	var haciendaErr *hacienda_error.HaciendaResponseError
+	if !errors.As(err, &haciendaErr) {
+		return
+	}
+
+	// Extract necessary information for failed sequence
+	claims, ok := ctx.Value("claims").(*models.AuthClaims)
+	if !ok {
+		logs.Error("Failed to get claims from context for failed sequence", nil)
+		return
+	}
+
+	// Extract sequence number from control number
+	_, dteType, _, sequenceNumber, extractErr := processors.GetDocumentRequestData(document)
+	if extractErr != nil {
+		logs.Error("Failed to extract document data for failed sequence", map[string]interface{}{
+			"error": extractErr.Error(),
+		})
+		return
+	}
+
+	// Get current year
+	currentYear := uint(utils.TimeNow().Year())
+
+	// Register the failed sequence
+	registrationErr := t.failedSequenceRepo.RegisterFailedSequence(
+		ctx,
+		claims.BranchID,
+		dteType,
+		uint(sequenceNumber),
+		currentYear,
+		haciendaErr.Description,
+		haciendaErr.Code,
+		document,
+		formatHaciendaErrorResponse(haciendaErr),
+	)
+
+	if registrationErr != nil {
+		logs.Error("Failed to register failed sequence", map[string]interface{}{
+			"error":          registrationErr.Error(),
+			"branchID":       claims.BranchID,
+			"dteType":        dteType,
+			"sequenceNumber": sequenceNumber,
+		})
+	} else {
+		logs.Info("Failed sequence registered successfully", map[string]interface{}{
+			"branchID":       claims.BranchID,
+			"dteType":        dteType,
+			"sequenceNumber": sequenceNumber,
+			"errorCode":      haciendaErr.Code,
+		})
+	}
+}
+
+func formatHaciendaErrorResponse(err *hacienda_error.HaciendaResponseError) string {
+	// Convert the Hacienda error to a JSON string for storage
+	response := map[string]interface{}{
+		"status":         err.Status,
+		"code":           err.Code,
+		"description":    err.Description,
+		"classification": err.Classification,
+		"statusCode":     err.StatusCode,
+		"observations":   err.Observations,
+		"processedAt":    err.ProcessedAt,
+	}
+
+	jsonData, jsonErr := json.Marshal(response)
+	if jsonErr != nil {
+		logs.Error("Failed to marshal Hacienda error response", map[string]interface{}{
+			"error": jsonErr.Error(),
+		})
+		return fmt.Sprintf("Error parsing response: %s", err.Error())
+	}
+
+	return string(jsonData)
 }
 
 func (t *MHTransmitter) getProcessor(document interface{}) DocumentProcessor {

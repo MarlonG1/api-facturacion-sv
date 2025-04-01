@@ -167,7 +167,8 @@ func (s *ContingencyService) processSystemDocumentsByType(ctx context.Context, s
 		return nil
 	}
 	// 1. Obtener el cliente y generar token
-	client, err := s.authManager.GetBranchByBranchID(ctx, docs[0].BranchID)
+	branchID := docs[0].BranchID
+	client, err := s.authManager.GetBranchByBranchID(ctx, branchID)
 	if err != nil {
 		return shared_error.NewGeneralServiceError("ContingencyService", "processSystemDocumentsByType", "failed to get branch by ID", err)
 	}
@@ -232,7 +233,7 @@ func (s *ContingencyService) processSystemDocumentsByType(ctx context.Context, s
 		}
 
 		// Verificar el estado del lote y procesar resultados
-		err = s.batchTransmitter.VerifyContingencyBatchStatus(ctx, batchID, response.BatchCode, haciendaToken, docsMap)
+		err = s.batchTransmitter.VerifyContingencyBatchStatus(ctx, batchID, response.BatchCode, haciendaToken, branchID, docsMap)
 		if err != nil {
 			logs.Error("Failed to verify batch status", map[string]interface{}{
 				"error":   err.Error(),
