@@ -46,4 +46,15 @@ var (
 		Pasaporte,
 		OtroDocumento,
 	}
+
+	// ValidDTETypesForContingency Es una lista de valores permitidos que se puede enviar por contingencia
+	ValidDTETypesForContingency = map[string]bool{
+		FacturaElectronica:               true,
+		CCFElectronico:                   true,
+		NotaRemisionElectronica:          true,
+		NotaCreditoElectronica:           true,
+		NotaDebitoElectronica:            true,
+		FacturaExportacionElectronica:    true,
+		FacturaSujetoExcluidoElectronica: true,
+	}
 )
