@@ -1,6 +1,7 @@
 package identification
 
 import (
+	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/constants"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/dte_errors"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/interfaces"
 	"strings"
@@ -11,10 +12,13 @@ type DocumentNumber struct {
 	Value string
 }
 
-func NewDocumentNumber(value string) (*DocumentNumber, error) {
-	//En caso de que el numero de doc tenga guiones, se eliminan para validar el patrón
-	if strings.Contains(value, "-") {
-		value = strings.ReplaceAll(value, "-", "")
+func NewDocumentNumber(value string, dteType string) (*DocumentNumber, error) {
+
+	// Si el tipo de documento es NIT, limpiar los guiones
+	if dteType == constants.NIT {
+		if strings.Contains(value, "-") {
+			value = strings.ReplaceAll(value, "-", "")
+		}
 	}
 
 	documentNumber := &DocumentNumber{Value: value}
