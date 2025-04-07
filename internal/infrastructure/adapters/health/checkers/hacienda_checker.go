@@ -6,16 +6,17 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/MarlonG1/api-facturacion-sv/config"
-	"io"
-	"net/http"
-	"time"
-
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/health/constants"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/health/models"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/health/ports"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/logs"
+	"github.com/dimiro1/health"
+	"io"
+	"net/http"
+	"time"
 )
 
+// haciendaChecker implementa tanto la interfaz ports.ComponentChecker como health.Checker
 type haciendaChecker struct {
 	client *http.Client
 }
@@ -30,8 +31,34 @@ func (c *haciendaChecker) Name() string {
 	return "hacienda"
 }
 
+// Check implementa ports.ComponentChecker.Check
 func (c *haciendaChecker) Check() models.Health {
-	// 1. Primero verificamos disponibilidad básica de los endpoints
+	// CustomHealthChecker para Hacienda
+	health := c.checkHealth()
+
+	status := constants.StatusUp
+	details := "Hacienda service is healthy"
+
+	if health.IsDown() {
+		status = constants.StatusDown
+		details = "Hacienda service is down"
+
+		// Extraer detalles si están disponibles
+		if health.GetInfo("error") != nil {
+			details = fmt.Sprintf("%s: %v", details, health.GetInfo("error"))
+		}
+	}
+
+	return models.Health{
+		Status:  status,
+		Details: details,
+	}
+}
+
+func (c *haciendaChecker) checkHealth() health.Health {
+	result := health.NewHealth()
+
+	// 1. Verificar disponibilidad básica de los endpoints
 	endpoints := map[string]string{
 		"signing":     config.MHPaths.AuthURL,
 		"reception":   config.MHPaths.ReceptionURL,
@@ -44,30 +71,29 @@ func (c *haciendaChecker) Check() models.Health {
 				"error": err.Error(),
 				"url":   url,
 			})
-			return models.Health{
-				Status:  constants.StatusDown,
-				Details: "Service unavailable",
-			}
+
+			result.Down()
+			result.AddInfo("error", fmt.Sprintf("Endpoint %s unavailable: %s", name, err.Error()))
+			return result
 		}
 	}
 
-	// 2. Verificamos el procesamiento real mediante intento de autenticación
+	// 2. Verificar el procesamiento real mediante intento de autenticación
 	if err := c.checkAuthProcessing(); err != nil {
 		logs.Error("Hacienda signing processing check failed", map[string]interface{}{
 			"error": err.Error(),
 		})
-		return models.Health{
-			Status:  constants.StatusDown,
-			Details: "Service unavailable",
-		}
+
+		result.Down()
+		result.AddInfo("error", fmt.Sprintf("Authentication processing failed: %s", err.Error()))
+		return result
 	}
 
-	return models.Health{
-		Status:  constants.StatusUp,
-		Details: "Service available",
-	}
+	result.Up()
+	return result
 }
 
+// Mantener los métodos auxiliares originales sin cambios
 func (c *haciendaChecker) checkEndpoint(url string) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
@@ -91,7 +117,7 @@ func (c *haciendaChecker) checkEndpoint(url string) error {
 	}(resp.Body)
 
 	if resp.StatusCode >= 500 {
-		return fmt.Errorf("service unavailable")
+		return fmt.Errorf("service unavailable (status: %d)", resp.StatusCode)
 	}
 
 	return nil
@@ -143,7 +169,7 @@ func (c *haciendaChecker) checkAuthProcessing() error {
 	if resp.StatusCode != http.StatusUnauthorized &&
 		resp.StatusCode != http.StatusBadRequest &&
 		resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("unexpected service response")
+		return fmt.Errorf("unexpected service response: %d", resp.StatusCode)
 	}
 
 	return nil

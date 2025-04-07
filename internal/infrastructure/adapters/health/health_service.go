@@ -1,15 +1,12 @@
 package health
 
 import (
-	"gorm.io/gorm"
-	"time"
-
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/health/constants"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/health/models"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/health/ports"
 	"github.com/MarlonG1/api-facturacion-sv/internal/infrastructure/adapters/health/checkers"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/utils"
-	"github.com/go-redis/redis/v8"
+	"gorm.io/gorm"
 )
 
 type healthService struct {
@@ -17,15 +14,14 @@ type healthService struct {
 }
 
 type HealthServiceConfig struct {
-	DB          *gorm.DB
-	RedisClient *redis.Client
+	DB *gorm.DB
 }
 
 func NewHealthService(cfg *HealthServiceConfig) ports.HealthManager {
 	service := &healthService{
 		checkers: []ports.ComponentChecker{
 			checkers.NewDatabaseChecker(cfg.DB),
-			checkers.NewRedisChecker(cfg.RedisClient),
+			checkers.NewRedisChecker(),
 			checkers.NewHaciendaChecker(),
 			checkers.NewFileSystemChecker(),
 			checkers.NewSignerChecker(),
@@ -50,6 +46,6 @@ func (s *healthService) CheckHealth() (*models.HealthStatus, error) {
 	return &models.HealthStatus{
 		Status:     status,
 		Components: components,
-		Timestamp:  utils.TimeNow().Format(time.RFC3339),
+		Timestamp:  utils.TimeNow().Format("02-01-2006 15:04:05"),
 	}, nil
 }
