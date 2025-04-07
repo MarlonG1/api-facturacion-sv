@@ -32,6 +32,7 @@ func Initialize(container *bootstrap.Container) *Server {
 func (s *Server) ConfigureRoutes() {
 	s.configureGlobalMiddlewares()
 	s.configureGlobalOptions()
+	routes.RegisterSwaggerRoutes(s.router)
 
 	// Configurar rutas públicas y protegidas
 	public := s.router.PathPrefix(s.publicPath).Subrouter()
