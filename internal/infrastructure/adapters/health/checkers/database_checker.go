@@ -2,6 +2,7 @@ package checkers
 
 import (
 	"fmt"
+	"github.com/MarlonG1/api-facturacion-sv/internal/domain/health/constants"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/health/models"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/health/ports"
 	"github.com/dimiro1/health/db"
@@ -25,7 +26,7 @@ func (c *databaseChecker) Check() models.Health {
 	sql, err := c.db.DB()
 	if err != nil {
 		return models.Health{
-			Status:  "DOWN",
+			Status:  constants.StatusDown,
 			Details: "Failed to get database connection",
 		}
 	}
@@ -42,13 +43,13 @@ func (c *databaseChecker) Check() models.Health {
 		}
 
 		return models.Health{
-			Status:  "DOWN",
+			Status:  constants.StatusDown,
 			Details: details,
 		}
 	}
 
 	return models.Health{
-		Status:  "UP",
+		Status:  constants.StatusUp,
 		Details: "Database is healthy",
 	}
 
