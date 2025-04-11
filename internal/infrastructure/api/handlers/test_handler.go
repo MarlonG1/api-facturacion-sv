@@ -1,9 +1,10 @@
 package handlers
 
 import (
-	"github.com/MarlonG1/api-facturacion-sv/internal/domain/test_endpoint/ports"
 	"net/http"
 
+	_ "github.com/MarlonG1/api-facturacion-sv/internal/domain/test_endpoint/models"
+	"github.com/MarlonG1/api-facturacion-sv/internal/domain/test_endpoint/ports"
 	"github.com/MarlonG1/api-facturacion-sv/internal/infrastructure/api/response"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/logs"
 )
@@ -20,6 +21,15 @@ func NewTestHandler(testManager ports.TestManager) *TestHandler {
 	}
 }
 
+// RunSystemTest godoc
+// @Summary      Run system test
+// @Description  Run system test
+// @Tags         Test
+// @Accept       json
+// @Produce      json
+// @Success      200 {object} models.TestResult
+// @Failure      500 {object} response.APIError
+// @Router       /api/v1/test [get]
 func (h *TestHandler) RunSystemTest(w http.ResponseWriter, r *http.Request) {
 	result, err := h.testManager.RunSystemTest()
 	if err != nil {

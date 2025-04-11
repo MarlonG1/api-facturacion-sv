@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/auth/models"
+	_ "github.com/MarlonG1/api-facturacion-sv/internal/domain/metrics/models"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/metrics/ports"
 	"github.com/MarlonG1/api-facturacion-sv/internal/infrastructure/api/response"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/logs"
@@ -20,6 +21,20 @@ func NewMetricsHandler(metricsManager ports.MetricsManager) *MetricsHandler {
 	}
 }
 
+// GetEndpointMetrics godoc
+// @Summary      Get endpoint metrics
+// @Description  Get metrics for a specific endpoint
+// @Tags         Metrics
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param Authorization header string true "Token JWT with Format 'Bearer {token}'"
+// @Param endpoint query string false "Endpoint to filter metrics"
+// @Param method query string false "HTTP method to filter metrics"
+// @Success      200 {object} models.EndpointMetrics
+// @Failure      400 {object} response.APIError
+// @Failure      500 {object} response.APIError
+// @Router       /api/v1/metrics [get]
 func (h *MetricsHandler) GetEndpointMetrics(w http.ResponseWriter, r *http.Request) {
 	claims := r.Context().Value("claims").(*models.AuthClaims)
 

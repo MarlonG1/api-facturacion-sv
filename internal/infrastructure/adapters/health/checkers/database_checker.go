@@ -1,12 +1,12 @@
 package checkers
 
 import (
-	"gorm.io/gorm"
-
+	"fmt"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/health/constants"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/health/models"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/health/ports"
-	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/logs"
+	"github.com/dimiro1/health/db"
+	"gorm.io/gorm"
 )
 
 type databaseChecker struct {
@@ -22,29 +22,35 @@ func (c *databaseChecker) Name() string {
 }
 
 func (c *databaseChecker) Check() models.Health {
-	db, err := c.db.DB()
+	// 1. Check the database connection
+	sql, err := c.db.DB()
 	if err != nil {
-		logs.Error("Database connection error", map[string]interface{}{
-			"error": err.Error(),
-		})
 		return models.Health{
 			Status:  constants.StatusDown,
-			Details: "Database service unavailable",
+			Details: "Failed to get database connection",
 		}
 	}
 
-	if err := db.Ping(); err != nil {
-		logs.Error("Database ping failed", map[string]interface{}{
-			"error": err.Error(),
-		})
+	checker := db.NewMySQLChecker(sql)
+	health := checker.Check()
+
+	// 2. Check if the database is up
+	if health.IsDown() {
+		details := "Database connection is down"
+
+		if health.GetInfo("error") != nil {
+			details = fmt.Sprintf("%s: %v", details, health.GetInfo("error"))
+		}
+
 		return models.Health{
 			Status:  constants.StatusDown,
-			Details: "Database service ping failed",
+			Details: details,
 		}
 	}
 
 	return models.Health{
 		Status:  constants.StatusUp,
-		Details: "Database service available",
+		Details: "Database is healthy",
 	}
+
 }

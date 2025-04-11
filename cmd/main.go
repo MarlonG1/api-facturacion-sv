@@ -11,6 +11,7 @@ import (
 	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/utils"
 
 	errPackage "github.com/MarlonG1/api-facturacion-sv/config/error"
+	_ "github.com/MarlonG1/api-facturacion-sv/docs/swagger"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/logs"
 )
 

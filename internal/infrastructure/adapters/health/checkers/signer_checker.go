@@ -1,15 +1,15 @@
 package checkers
 
 import (
-	"context"
+	"fmt"
 	"github.com/MarlonG1/api-facturacion-sv/config"
+	"github.com/dimiro1/health/url"
 	"net/http"
 	"time"
 
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/health/constants"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/health/models"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/health/ports"
-	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/logs"
 )
 
 type signerChecker struct {
@@ -18,7 +18,7 @@ type signerChecker struct {
 
 func NewSignerChecker() ports.ComponentChecker {
 	return &signerChecker{
-		client: &http.Client{Timeout: 1 * time.Second},
+		client: &http.Client{Timeout: 2 * time.Second},
 	}
 }
 
@@ -27,46 +27,23 @@ func (s *signerChecker) Name() string {
 }
 
 func (s *signerChecker) Check() models.Health {
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
-	defer cancel()
+	checker := url.NewCheckerWithTimeout(config.Signer.Health, s.client.Timeout)
+	health := checker.Check()
 
-	req, err := http.NewRequestWithContext(ctx, "GET", config.Signer.Health, nil)
-	if err != nil {
-		logs.Error("Error creating signer service request", map[string]interface{}{
-			"error": err.Error(),
-		})
-		return models.Health{
-			Status:  constants.StatusDown,
-			Details: "Service unavailable",
+	if health.IsDown() {
+		details := "Signer service is down"
+		if health.GetInfo("error") != nil {
+			details = fmt.Sprintf("%s: %v", details, health.GetInfo("error"))
 		}
-	}
 
-	req.Header.Set("Content-Type", "application/json")
-
-	resp, err := s.client.Do(req)
-	if err != nil {
-		logs.Error("Error calling signer service", map[string]interface{}{
-			"error": err.Error(),
-		})
 		return models.Health{
 			Status:  constants.StatusDown,
-			Details: "Service unavailable",
-		}
-	}
-	resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		logs.Error("Signer service unavailable", map[string]interface{}{
-			"status_code": resp.StatusCode,
-		})
-		return models.Health{
-			Status:  constants.StatusDown,
-			Details: "Service unavailable",
+			Details: details,
 		}
 	}
 
 	return models.Health{
 		Status:  constants.StatusUp,
-		Details: "Service available",
+		Details: "Signer service is healthy",
 	}
 }

@@ -1,0 +1,1013 @@
+definitions:
+  github_com_MarlonG1_api-facturacion-sv_internal_domain_auth_models.AuthCredentials:
+    properties:
+      api_key:
+        type: string
+      api_secret:
+        type: string
+      credentials:
+        $ref: '#/definitions/github_com_MarlonG1_api-facturacion-sv_internal_domain_auth_models.HaciendaCredentials'
+    type: object
+  github_com_MarlonG1_api-facturacion-sv_internal_domain_auth_models.HaciendaCredentials:
+    properties:
+      password:
+        type: string
+      username:
+        type: string
+    type: object
+  github_com_MarlonG1_api-facturacion-sv_internal_domain_core_dte.DTEListResponse:
+    properties:
+      documents:
+        items:
+          $ref: '#/definitions/github_com_MarlonG1_api-facturacion-sv_internal_domain_core_dte.DTEModelResponse'
+        type: array
+      pagination:
+        $ref: '#/definitions/github_com_MarlonG1_api-facturacion-sv_internal_domain_core_dte.DTEPaginationResponse'
+      summary:
+        $ref: '#/definitions/github_com_MarlonG1_api-facturacion-sv_internal_domain_core_dte.ListSummary'
+    type: object
+  github_com_MarlonG1_api-facturacion-sv_internal_domain_core_dte.DTEModelResponse:
+    properties:
+      document:
+        items:
+          type: integer
+        type: array
+      status:
+        type: string
+      transmission_type:
+        type: string
+    type: object
+  github_com_MarlonG1_api-facturacion-sv_internal_domain_core_dte.DTEPaginationResponse:
+    properties:
+      page:
+        type: integer
+      page_size:
+        type: integer
+      total_pages:
+        type: integer
+    type: object
+  github_com_MarlonG1_api-facturacion-sv_internal_domain_core_dte.DTEResponse:
+    properties:
+      control_number:
+        type: string
+      created_at:
+        type: string
+      generation_code:
+        type: string
+      json_data:
+        additionalProperties: true
+        type: object
+      reception_stamp:
+        type: string
+      status:
+        type: string
+      transmission:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  github_com_MarlonG1_api-facturacion-sv_internal_domain_core_dte.ListSummary:
+    properties:
+      by_contingency:
+        type: integer
+      by_normal:
+        type: integer
+      invalid:
+        type: integer
+      pending:
+        type: integer
+      received:
+        type: integer
+      rejected:
+        type: integer
+      total:
+        type: integer
+    type: object
+  github_com_MarlonG1_api-facturacion-sv_internal_domain_core_user.Address:
+    properties:
+      complement:
+        type: string
+      department:
+        type: string
+      municipality:
+        type: string
+    type: object
+  github_com_MarlonG1_api-facturacion-sv_internal_domain_core_user.BranchOffice:
+    properties:
+      address:
+        $ref: '#/definitions/github_com_MarlonG1_api-facturacion-sv_internal_domain_core_user.Address'
+      api_key:
+        type: string
+      api_secret:
+        type: string
+      email:
+        type: string
+      establishment_code:
+        type: string
+      establishment_code_mh:
+        type: string
+      establishment_type:
+        type: string
+      is_active:
+        type: boolean
+      phone:
+        type: string
+      pos_code:
+        type: string
+      pos_code_mh:
+        type: string
+      user:
+        $ref: '#/definitions/github_com_MarlonG1_api-facturacion-sv_internal_domain_core_user.User'
+    type: object
+  github_com_MarlonG1_api-facturacion-sv_internal_domain_core_user.ListBranchesResponse:
+    properties:
+      api_key:
+        type: string
+      api_secret:
+        type: string
+      branch_number:
+        type: integer
+      establishment_code:
+        type: string
+      establishment_type:
+        type: string
+    type: object
+  github_com_MarlonG1_api-facturacion-sv_internal_domain_core_user.User:
+    properties:
+      auth_type:
+        type: string
+      branch_offices:
+        description: Relationships
+        items:
+          $ref: '#/definitions/github_com_MarlonG1_api-facturacion-sv_internal_domain_core_user.BranchOffice'
+        type: array
+      business_name:
+        type: string
+      commercial_name:
+        type: string
+      economic_activity:
+        type: string
+      economic_activity_desc:
+        type: string
+      email:
+        type: string
+      nit:
+        type: string
+      nrc:
+        type: string
+      password_pri:
+        type: string
+      phone:
+        type: string
+      token_lifetime:
+        type: integer
+      year_in_dte:
+        type: boolean
+    type: object
+  github_com_MarlonG1_api-facturacion-sv_internal_domain_health_models.Health:
+    properties:
+      details:
+        type: string
+      status:
+        type: string
+    type: object
+  github_com_MarlonG1_api-facturacion-sv_internal_domain_health_models.HealthStatus:
+    properties:
+      components:
+        additionalProperties:
+          $ref: '#/definitions/github_com_MarlonG1_api-facturacion-sv_internal_domain_health_models.Health'
+        type: object
+      status:
+        type: string
+      timestamp:
+        type: string
+    type: object
+  github_com_MarlonG1_api-facturacion-sv_internal_domain_metrics_models.EndpointMetrics:
+    properties:
+      current_average_ms:
+        type: integer
+      error_count:
+        type: integer
+      last_durations:
+        items:
+          type: integer
+        type: array
+      max_duration_ms:
+        type: integer
+      method:
+        type: string
+      min_duration_ms:
+        type: integer
+      path:
+        type: string
+      success_count:
+        type: integer
+      system_nit:
+        type: string
+      total_requests:
+        type: integer
+    type: object
+  github_com_MarlonG1_api-facturacion-sv_internal_domain_test_endpoint_models.ComponentTest:
+    properties:
+      duration_ms:
+        type: integer
+      name:
+        type: string
+      success:
+        type: boolean
+    type: object
+  github_com_MarlonG1_api-facturacion-sv_internal_domain_test_endpoint_models.TestResult:
+    properties:
+      duration_ms:
+        type: integer
+      success:
+        type: boolean
+      tests:
+        items:
+          $ref: '#/definitions/github_com_MarlonG1_api-facturacion-sv_internal_domain_test_endpoint_models.ComponentTest'
+        type: array
+    type: object
+  github_com_MarlonG1_api-facturacion-sv_internal_infrastructure_api_response.APIDTEResponse:
+    properties:
+      data: {}
+      qr_link:
+        type: string
+      reception_stamp:
+        type: string
+      success:
+        type: boolean
+    type: object
+  github_com_MarlonG1_api-facturacion-sv_internal_infrastructure_api_response.APIError:
+    properties:
+      code:
+        type: string
+      details:
+        items:
+          type: string
+        type: array
+      message:
+        type: string
+    type: object
+  github_com_MarlonG1_api-facturacion-sv_internal_infrastructure_api_response.APIResponse:
+    properties:
+      data: {}
+      error:
+        $ref: '#/definitions/github_com_MarlonG1_api-facturacion-sv_internal_infrastructure_api_response.APIError'
+      success:
+        type: boolean
+    type: object
+  github_com_MarlonG1_api-facturacion-sv_pkg_mapper_request_mapper_structs.AddressRequest:
+    properties:
+      complement:
+        type: string
+      department:
+        type: string
+      municipality:
+        type: string
+    type: object
+  github_com_MarlonG1_api-facturacion-sv_pkg_mapper_request_mapper_structs.AppendixRequest:
+    properties:
+      field:
+        type: string
+      label:
+        type: string
+      value:
+        type: string
+    type: object
+  github_com_MarlonG1_api-facturacion-sv_pkg_mapper_request_mapper_structs.CreateCreditFiscalRequest:
+    properties:
+      appendixes:
+        items:
+          $ref: '#/definitions/github_com_MarlonG1_api-facturacion-sv_pkg_mapper_request_mapper_structs.AppendixRequest'
+        type: array
+      extension:
+        $ref: '#/definitions/github_com_MarlonG1_api-facturacion-sv_pkg_mapper_request_mapper_structs.ExtensionRequest'
+      items:
+        items:
+          $ref: '#/definitions/github_com_MarlonG1_api-facturacion-sv_pkg_mapper_request_mapper_structs.CreditItemRequest'
+        type: array
+      model_type:
+        type: integer
+      other_docs:
+        items:
+          $ref: '#/definitions/github_com_MarlonG1_api-facturacion-sv_pkg_mapper_request_mapper_structs.OtherDocRequest'
+        type: array
+      payments:
+        items:
+          $ref: '#/definitions/github_com_MarlonG1_api-facturacion-sv_pkg_mapper_request_mapper_structs.PaymentRequest'
+        type: array
+      receiver:
+        $ref: '#/definitions/github_com_MarlonG1_api-facturacion-sv_pkg_mapper_request_mapper_structs.ReceiverRequest'
+      related_docs:
+        items:
+          $ref: '#/definitions/github_com_MarlonG1_api-facturacion-sv_pkg_mapper_request_mapper_structs.RelatedDocRequest'
+        type: array
+      summary:
+        $ref: '#/definitions/github_com_MarlonG1_api-facturacion-sv_pkg_mapper_request_mapper_structs.CreditSummaryRequest'
+      third_party_sale:
+        $ref: '#/definitions/github_com_MarlonG1_api-facturacion-sv_pkg_mapper_request_mapper_structs.ThirdPartySaleRequest'
+    type: object
+  github_com_MarlonG1_api-facturacion-sv_pkg_mapper_request_mapper_structs.CreateInvoiceRequest:
+    properties:
+      appendixes:
+        items:
+          $ref: '#/definitions/github_com_MarlonG1_api-facturacion-sv_pkg_mapper_request_mapper_structs.AppendixRequest'
+        type: array
+      extension:
+        $ref: '#/definitions/github_com_MarlonG1_api-facturacion-sv_pkg_mapper_request_mapper_structs.ExtensionRequest'
+      items:
+        items:
+          $ref: '#/definitions/github_com_MarlonG1_api-facturacion-sv_pkg_mapper_request_mapper_structs.InvoiceItemRequest'
+        type: array
+      model_type:
+        type: integer
+      other_docs:
+        items:
+          $ref: '#/definitions/github_com_MarlonG1_api-facturacion-sv_pkg_mapper_request_mapper_structs.OtherDocRequest'
+        type: array
+      payments:
+        items:
+          $ref: '#/definitions/github_com_MarlonG1_api-facturacion-sv_pkg_mapper_request_mapper_structs.PaymentRequest'
+        type: array
+      receiver:
+        $ref: '#/definitions/github_com_MarlonG1_api-facturacion-sv_pkg_mapper_request_mapper_structs.ReceiverRequest'
+      related_docs:
+        items:
+          $ref: '#/definitions/github_com_MarlonG1_api-facturacion-sv_pkg_mapper_request_mapper_structs.RelatedDocRequest'
+        type: array
+      summary:
+        $ref: '#/definitions/github_com_MarlonG1_api-facturacion-sv_pkg_mapper_request_mapper_structs.InvoiceSummaryRequest'
+      third_party_sale:
+        $ref: '#/definitions/github_com_MarlonG1_api-facturacion-sv_pkg_mapper_request_mapper_structs.ThirdPartySaleRequest'
+    type: object
+  github_com_MarlonG1_api-facturacion-sv_pkg_mapper_request_mapper_structs.CreditItemRequest:
+    properties:
+      code:
+        type: string
+      description:
+        type: string
+      discount:
+        type: number
+      exempt_sale:
+        type: number
+      non_subject_sale:
+        type: number
+      non_taxed:
+        type: number
+      number:
+        type: integer
+      quantity:
+        type: number
+      related_doc:
+        type: string
+      suggested_price:
+        type: number
+      tax_code:
+        type: string
+      taxed_sale:
+        type: number
+      taxes:
+        items:
+          type: string
+        type: array
+      type:
+        type: integer
+      unit_measure:
+        type: integer
+      unit_price:
+        type: number
+    type: object
+  github_com_MarlonG1_api-facturacion-sv_pkg_mapper_request_mapper_structs.CreditSummaryRequest:
+    properties:
+      balance_in_favor:
+        type: number
+      discount_percentage:
+        type: number
+      exempt_discount:
+        type: number
+      income_retention:
+        type: number
+      iva_perception:
+        type: number
+      iva_retention:
+        type: number
+      non_subject_discount:
+        type: number
+      operation_condition:
+        type: integer
+      payment_types:
+        items:
+          $ref: '#/definitions/github_com_MarlonG1_api-facturacion-sv_pkg_mapper_request_mapper_structs.PaymentRequest'
+        type: array
+      sub_total:
+        type: number
+      sub_total_sales:
+        type: number
+      taxed_discount:
+        type: number
+      taxes:
+        items:
+          $ref: '#/definitions/github_com_MarlonG1_api-facturacion-sv_pkg_mapper_request_mapper_structs.TaxRequest'
+        type: array
+      total_discount:
+        type: number
+      total_exempt:
+        type: number
+      total_in_words:
+        type: string
+      total_iva:
+        type: number
+      total_non_subject:
+        type: number
+      total_non_taxed:
+        type: number
+      total_operation:
+        type: number
+      total_taxed:
+        type: number
+      total_to_pay:
+        type: number
+    type: object
+  github_com_MarlonG1_api-facturacion-sv_pkg_mapper_request_mapper_structs.DoctorRequest:
+    properties:
+      identification:
+        type: string
+      name:
+        type: string
+      nit:
+        type: string
+      service_type:
+        type: integer
+    type: object
+  github_com_MarlonG1_api-facturacion-sv_pkg_mapper_request_mapper_structs.ExtensionRequest:
+    properties:
+      delivery_document:
+        type: string
+      delivery_name:
+        type: string
+      observation:
+        type: string
+      receiver_document:
+        type: string
+      receiver_name:
+        type: string
+      vehicule_plate:
+        type: string
+    type: object
+  github_com_MarlonG1_api-facturacion-sv_pkg_mapper_request_mapper_structs.InvalidationRequest:
+    properties:
+      generation_code:
+        type: string
+      reason:
+        $ref: '#/definitions/github_com_MarlonG1_api-facturacion-sv_pkg_mapper_request_mapper_structs.ReasonRequest'
+      replacement_generation_code:
+        type: string
+    type: object
+  github_com_MarlonG1_api-facturacion-sv_pkg_mapper_request_mapper_structs.InvoiceItemRequest:
+    properties:
+      code:
+        type: string
+      description:
+        type: string
+      discount:
+        type: number
+      exempt_sale:
+        type: number
+      iva_item:
+        type: number
+      non_subject_sale:
+        type: number
+      non_taxed:
+        type: number
+      number:
+        type: integer
+      quantity:
+        type: number
+      related_doc:
+        type: string
+      suggested_price:
+        type: number
+      tax_code:
+        type: string
+      taxed_sale:
+        type: number
+      taxes:
+        items:
+          type: string
+        type: array
+      type:
+        type: integer
+      unit_measure:
+        type: integer
+      unit_price:
+        type: number
+    type: object
+  github_com_MarlonG1_api-facturacion-sv_pkg_mapper_request_mapper_structs.InvoiceSummaryRequest:
+    properties:
+      balance_in_favor:
+        type: number
+      discount_percentage:
+        type: number
+      exempt_discount:
+        type: number
+      income_retention:
+        type: number
+      iva_perception:
+        type: number
+      iva_retention:
+        type: number
+      non_subject_discount:
+        type: number
+      operation_condition:
+        type: integer
+      payment_types:
+        items:
+          $ref: '#/definitions/github_com_MarlonG1_api-facturacion-sv_pkg_mapper_request_mapper_structs.PaymentRequest'
+        type: array
+      sub_total:
+        type: number
+      sub_total_sales:
+        type: number
+      taxed_discount:
+        type: number
+      taxes:
+        items:
+          $ref: '#/definitions/github_com_MarlonG1_api-facturacion-sv_pkg_mapper_request_mapper_structs.TaxRequest'
+        type: array
+      total_discount:
+        type: number
+      total_exempt:
+        type: number
+      total_in_words:
+        type: string
+      total_iva:
+        type: number
+      total_non_subject:
+        type: number
+      total_non_taxed:
+        type: number
+      total_operation:
+        type: number
+      total_taxed:
+        type: number
+      total_to_pay:
+        type: number
+    type: object
+  github_com_MarlonG1_api-facturacion-sv_pkg_mapper_request_mapper_structs.OtherDocRequest:
+    properties:
+      description:
+        type: string
+      detail:
+        type: string
+      doctor:
+        $ref: '#/definitions/github_com_MarlonG1_api-facturacion-sv_pkg_mapper_request_mapper_structs.DoctorRequest'
+      document_code:
+        type: integer
+    type: object
+  github_com_MarlonG1_api-facturacion-sv_pkg_mapper_request_mapper_structs.PaymentRequest:
+    properties:
+      amount:
+        type: number
+      code:
+        type: string
+      period:
+        type: integer
+      reference:
+        type: string
+      term:
+        type: string
+    type: object
+  github_com_MarlonG1_api-facturacion-sv_pkg_mapper_request_mapper_structs.ReasonRequest:
+    properties:
+      reason_field:
+        type: string
+      requestor_doc_type:
+        type: string
+      requestor_name:
+        type: string
+      requestor_num_doc:
+        type: string
+      responsible_doc_type:
+        type: string
+      responsible_name:
+        type: string
+      responsible_num_doc:
+        type: string
+      type:
+        type: integer
+    type: object
+  github_com_MarlonG1_api-facturacion-sv_pkg_mapper_request_mapper_structs.ReceiverRequest:
+    properties:
+      activity_code:
+        type: string
+      activity_description:
+        type: string
+      address:
+        $ref: '#/definitions/github_com_MarlonG1_api-facturacion-sv_pkg_mapper_request_mapper_structs.AddressRequest'
+      commercial_name:
+        type: string
+      document_number:
+        type: string
+      document_type:
+        type: string
+      email:
+        type: string
+      name:
+        type: string
+      nit:
+        type: string
+      nrc:
+        type: string
+      phone:
+        type: string
+    type: object
+  github_com_MarlonG1_api-facturacion-sv_pkg_mapper_request_mapper_structs.RelatedDocRequest:
+    properties:
+      document_number:
+        type: string
+      document_type:
+        type: string
+      emission_date:
+        type: string
+      generation_type:
+        type: integer
+    type: object
+  github_com_MarlonG1_api-facturacion-sv_pkg_mapper_request_mapper_structs.TaxRequest:
+    properties:
+      code:
+        type: string
+      description:
+        type: string
+      value:
+        type: number
+    type: object
+  github_com_MarlonG1_api-facturacion-sv_pkg_mapper_request_mapper_structs.ThirdPartySaleRequest:
+    properties:
+      name:
+        type: string
+      nit:
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /api/v1/auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Login with API Key, API Secret and Hacienda Credentials
+      parameters:
+      - description: Auth credentials
+        in: body
+        name: auth
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_MarlonG1_api-facturacion-sv_internal_domain_auth_models.AuthCredentials'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: token
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_MarlonG1_api-facturacion-sv_internal_infrastructure_api_response.APIError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_MarlonG1_api-facturacion-sv_internal_infrastructure_api_response.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_MarlonG1_api-facturacion-sv_internal_infrastructure_api_response.APIError'
+      security:
+      - BearerAuth: []
+      summary: Login
+      tags:
+      - Auth
+  /api/v1/auth/register:
+    post:
+      consumes:
+      - application/json
+      description: Register a new user
+      parameters:
+      - description: User data
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_MarlonG1_api-facturacion-sv_internal_domain_core_user.User'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            items:
+              $ref: '#/definitions/github_com_MarlonG1_api-facturacion-sv_internal_domain_core_user.ListBranchesResponse'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_MarlonG1_api-facturacion-sv_internal_infrastructure_api_response.APIError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_MarlonG1_api-facturacion-sv_internal_infrastructure_api_response.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_MarlonG1_api-facturacion-sv_internal_infrastructure_api_response.APIError'
+      summary: Register
+      tags:
+      - Auth
+  /api/v1/dte:
+    get:
+      consumes:
+      - application/json
+      description: Get all DTEs
+      parameters:
+      - description: Token JWT with Format 'Bearer {token}'
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Include all DTEs
+        in: query
+        name: all
+        type: boolean
+      - description: Start date in RFC3339 format
+        in: query
+        name: startDate
+        type: string
+      - description: End date in RFC3339 format
+        in: query
+        name: endDate
+        type: string
+      - description: Page number
+        in: query
+        name: page
+        type: integer
+      - description: Page size
+        in: query
+        name: page_size
+        type: integer
+      - description: DTE status
+        in: query
+        name: status
+        type: string
+      - description: Transmission status
+        in: query
+        name: transmission
+        type: string
+      - description: DTE type
+        in: query
+        name: type
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_MarlonG1_api-facturacion-sv_internal_domain_core_dte.DTEListResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_MarlonG1_api-facturacion-sv_internal_infrastructure_api_response.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_MarlonG1_api-facturacion-sv_internal_infrastructure_api_response.APIError'
+      security:
+      - BearerAuth: []
+      summary: Get All DTEs
+      tags:
+      - DTE
+  /api/v1/dte/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get DTE by Generation Code
+      parameters:
+      - description: Token JWT with Format 'Bearer {token}'
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Generation Code
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_MarlonG1_api-facturacion-sv_internal_domain_core_dte.DTEResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_MarlonG1_api-facturacion-sv_internal_infrastructure_api_response.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_MarlonG1_api-facturacion-sv_internal_infrastructure_api_response.APIError'
+      security:
+      - BearerAuth: []
+      summary: Get DTE by Generation Code
+      tags:
+      - DTE
+  /api/v1/dte/ccf:
+    post:
+      consumes:
+      - application/json
+      description: Create a new CCF
+      parameters:
+      - description: Token JWT with Format 'Bearer {token}'
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: CCF data
+        in: body
+        name: ccf
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_MarlonG1_api-facturacion-sv_pkg_mapper_request_mapper_structs.CreateCreditFiscalRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/github_com_MarlonG1_api-facturacion-sv_internal_infrastructure_api_response.APIDTEResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_MarlonG1_api-facturacion-sv_internal_infrastructure_api_response.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_MarlonG1_api-facturacion-sv_internal_infrastructure_api_response.APIError'
+      security:
+      - BearerAuth: []
+      summary: Create CCF
+      tags:
+      - DTE
+  /api/v1/dte/invalidate:
+    post:
+      consumes:
+      - application/json
+      description: Invalidate a document
+      parameters:
+      - description: Token JWT with Format 'Bearer {token}'
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Invalidation request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_MarlonG1_api-facturacion-sv_pkg_mapper_request_mapper_structs.InvalidationRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_MarlonG1_api-facturacion-sv_internal_infrastructure_api_response.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_MarlonG1_api-facturacion-sv_internal_infrastructure_api_response.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_MarlonG1_api-facturacion-sv_internal_infrastructure_api_response.APIError'
+      security:
+      - BearerAuth: []
+      summary: Invalidate Document
+      tags:
+      - DTE
+  /api/v1/dte/invoices:
+    post:
+      consumes:
+      - application/json
+      description: Create a new invoice
+      parameters:
+      - description: Token JWT with Format 'Bearer {token}'
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Invoice data
+        in: body
+        name: invoice
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_MarlonG1_api-facturacion-sv_pkg_mapper_request_mapper_structs.CreateInvoiceRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/github_com_MarlonG1_api-facturacion-sv_internal_infrastructure_api_response.APIDTEResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_MarlonG1_api-facturacion-sv_internal_infrastructure_api_response.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_MarlonG1_api-facturacion-sv_internal_infrastructure_api_response.APIError'
+      security:
+      - BearerAuth: []
+      summary: Create Invoice
+      tags:
+      - DTE
+  /api/v1/health:
+    get:
+      consumes:
+      - application/json
+      description: Check the health of all core service
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_MarlonG1_api-facturacion-sv_internal_domain_health_models.HealthStatus'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_MarlonG1_api-facturacion-sv_internal_infrastructure_api_response.APIError'
+      summary: Health Check
+      tags:
+      - Health
+  /api/v1/metrics:
+    get:
+      consumes:
+      - application/json
+      description: Get metrics for a specific endpoint
+      parameters:
+      - description: Token JWT with Format 'Bearer {token}'
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Endpoint to filter metrics
+        in: query
+        name: endpoint
+        type: string
+      - description: HTTP method to filter metrics
+        in: query
+        name: method
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_MarlonG1_api-facturacion-sv_internal_domain_metrics_models.EndpointMetrics'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_MarlonG1_api-facturacion-sv_internal_infrastructure_api_response.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_MarlonG1_api-facturacion-sv_internal_infrastructure_api_response.APIError'
+      security:
+      - BearerAuth: []
+      summary: Get endpoint metrics
+      tags:
+      - Metrics
+  /api/v1/test:
+    get:
+      consumes:
+      - application/json
+      description: Run system test
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_MarlonG1_api-facturacion-sv_internal_domain_test_endpoint_models.TestResult'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_MarlonG1_api-facturacion-sv_internal_infrastructure_api_response.APIError'
+      summary: Run system test
+      tags:
+      - Test
+swagger: "2.0"

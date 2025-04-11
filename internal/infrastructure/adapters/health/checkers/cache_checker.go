@@ -1,41 +1,40 @@
 package checkers
 
 import (
-	"context"
-	"github.com/go-redis/redis/v8"
-
+	"fmt"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/health/constants"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/health/models"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/health/ports"
-	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/logs"
+	"github.com/dimiro1/health/redis"
 )
 
 type redisChecker struct {
-	client *redis.Client
 }
 
-func NewRedisChecker(client *redis.Client) ports.ComponentChecker {
-	return &redisChecker{client: client}
+func NewRedisChecker() ports.ComponentChecker {
+	return &redisChecker{}
 }
 
 func (c *redisChecker) Name() string {
-	return "cache"
+	return "redis"
 }
 
 func (c *redisChecker) Check() models.Health {
-	ctx := context.Background()
-	if err := c.client.Ping(ctx).Err(); err != nil {
-		logs.Error("Cache connection error", map[string]interface{}{
-			"error": err.Error(),
-		})
+	checker := redis.NewChecker("tcp", ":6379")
+	health := checker.Check()
+	if health.IsDown() {
+		details := "Redis service is down"
+		if health.GetInfo("error") != nil {
+			details = fmt.Sprintf("%s: %v", details, health.GetInfo("error"))
+		}
 		return models.Health{
 			Status:  constants.StatusDown,
-			Details: "Cache service unavailable",
+			Details: details,
 		}
 	}
 
 	return models.Health{
 		Status:  constants.StatusUp,
-		Details: "Cache service available",
+		Details: "Redis service is healthy",
 	}
 }
