@@ -14,7 +14,7 @@ func FindProjectRoot() string {
 
 	// Busca hacia arriba hasta encontrar el directorio raíz del proyecto
 	for {
-		if _, err := os.Stat(filepath.Join(dir, "go.work")); err == nil {
+		if _, err := os.Stat(filepath.Join(dir, "go.mod")); err == nil {
 			return dir
 		}
 

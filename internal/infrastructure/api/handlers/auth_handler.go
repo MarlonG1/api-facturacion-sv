@@ -21,6 +21,19 @@ func NewAuthHandler(authUseCase *auth.AuthUseCase) *AuthHandler {
 	}
 }
 
+// Login godoc
+// @Summary      Login
+// @Description  Login with API Key, API Secret and Hacienda Credentials
+// @Tags         Auth
+// @Accept       json
+// @Produce      json
+// @Security  	 BearerAuth
+// @Param auth body models.AuthCredentials true "Auth credentials"
+// @Success      200 {object} string "token"
+// @Failure      400 {object} response.APIError
+// @Failure      401 {object} response.APIError
+// @Failure      500 {object} response.APIError
+// @Router       /api/v1/auth/login [post]
 func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 	// 1. Decodificar la solicitud
 	var req models.AuthCredentials
@@ -40,6 +53,18 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 	h.respWriter.Success(w, http.StatusOK, response, nil)
 }
 
+// Register godoc
+// @Summary      Register
+// @Description  Register a new user
+// @Tags         Auth
+// @Accept       json
+// @Produce      json
+// @Param user body user.User true "User data"
+// @Success      201 {object} []user.ListBranchesResponse
+// @Failure      400 {object} response.APIError
+// @Failure      401 {object} response.APIError
+// @Failure      500 {object} response.APIError
+// @Router       /api/v1/auth/register [post]
 func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 	// 1. Decodear la solicitud
 	var req user.User
