@@ -1,7 +1,7 @@
 package base
 
 import (
-	"regexp"
+	"github.com/badoux/checkmail"
 
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/dte_errors"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/interfaces"
@@ -16,7 +16,7 @@ func NewEmail(value string) (*Email, error) {
 	if email.IsValid() {
 		return email, nil
 	}
-	return &Email{}, dte_errors.NewValidationError("InvalidPattern", "Email", "example@example.exam", value)
+	return &Email{}, dte_errors.NewValidationError("InvalidEmail", value)
 }
 
 func NewValidatedEmail(value string) *Email {
@@ -25,9 +25,20 @@ func NewValidatedEmail(value string) *Email {
 
 // IsValid válido si el email cumple con el patrón de email
 func (e *Email) IsValid() bool {
-	pattern := `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`
-	matched, _ := regexp.MatchString(pattern, e.Value)
-	return matched && len(e.Value) >= 3 && len(e.Value) <= 100
+
+	// 1. Validar el formato del email
+	err := checkmail.ValidateFormat(e.Value)
+	if err != nil {
+		return false
+	}
+
+	// 2. Validar el dominio del email
+	err = checkmail.ValidateMX(e.Value)
+	if err != nil {
+		return false
+	}
+
+	return len(e.Value) >= 3 && len(e.Value) <= 100
 }
 
 func (e *Email) Equals(other interfaces.ValueObject[string]) bool {

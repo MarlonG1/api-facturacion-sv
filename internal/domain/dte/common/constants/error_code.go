@@ -24,6 +24,7 @@ var ErrorCodesEn = map[string]string{
 	"NegativeTaxedAmount":   "The taxed sale %s is negative",
 	"ExcessiveTaxedAmount":  "The taxed sale %f is greater than the price * quantity %f",
 	"InvalidValue":          "The value %d is not valid, it must be %s for field %s",
+	"InvalidEmail":          "The email %s is not valid. It must be a valid, existing email address and must be at least 3 characters long and no longer than 100",
 
 	// Identification errors
 	"InvalidVersion":     "The version %s is not valid, it must be a number between 1 and 3",

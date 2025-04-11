@@ -87,8 +87,7 @@ func (c *ServicesContainer) Initialize() error {
 	c.testManager = test_endpoint.NewTestService(c.repos.db)
 	c.metricsManager = metrics.NewMetricManager(c.cacheManager)
 	c.healthManager = health.NewHealthService(&health.HealthServiceConfig{
-		DB:          c.repos.db,
-		RedisClient: c.cacheManager.GetRedisClient(),
+		DB: c.repos.db,
 	})
 
 	transmissionConf := models.NewTransmissionConfig(5*time.Second, 2*time.Minute, 2.0)

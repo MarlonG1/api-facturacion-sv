@@ -3,6 +3,8 @@ module github.com/MarlonG1/api-facturacion-sv
 go 1.23.2
 
 require (
+	github.com/badoux/checkmail v1.2.4
+	github.com/dimiro1/health v0.0.0-20231118160444-e388c68d7d7e
 	github.com/go-co-op/gocron v1.37.0
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/golang-jwt/jwt v3.2.2+incompatible
@@ -21,6 +23,7 @@ require (
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
 	github.com/fsnotify/fsnotify v1.8.0 // indirect
+	github.com/garyburd/redigo v0.0.0-20160302234602-4ed1111375cb // indirect
 	github.com/go-sql-driver/mysql v1.7.0 // indirect
 	github.com/go-viper/mapstructure/v2 v2.2.1 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
