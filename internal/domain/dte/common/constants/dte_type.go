@@ -47,6 +47,13 @@ var (
 		OtroDocumento,
 	}
 
+	// ValidRetentionDTETypes Es una lista de valores permitidos para el campo DTEType de una retención
+	ValidRetentionDTETypes = map[string]bool{
+		FacturaElectronica:               true,
+		CCFElectronico:                   true,
+		FacturaSujetoExcluidoElectronica: true,
+	}
+
 	// ValidDTETypesForContingency Es una lista de valores permitidos que se puede enviar por contingencia
 	ValidDTETypesForContingency = map[string]bool{
 		FacturaElectronica:               true,

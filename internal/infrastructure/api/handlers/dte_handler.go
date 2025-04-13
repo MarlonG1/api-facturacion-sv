@@ -18,16 +18,20 @@ import (
 type DTEHandler struct {
 	invoiceUseCase      *dte.InvoiceUseCase
 	ccfUseCase          *dte.CCFUseCase
+	retentionUseCase    *dte.RetentionUseCase
 	dteConsultUseCase   *dte.DTEConsultUseCase
 	invalidationUseCase *dte.InvalidationUseCase
 	contingencyHandler  *helpers.ContingencyHandler
 	respWriter          *response.ResponseWriter
 }
 
-func NewDTEHandler(invoiceUseCase *dte.InvoiceUseCase, ccfUseCase *dte.CCFUseCase, dteConsultUseCase *dte.DTEConsultUseCase, invalidationUseCase *dte.InvalidationUseCase, contingencyHandler *helpers.ContingencyHandler) *DTEHandler {
+func NewDTEHandler(invoiceUseCase *dte.InvoiceUseCase, ccfUseCase *dte.CCFUseCase, retentionUseCase *dte.RetentionUseCase,
+	dteConsultUseCase *dte.DTEConsultUseCase, invalidationUseCase *dte.InvalidationUseCase,
+	contingencyHandler *helpers.ContingencyHandler) *DTEHandler {
 	return &DTEHandler{
 		invoiceUseCase:      invoiceUseCase,
 		ccfUseCase:          ccfUseCase,
+		retentionUseCase:    retentionUseCase,
 		dteConsultUseCase:   dteConsultUseCase,
 		invalidationUseCase: invalidationUseCase,
 		contingencyHandler:  contingencyHandler,
@@ -110,6 +114,40 @@ func (h *DTEHandler) CreateCCF(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// 3. Responder con la respuesta de la creación de CCF
+	h.respWriter.Success(w, http.StatusCreated, resp, options)
+}
+
+// CreateRetention godoc
+// @Summary      Create withholding certificate
+// @Description  Create a new withholding certificate
+// @Tags         DTE
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param Authorization header string true "Token JWT with Format 'Bearer {token}'"
+// @Param retention body structs.CreateRetentionRequest true "Withholding certificate data"
+// @Success      201 {object} response.APIDTEResponse
+// @Failure      400 {object} response.APIResponse
+// @Failure      500 {object} response.APIError
+// @Router       /api/v1/dte/retention [post]
+func (h *DTEHandler) CreateRetention(w http.ResponseWriter, r *http.Request) {
+	// 1. Decodificar la solicitud de creación de retención a un DTO de solicitud
+	var req structs.CreateRetentionRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		logs.Error("Failed to decode request body", map[string]interface{}{"error": err.Error()})
+		h.respWriter.Error(w, http.StatusBadRequest, "Invalid request format", nil)
+		return
+	}
+
+	// 2. Ejecutar el caso de uso de creación de retención
+	resp, options, err := h.retentionUseCase.Create(r.Context(), &req)
+	if err != nil {
+		logs.Warn("Error transmitting retention because", map[string]interface{}{"error": err.Error()})
+		h.respWriter.HandleError(w, err)
+		return
+	}
+
+	// 3. Responder con la respuesta de la creación de retención
 	h.respWriter.Success(w, http.StatusCreated, resp, options)
 }
 

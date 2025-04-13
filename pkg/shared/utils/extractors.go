@@ -1,6 +1,8 @@
 package utils
 
-import "encoding/json"
+import (
+	"encoding/json"
+)
 
 type AuxiliarIdentificationExtractor struct {
 	Identification struct {
@@ -11,6 +13,13 @@ type AuxiliarIdentificationExtractor struct {
 	Issuer struct {
 		NIT string `json:"nit"`
 	} `json:"emisor"`
+}
+
+type AuxiliarSummaryExtractor struct {
+	Summary struct {
+		SubTotal     float64 `json:"subTotal"`
+		IvaRetention float64 `json:"ivaRete1"`
+	} `json:"resumen"`
 }
 
 func ExtractAuxiliarIdentification(document interface{}) (AuxiliarIdentificationExtractor, error) {
@@ -44,19 +53,16 @@ func ExtractAuxiliarIdentificationFromStringJSON(document interface{}) (Auxiliar
 	return identification, nil
 }
 
-func ExtractAuxiliarDTEInfo(document interface{}) (AuxiliarIdentificationExtractor, error) {
-	var dteInfo AuxiliarIdentificationExtractor
+func ExtractAuxiliarSummaryFromStringJSON(document interface{}) (AuxiliarSummaryExtractor, error) {
+	var summary AuxiliarSummaryExtractor
 
 	// 1. Convertir a formato JSON el documento
-	jsonData, err := json.Marshal(document)
-	if err != nil {
-		return dteInfo, err
+	jsonData := []byte(document.(string))
+
+	// 2. Extraer parte de la información del Resumen
+	if err := json.Unmarshal(jsonData, &summary); err != nil {
+		return summary, err
 	}
 
-	// 2. Extraer parte de la información del DTE
-	if err := json.Unmarshal(jsonData, &dteInfo); err != nil {
-		return dteInfo, err
-	}
-
-	return dteInfo, nil
+	return summary, nil
 }

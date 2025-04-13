@@ -192,8 +192,8 @@ func (s *InvoiceItemsStrategy) validateTotals() *dte_errors.DTEError {
 	summaryTaxed := decimal.NewFromFloat(s.Document.InvoiceSummary.TotalTaxed.GetValue())
 	if totalTaxed.Sub(summaryTaxed).Abs().GreaterThan(tolerance) {
 		return dte_errors.NewDTEErrorSimple("InvalidTotalTaxed",
-			totalTaxed.InexactFloat64(),
-			summaryTaxed.InexactFloat64())
+			summaryTaxed.InexactFloat64(),
+			totalTaxed.InexactFloat64())
 	}
 
 	// Validar total exento

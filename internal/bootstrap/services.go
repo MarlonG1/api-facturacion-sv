@@ -15,6 +15,8 @@ import (
 	invalidationService "github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/invalidation/service"
 	invoiceInterfaces "github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/invoice/interfaces"
 	invoiceService "github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/invoice/service"
+	retentionInterfaces "github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/retention/interfaces"
+	retentionService "github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/retention/service"
 	transmitter2 "github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/transmitter"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/transmitter/models"
 	batchPorts "github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/transmitter/ports"
@@ -57,6 +59,7 @@ type ServicesContainer struct {
 	healthManager           healthPorts.HealthManager
 	testManager             testPorts.TestManager
 	metricsManager          metricsPort.MetricsManager
+	retentionManager        retentionInterfaces.RetentionManager
 }
 
 func NewServicesContainer(repos *RepositoryContainer) *ServicesContainer {
@@ -84,6 +87,7 @@ func (c *ServicesContainer) Initialize() error {
 	c.invoiceManager = invoiceService.NewInvoiceService(c.sequentialManager)
 	c.ccfManager = ccfService.NewCCFService(c.sequentialManager)
 	c.invalidationManager = invalidationService.NewInvalidationManager(c.dteManager)
+	c.retentionManager = retentionService.NewRetentionManager(c.sequentialManager, c.dteManager)
 	c.testManager = test_endpoint.NewTestService(c.repos.db)
 	c.metricsManager = metrics.NewMetricManager(c.cacheManager)
 	c.healthManager = health.NewHealthService(&health.HealthServiceConfig{
@@ -126,6 +130,10 @@ func (c *ServicesContainer) Initialize() error {
 	)
 
 	return nil
+}
+
+func (c *ServicesContainer) RetentionManager() retentionInterfaces.RetentionManager {
+	return c.retentionManager
 }
 
 func (c *ServicesContainer) MetricsManager() metricsPort.MetricsManager {

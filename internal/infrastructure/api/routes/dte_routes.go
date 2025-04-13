@@ -9,6 +9,7 @@ func RegisterDTERoutes(r *mux.Router, h *handlers.DTEHandler) {
 	r.HandleFunc("/dte/invoices", h.CreateInvoice).Methods("POST")
 	r.HandleFunc("/dte/ccf", h.CreateCCF).Methods("POST")
 	r.HandleFunc("/dte/invalidation", h.InvalidateDocument).Methods("POST")
+	r.HandleFunc("/dte/retention", h.CreateRetention).Methods("POST")
 	r.HandleFunc("/dte/{id}", h.GetByGenerationCode).Methods("GET")
 	r.HandleFunc("/dte", h.GetAll).Methods("GET")
 }

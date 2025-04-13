@@ -30,7 +30,7 @@ func (c *HandlerContainer) Initialize() {
 	c.testHandler = handlers.NewTestHandler(c.services.TestManager())
 	c.authHandler = handlers.NewAuthHandler(c.useCases.AuthUseCase())
 	c.metricsHandler = handlers.NewMetricsHandler(c.services.MetricsManager())
-	c.dteHandler = handlers.NewDTEHandler(c.useCases.InvoiceUseCase(), c.useCases.CCFUseCase(), c.useCases.DTEConsultUseCase(), c.useCases.InvalidationUseCase(), c.contingencyHandler)
+	c.dteHandler = handlers.NewDTEHandler(c.useCases.InvoiceUseCase(), c.useCases.CCFUseCase(), c.useCases.RetentionUseCase(), c.useCases.DTEConsultUseCase(), c.useCases.InvalidationUseCase(), c.contingencyHandler)
 }
 
 func (c *HandlerContainer) MetricsHandler() *handlers.MetricsHandler {

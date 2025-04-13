@@ -387,6 +387,64 @@
                 }
             }
         },
+        "/api/v1/dte/retention": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Create a new withholding certificate",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "DTE"
+                ],
+                "summary": "Create withholding certificate",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Token JWT with Format 'Bearer {token}'",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Withholding certificate data",
+                        "name": "retention",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_MarlonG1_api-facturacion-sv_pkg_mapper_request_mapper_structs.CreateRetentionRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_MarlonG1_api-facturacion-sv_internal_infrastructure_api_response.APIDTEResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_MarlonG1_api-facturacion-sv_internal_infrastructure_api_response.APIResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_MarlonG1_api-facturacion-sv_internal_infrastructure_api_response.APIError"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/dte/{id}": {
             "get": {
                 "security": [
@@ -1085,6 +1143,32 @@
                 }
             }
         },
+        "github_com_MarlonG1_api-facturacion-sv_pkg_mapper_request_mapper_structs.CreateRetentionRequest": {
+            "type": "object",
+            "properties": {
+                "appendixes": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_MarlonG1_api-facturacion-sv_pkg_mapper_request_mapper_structs.AppendixRequest"
+                    }
+                },
+                "extension": {
+                    "$ref": "#/definitions/github_com_MarlonG1_api-facturacion-sv_pkg_mapper_request_mapper_structs.ExtensionRequest"
+                },
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_MarlonG1_api-facturacion-sv_pkg_mapper_request_mapper_structs.RetentionItem"
+                    }
+                },
+                "receiver": {
+                    "$ref": "#/definitions/github_com_MarlonG1_api-facturacion-sv_pkg_mapper_request_mapper_structs.ReceiverRequest"
+                },
+                "summary": {
+                    "$ref": "#/definitions/github_com_MarlonG1_api-facturacion-sv_pkg_mapper_request_mapper_structs.RetentionSummary"
+                }
+            }
+        },
         "github_com_MarlonG1_api-facturacion-sv_pkg_mapper_request_mapper_structs.CreditItemRequest": {
             "type": "object",
             "properties": {
@@ -1526,6 +1610,46 @@
                 },
                 "generation_type": {
                     "type": "integer"
+                }
+            }
+        },
+        "github_com_MarlonG1_api-facturacion-sv_pkg_mapper_request_mapper_structs.RetentionItem": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "document_number": {
+                    "type": "string"
+                },
+                "dte_type": {
+                    "type": "string"
+                },
+                "emission_date": {
+                    "type": "string"
+                },
+                "iva_amount": {
+                    "type": "number"
+                },
+                "retention_code": {
+                    "type": "string"
+                },
+                "taxed_amount": {
+                    "type": "number"
+                },
+                "type": {
+                    "type": "integer"
+                }
+            }
+        },
+        "github_com_MarlonG1_api-facturacion-sv_pkg_mapper_request_mapper_structs.RetentionSummary": {
+            "type": "object",
+            "properties": {
+                "total_retention_amount": {
+                    "type": "number"
+                },
+                "total_retention_iva": {
+                    "type": "number"
                 }
             }
         },

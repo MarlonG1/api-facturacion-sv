@@ -340,6 +340,23 @@ definitions:
       third_party_sale:
         $ref: '#/definitions/github_com_MarlonG1_api-facturacion-sv_pkg_mapper_request_mapper_structs.ThirdPartySaleRequest'
     type: object
+  github_com_MarlonG1_api-facturacion-sv_pkg_mapper_request_mapper_structs.CreateRetentionRequest:
+    properties:
+      appendixes:
+        items:
+          $ref: '#/definitions/github_com_MarlonG1_api-facturacion-sv_pkg_mapper_request_mapper_structs.AppendixRequest'
+        type: array
+      extension:
+        $ref: '#/definitions/github_com_MarlonG1_api-facturacion-sv_pkg_mapper_request_mapper_structs.ExtensionRequest'
+      items:
+        items:
+          $ref: '#/definitions/github_com_MarlonG1_api-facturacion-sv_pkg_mapper_request_mapper_structs.RetentionItem'
+        type: array
+      receiver:
+        $ref: '#/definitions/github_com_MarlonG1_api-facturacion-sv_pkg_mapper_request_mapper_structs.ReceiverRequest'
+      summary:
+        $ref: '#/definitions/github_com_MarlonG1_api-facturacion-sv_pkg_mapper_request_mapper_structs.RetentionSummary'
+    type: object
   github_com_MarlonG1_api-facturacion-sv_pkg_mapper_request_mapper_structs.CreditItemRequest:
     properties:
       code:
@@ -631,6 +648,32 @@ definitions:
         type: string
       generation_type:
         type: integer
+    type: object
+  github_com_MarlonG1_api-facturacion-sv_pkg_mapper_request_mapper_structs.RetentionItem:
+    properties:
+      description:
+        type: string
+      document_number:
+        type: string
+      dte_type:
+        type: string
+      emission_date:
+        type: string
+      iva_amount:
+        type: number
+      retention_code:
+        type: string
+      taxed_amount:
+        type: number
+      type:
+        type: integer
+    type: object
+  github_com_MarlonG1_api-facturacion-sv_pkg_mapper_request_mapper_structs.RetentionSummary:
+    properties:
+      total_retention_amount:
+        type: number
+      total_retention_iva:
+        type: number
     type: object
   github_com_MarlonG1_api-facturacion-sv_pkg_mapper_request_mapper_structs.TaxRequest:
     properties:
@@ -931,6 +974,43 @@ paths:
       security:
       - BearerAuth: []
       summary: Create Invoice
+      tags:
+      - DTE
+  /api/v1/dte/retention:
+    post:
+      consumes:
+      - application/json
+      description: Create a new withholding certificate
+      parameters:
+      - description: Token JWT with Format 'Bearer {token}'
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Withholding certificate data
+        in: body
+        name: retention
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_MarlonG1_api-facturacion-sv_pkg_mapper_request_mapper_structs.CreateRetentionRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/github_com_MarlonG1_api-facturacion-sv_internal_infrastructure_api_response.APIDTEResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_MarlonG1_api-facturacion-sv_internal_infrastructure_api_response.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_MarlonG1_api-facturacion-sv_internal_infrastructure_api_response.APIError'
+      security:
+      - BearerAuth: []
+      summary: Create withholding certificate
       tags:
       - DTE
   /api/v1/health:

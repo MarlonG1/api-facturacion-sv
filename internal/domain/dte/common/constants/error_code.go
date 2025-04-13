@@ -10,21 +10,29 @@ import (
 // ErrorCodesEn es un mapa que contiene los mensajes de error en inglés
 var ErrorCodesEn = map[string]string{
 	// Common errors
-	"RequiredField":         "The field %s is required",
-	"WithoutParams":         "Parameters are expected but none were received",
-	"ExceededParameters":    "Error %s The required parameters have been exceeded, check the number of parameters sent, actual: %d",
-	"InvalidLength":         "The field %s does not meet the required length, it must be %s characters, received %s",
-	"InvalidNumberRange":    "The field %s does not meet the required length, it must be %s digits, received %s",
-	"InvalidFormat":         "The field %s does not meet the required format, it must be %s, received %s",
-	"InvalidPattern":        "The field %s does not meet the required pattern, it must be %s, received %s",
-	"InvalidField":          "The field %s does not meet the defined business rules",
-	"InvalidDocumentNumber": "Invalid document number, must be: DUI with hyphen, NIT (with or without hyphen), or a document of 3-20 characters. Received: %s",
-	"NegativeDiscount":      "The discount %s is negative",
-	"ExcessiveDiscount":     "The discount %s is greater than the subtotal %s",
-	"NegativeTaxedAmount":   "The taxed sale %s is negative",
-	"ExcessiveTaxedAmount":  "The taxed sale %f is greater than the price * quantity %f",
-	"InvalidValue":          "The value %d is not valid, it must be %s for field %s",
-	"InvalidEmail":          "The email %s is not valid. It must be a valid, existing email address and must be at least 3 characters long and no longer than 100",
+	"RequiredField":                "The field %s is required",
+	"WithoutParams":                "Parameters are expected but none were received",
+	"ExceededParameters":           "Error %s The required parameters have been exceeded, check the number of parameters sent, actual: %d",
+	"InvalidLength":                "The field %s does not meet the required length, it must be %s characters, received %s",
+	"InvalidNumberRange":           "The field %s does not meet the required length, it must be %s digits, received %s",
+	"InvalidFormat":                "The field %s does not meet the required format, it must be %s, received %s",
+	"InvalidPattern":               "The field %s does not meet the required pattern, it must be %s, received %s",
+	"InvalidField":                 "The field %s does not meet the defined business rules",
+	"InvalidDocumentNumber":        "Invalid document number, must be: DUI with hyphen, NIT (with or without hyphen), or a document of 3-20 characters. Received: %s",
+	"NegativeDiscount":             "The discount %s is negative",
+	"ExcessiveDiscount":            "The discount %s is greater than the subtotal %s",
+	"NegativeTaxedAmount":          "The taxed sale %s is negative",
+	"ExcessiveTaxedAmount":         "The taxed sale %f is greater than the price * quantity %f",
+	"InvalidValue":                 "The value %d is not valid, it must be %s for field %s",
+	"InvalidEmail":                 "The email %s is not valid. It must be a valid, existing email address and must be at least 3 characters long and no longer than 100",
+	"InvalidRetentionCode":         "The retention code '%s' is not valid. It must be one of the allowed retention codes: (22 -> IVA 1 percent, C4 -> IVA 13 percent, C9 -> Other Cases)",
+	"InvalidRetentionIVA":          "For item %d, the retention IVA %f does not match the expected value %f. ",
+	"InvalidTotalSubjectRetention": "Total subject retention %f does not match the expected value %f",
+	"InvalidTotalIVARetention":     "Total IVA retention %f does not match the expected value %f",
+	"InconsistentReceiverNRC":      "The receiver NRC on document %s (%s) does not match the NRC on the first document (%s)",
+	"InconsistentReceiverNIT":      "The receiver NIT in document %s (%s) does not match the NIT in the first document (%s)",
+	"InvalidRetentionReceiver":     "The receiver information for the retention document could not be determined.",
+	"DateOutOfAllowedRange":        "The item %d with document number %s has a date that is out of the allowed range. The document must be from the current period or the immediate previous period, and the retention document must be issued within the first 10 business days of the following month",
 
 	// Identification errors
 	"InvalidVersion":     "The version %s is not valid, it must be a number between 1 and 3",
@@ -45,8 +53,9 @@ var ErrorCodesEn = map[string]string{
 	"InvalidTaxType":  "The tax type %s is not valid, it must be within the allowed tax catalog",
 
 	// Location errors
-	"InvalidMunicipality":      "Invalid municipality code %s for department %s. Municipality code must be a two-digit number that follows the official catalog pattern. For example, valid codes for this department include: %s. Please refer to the official municipality catalog.",
-	"InvalidEstablishmentType": "The establishment type %s is not valid, it must be: 01 -> (Headquarters), 02 -> (Branch), 04 -> (Warehouse), 07 -> (Property or Yard) and 20 -> (Other)",
+	"InvalidMunicipality":       "Invalid municipality code %s for department %s. Municipality code must be a two-digit number that follows the official catalog pattern. For example, valid codes for this department include: %s. Please refer to the official municipality catalog.",
+	"InvalidEstablishmentType":  "The establishment type %s is not valid, it must be: 01 -> (Headquarters), 02 -> (Branch), 04 -> (Warehouse), 07 -> (Property or Yard) and 20 -> (Other)",
+	"InvalidDocumentNumberItem": "The document number %s is not valid, when document type is '1' (physical), it must be a number between 1 and 20 characters, when document type is '2' (electronic), it must be a valid UUID",
 
 	// Electronic invoice
 	"InvalidServiceType":            "The services type %s is not valid, it must be a number between 1 and 6",
