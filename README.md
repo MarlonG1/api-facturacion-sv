@@ -1,13 +1,17 @@
 # API Facturación El Salvador
 
 [![Go Version](https://img.shields.io/badge/Go-1.23-blue.svg)](https://golang.org/)
+[![Documentación](https://img.shields.io/badge/Docs-GitHub%20Pages-blue)](https://marlong1.github.io/doc-api-facturacion-sv/)
 
 Una API para la gestión, emisión y transmisión de Documentos Tributarios Electrónicos (DTE) que cumple con los requisitos establecidos por la autoridad fiscal.
+
+> **📚 Documentación completa disponible en:** [marlong1.github.io/doc-api-facturacion-sv](https://marlong1.github.io/doc-api-facturacion-sv/)
 
 ## 📋 Características
 
 - Emisión de facturas electrónicas
 - Emisión de comprobantes de crédito fiscal (CCF)
+- Emisión de comprobantes de retención
 - Invalidación de documentos
 - Manejo de contingencias
 - Transmisión de documentos a Hacienda
@@ -78,17 +82,27 @@ Las variables de entorno están predefinidas en el archivo `docker-compose.yml`.
 
 El servicio expone las siguientes APIs:
 
-#### Endpoints
+#### Autenticación
 
 - `POST /api/v1/auth/login`: Autenticación de usuarios
 - `POST /api/v1/auth/register`: Registro de nuevos clientes
+
+#### Emisión de Documentos Tributarios
+
 - `POST /api/v1/dte/invoices`: Crear factura electrónica
 - `POST /api/v1/dte/ccf`: Crear comprobante de crédito fiscal
+- `POST /api/v1/dte/retention`: Crear comprobante de retención
 - `POST /api/v1/dte/invalidation`: Invalidar documento
 - `GET /api/v1/dte`: Listar todos los documentos emitidos por el usuario
+- `GET /api/v1/dte/{id}`: Obtener documento específico por ID
+
+#### Monitoreo y Estado del Sistema
+
 - `GET /api/v1/test`: Prueba los componentes del sistema
 - `GET /api/v1/metrics`: Obtener métricas de los endpoints
 - `GET /api/v1/health`: Estado de salud del servicio
+
+> **Nota**: Para más detalles sobre los endpoints y ejemplos de uso, consulta la [documentación completa](https://marlong1.github.io/doc-api-facturacion-sv/).
 
 ## 🚧 Gestión de contingencias
 
@@ -127,6 +141,8 @@ Para contribuir a este proyecto:
 5. No asumir comportamientos no documentados
 6. Justificar cualquier complejidad adicional
 
-## 📚 Documentación adicional
+## 📚 Recursos
 
+- [Documentación completa de la API](https://marlong1.github.io/doc-api-facturacion-sv/)
+- [Repositorio de la documentación](https://github.com/marlong1/doc-api-facturacion-sv)
 - [Guía de referencias JSON Schema y catálogos oficiales](https://factura.gob.sv/informacion-tecnica-y-funcional/)
