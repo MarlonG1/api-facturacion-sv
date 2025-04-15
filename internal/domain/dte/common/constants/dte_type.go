@@ -54,6 +54,12 @@ var (
 		FacturaSujetoExcluidoElectronica: true,
 	}
 
+	//ValidAdjustmentDTETypes  Es una lista de valores permitidos para el campo DTEType de un ajuste (Nota de crédito o débito)
+	ValidAdjustmentDTETypes = map[string]bool{
+		CCFElectronico:                  true,
+		ComprobanteRetencionElectronico: true,
+	}
+
 	// ValidDTETypesForContingency Es una lista de valores permitidos que se puede enviar por contingencia
 	ValidDTETypesForContingency = map[string]bool{
 		FacturaElectronica:               true,
