@@ -282,6 +282,64 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/dte/credit_note": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Create a new Credit Note",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "DTE"
+                ],
+                "summary": "Create Credit Note",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Token JWT with Format 'Bearer {token}'",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Credit Note data",
+                        "name": "credit_note",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_MarlonG1_api-facturacion-sv_pkg_mapper_request_mapper_structs.CreateCreditNoteRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_MarlonG1_api-facturacion-sv_internal_infrastructure_api_response.APIDTEResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_MarlonG1_api-facturacion-sv_internal_infrastructure_api_response.APIResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_MarlonG1_api-facturacion-sv_internal_infrastructure_api_response.APIError"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/dte/invalidate": {
             "post": {
                 "security": [
@@ -1104,6 +1162,56 @@ const docTemplate = `{
                 }
             }
         },
+        "github_com_MarlonG1_api-facturacion-sv_pkg_mapper_request_mapper_structs.CreateCreditNoteRequest": {
+            "type": "object",
+            "properties": {
+                "appendixes": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_MarlonG1_api-facturacion-sv_pkg_mapper_request_mapper_structs.AppendixRequest"
+                    }
+                },
+                "extension": {
+                    "$ref": "#/definitions/github_com_MarlonG1_api-facturacion-sv_pkg_mapper_request_mapper_structs.ExtensionRequest"
+                },
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_MarlonG1_api-facturacion-sv_pkg_mapper_request_mapper_structs.CreditNoteItemRequest"
+                    }
+                },
+                "model_type": {
+                    "type": "integer"
+                },
+                "other_docs": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_MarlonG1_api-facturacion-sv_pkg_mapper_request_mapper_structs.OtherDocRequest"
+                    }
+                },
+                "payments": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_MarlonG1_api-facturacion-sv_pkg_mapper_request_mapper_structs.PaymentRequest"
+                    }
+                },
+                "receiver": {
+                    "$ref": "#/definitions/github_com_MarlonG1_api-facturacion-sv_pkg_mapper_request_mapper_structs.ReceiverRequest"
+                },
+                "related_docs": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_MarlonG1_api-facturacion-sv_pkg_mapper_request_mapper_structs.RelatedDocRequest"
+                    }
+                },
+                "summary": {
+                    "$ref": "#/definitions/github_com_MarlonG1_api-facturacion-sv_pkg_mapper_request_mapper_structs.CreditNoteSummaryRequest"
+                },
+                "third_party_sale": {
+                    "$ref": "#/definitions/github_com_MarlonG1_api-facturacion-sv_pkg_mapper_request_mapper_structs.ThirdPartySaleRequest"
+                }
+            }
+        },
         "github_com_MarlonG1_api-facturacion-sv_pkg_mapper_request_mapper_structs.CreateInvoiceRequest": {
             "type": "object",
             "properties": {
@@ -1232,6 +1340,136 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "unit_price": {
+                    "type": "number"
+                }
+            }
+        },
+        "github_com_MarlonG1_api-facturacion-sv_pkg_mapper_request_mapper_structs.CreditNoteItemRequest": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "discount": {
+                    "type": "number"
+                },
+                "exempt_sale": {
+                    "type": "number"
+                },
+                "non_subject_sale": {
+                    "type": "number"
+                },
+                "non_taxed": {
+                    "type": "number"
+                },
+                "number": {
+                    "type": "integer"
+                },
+                "quantity": {
+                    "type": "number"
+                },
+                "related_doc": {
+                    "type": "string"
+                },
+                "suggested_price": {
+                    "type": "number"
+                },
+                "tax_code": {
+                    "type": "string"
+                },
+                "taxed_sale": {
+                    "type": "number"
+                },
+                "taxes": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "type": {
+                    "type": "integer"
+                },
+                "unit_measure": {
+                    "type": "integer"
+                },
+                "unit_price": {
+                    "type": "number"
+                }
+            }
+        },
+        "github_com_MarlonG1_api-facturacion-sv_pkg_mapper_request_mapper_structs.CreditNoteSummaryRequest": {
+            "type": "object",
+            "properties": {
+                "balance_in_favor": {
+                    "type": "number"
+                },
+                "discount_percentage": {
+                    "type": "number"
+                },
+                "exempt_discount": {
+                    "type": "number"
+                },
+                "income_retention": {
+                    "type": "number"
+                },
+                "iva_perception": {
+                    "type": "number"
+                },
+                "iva_retention": {
+                    "type": "number"
+                },
+                "non_subject_discount": {
+                    "type": "number"
+                },
+                "operation_condition": {
+                    "type": "integer"
+                },
+                "payment_types": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_MarlonG1_api-facturacion-sv_pkg_mapper_request_mapper_structs.PaymentRequest"
+                    }
+                },
+                "sub_total": {
+                    "type": "number"
+                },
+                "sub_total_sales": {
+                    "type": "number"
+                },
+                "taxed_discount": {
+                    "type": "number"
+                },
+                "taxes": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_MarlonG1_api-facturacion-sv_pkg_mapper_request_mapper_structs.TaxRequest"
+                    }
+                },
+                "total_discount": {
+                    "type": "number"
+                },
+                "total_exempt": {
+                    "type": "number"
+                },
+                "total_in_words": {
+                    "type": "string"
+                },
+                "total_non_subject": {
+                    "type": "number"
+                },
+                "total_non_taxed": {
+                    "type": "number"
+                },
+                "total_operation": {
+                    "type": "number"
+                },
+                "total_taxed": {
+                    "type": "number"
+                },
+                "total_to_pay": {
                     "type": "number"
                 }
             }

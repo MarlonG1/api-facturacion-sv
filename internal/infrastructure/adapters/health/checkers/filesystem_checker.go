@@ -3,6 +3,7 @@ package checkers
 import (
 	"fmt"
 	"github.com/MarlonG1/api-facturacion-sv/config"
+	health2 "github.com/MarlonG1/api-facturacion-sv/internal/domain/health"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/logs"
 	"github.com/dimiro1/health"
 	"os"
@@ -10,7 +11,6 @@ import (
 
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/health/constants"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/health/models"
-	"github.com/MarlonG1/api-facturacion-sv/internal/domain/health/ports"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/utils"
 )
 
@@ -18,7 +18,7 @@ type fileSystemChecker struct {
 	logPath string
 }
 
-func NewFileSystemChecker() ports.ComponentChecker {
+func NewFileSystemChecker() health2.ComponentChecker {
 	// Obtener la ruta absoluta del proyecto
 	logFilePath := filepath.Join(utils.FindProjectRoot()+config.Log.Path, "dte_microservice.log")
 

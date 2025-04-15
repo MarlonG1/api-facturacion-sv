@@ -3,20 +3,20 @@ package checkers
 import (
 	"fmt"
 	"github.com/MarlonG1/api-facturacion-sv/config"
+	"github.com/MarlonG1/api-facturacion-sv/internal/domain/health"
 	"github.com/dimiro1/health/url"
 	"net/http"
 	"time"
 
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/health/constants"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/health/models"
-	"github.com/MarlonG1/api-facturacion-sv/internal/domain/health/ports"
 )
 
 type signerChecker struct {
 	client *http.Client
 }
 
-func NewSignerChecker() ports.ComponentChecker {
+func NewSignerChecker() health.ComponentChecker {
 	return &signerChecker{
 		client: &http.Client{Timeout: 2 * time.Second},
 	}

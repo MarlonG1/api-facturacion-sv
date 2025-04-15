@@ -2,22 +2,23 @@ package dte
 
 import (
 	"context"
-	"github.com/MarlonG1/api-facturacion-sv/internal/domain/auth/models"
-	"github.com/MarlonG1/api-facturacion-sv/internal/domain/core/dte"
-	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/constants"
-	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/dte_documents/interfaces"
-	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/shared_error"
 	"net/http"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/MarlonG1/api-facturacion-sv/internal/domain/auth/models"
+	"github.com/MarlonG1/api-facturacion-sv/internal/domain/core/dte"
+	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/constants"
+	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/dte_documents"
+	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/shared_error"
 )
 
 type DTEConsultUseCase struct {
-	dteService interfaces.DTEManager
+	dteService dte_documents.DTEManager
 }
 
-func NewDTEConsultUseCase(dteService interfaces.DTEManager) *DTEConsultUseCase {
+func NewDTEConsultUseCase(dteService dte_documents.DTEManager) *DTEConsultUseCase {
 	return &DTEConsultUseCase{
 		dteService: dteService,
 	}

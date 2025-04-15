@@ -7,7 +7,8 @@ import (
 	"fmt"
 	"github.com/MarlonG1/api-facturacion-sv/config"
 	"github.com/MarlonG1/api-facturacion-sv/config/drivers"
-	ports2 "github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/ports"
+	"github.com/MarlonG1/api-facturacion-sv/internal/domain/auth"
+	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/contingency"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/shared_error"
 	"github.com/golang-jwt/jwt"
 	"github.com/google/uuid"
@@ -22,7 +23,6 @@ import (
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/core/user"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/constants"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/contingency/models"
-	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/contingency/ports"
 	authPorts "github.com/MarlonG1/api-facturacion-sv/internal/domain/ports"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/logs"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/utils"
@@ -30,13 +30,13 @@ import (
 
 // ContingencyEventService maneja la preparación y envío de eventos de contingencia
 type ContingencyEventService struct {
-	authManager  authPorts.AuthManager
+	authManager  auth.AuthManager
 	haciendaAuth haciendaPorts.HaciendaAuthManager
 	cache        authPorts.CacheManager
 	tokenService authPorts.TokenManager
 	signer       haciendaPorts.SignerManager
-	repo         ports.ContingencyRepositoryPort
-	timeProvider ports2.TimeProvider
+	repo         contingency.ContingencyRepositoryPort
+	timeProvider authPorts.TimeProvider
 	httpClient   *http.Client
 	connection   *drivers.DbConnection
 }
@@ -49,13 +49,13 @@ type HaciendaContingencyRequest struct {
 
 // NewContingencyEventService constructor para ContingencyEventService
 func NewContingencyEventService(
-	authManager authPorts.AuthManager,
+	authManager auth.AuthManager,
 	haciendaAuth haciendaPorts.HaciendaAuthManager,
 	cache authPorts.CacheManager,
 	tokenService authPorts.TokenManager,
 	signer haciendaPorts.SignerManager,
-	repo ports.ContingencyRepositoryPort,
-	timeProvider ports2.TimeProvider,
+	repo contingency.ContingencyRepositoryPort,
+	timeProvider authPorts.TimeProvider,
 	connection *drivers.DbConnection,
 ) *ContingencyEventService {
 	return &ContingencyEventService{

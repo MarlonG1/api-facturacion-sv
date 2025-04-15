@@ -3,7 +3,7 @@ package repositories
 import (
 	"context"
 	"errors"
-	"github.com/MarlonG1/api-facturacion-sv/internal/domain/ports"
+	"github.com/MarlonG1/api-facturacion-sv/internal/domain/auth"
 	"gorm.io/gorm"
 
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/core/dte"
@@ -17,7 +17,7 @@ type AuthRepository struct {
 	db *gorm.DB
 }
 
-func NewAuthRepository(db *gorm.DB) ports.AuthRepositoryPort {
+func NewAuthRepository(db *gorm.DB) auth.AuthRepositoryPort {
 	return &AuthRepository{db: db}
 }
 

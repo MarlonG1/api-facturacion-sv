@@ -3,18 +3,18 @@ package handlers
 import (
 	"net/http"
 
+	"github.com/MarlonG1/api-facturacion-sv/internal/domain/test_endpoint"
 	_ "github.com/MarlonG1/api-facturacion-sv/internal/domain/test_endpoint/models"
-	"github.com/MarlonG1/api-facturacion-sv/internal/domain/test_endpoint/ports"
 	"github.com/MarlonG1/api-facturacion-sv/internal/infrastructure/api/response"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/logs"
 )
 
 type TestHandler struct {
-	testManager    ports.TestManager
+	testManager    test_endpoint.TestManager
 	responseWriter *response.ResponseWriter
 }
 
-func NewTestHandler(testManager ports.TestManager) *TestHandler {
+func NewTestHandler(testManager test_endpoint.TestManager) *TestHandler {
 	return &TestHandler{
 		testManager:    testManager,
 		responseWriter: response.NewResponseWriter(),

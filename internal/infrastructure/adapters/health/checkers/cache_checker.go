@@ -2,16 +2,16 @@ package checkers
 
 import (
 	"fmt"
+	"github.com/MarlonG1/api-facturacion-sv/internal/domain/health"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/health/constants"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/health/models"
-	"github.com/MarlonG1/api-facturacion-sv/internal/domain/health/ports"
 	"github.com/dimiro1/health/redis"
 )
 
 type redisChecker struct {
 }
 
-func NewRedisChecker() ports.ComponentChecker {
+func NewRedisChecker() health.ComponentChecker {
 	return &redisChecker{}
 }
 

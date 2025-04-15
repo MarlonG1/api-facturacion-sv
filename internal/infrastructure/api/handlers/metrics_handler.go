@@ -1,20 +1,21 @@
 package handlers
 
 import (
+	"net/http"
+
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/auth/models"
+	"github.com/MarlonG1/api-facturacion-sv/internal/domain/metrics"
 	_ "github.com/MarlonG1/api-facturacion-sv/internal/domain/metrics/models"
-	"github.com/MarlonG1/api-facturacion-sv/internal/domain/metrics/ports"
 	"github.com/MarlonG1/api-facturacion-sv/internal/infrastructure/api/response"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/logs"
-	"net/http"
 )
 
 type MetricsHandler struct {
-	metricsManager ports.MetricsManager
+	metricsManager metrics.MetricsManager
 	responseWriter *response.ResponseWriter
 }
 
-func NewMetricsHandler(metricsManager ports.MetricsManager) *MetricsHandler {
+func NewMetricsHandler(metricsManager metrics.MetricsManager) *MetricsHandler {
 	return &MetricsHandler{
 		metricsManager: metricsManager,
 		responseWriter: response.NewResponseWriter(),

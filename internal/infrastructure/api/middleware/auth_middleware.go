@@ -2,10 +2,10 @@ package middleware
 
 import (
 	"context"
-	"github.com/MarlonG1/api-facturacion-sv/internal/domain/ports"
 	"net/http"
 	"strings"
 
+	"github.com/MarlonG1/api-facturacion-sv/internal/domain/ports"
 	"github.com/MarlonG1/api-facturacion-sv/internal/infrastructure/api/response"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/logs"
 )

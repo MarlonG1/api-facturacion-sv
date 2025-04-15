@@ -6,7 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/MarlonG1/api-facturacion-sv/config"
-	"github.com/MarlonG1/api-facturacion-sv/internal/domain/ports"
+	"github.com/MarlonG1/api-facturacion-sv/internal/domain/auth"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/shared_error"
 	"io/ioutil"
 	"net/http"
@@ -16,7 +16,7 @@ import (
 )
 
 type DTESigner struct {
-	clientRepo ports.AuthRepositoryPort
+	clientRepo auth.AuthRepositoryPort
 	client     *http.Client
 }
 
@@ -41,7 +41,7 @@ type SpringBootError struct {
 	Path      string `json:"path"`
 }
 
-func NewDTESigner(clientRepo ports.AuthRepositoryPort) *DTESigner {
+func NewDTESigner(clientRepo auth.AuthRepositoryPort) *DTESigner {
 	return &DTESigner{
 		clientRepo: clientRepo,
 		client:     &http.Client{Timeout: 2 * time.Second},

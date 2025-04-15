@@ -63,6 +63,7 @@ var ErrorCodesEn = map[string]string{
 	"InvalidPaymentTerms":           "When the operation condition type is '2' (credit), payment terms and period are required",
 	"InvalidPaymentTypeOP2":         "When the operation condition type is '2' (credit), the payment type '01' (cash) is not allowed",
 	"InvalidPaymentTermsOF":         "When the operation condition type is '1' (cash), payment terms and period are not allowed",
+	"InvalidCreditNoteTransaction":  "The total %s is greater than the remaining balance for the document %s. Got total:%f, Remaining balance for this total: %f",
 
 	"UnknownError": "No documentation found for the error, please contact the support team",
 	"ServerError":  "An unexpected error has occurred",

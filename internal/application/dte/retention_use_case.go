@@ -2,14 +2,15 @@ package dte
 
 import (
 	"context"
+
 	"github.com/MarlonG1/api-facturacion-sv/config"
 	appPorts "github.com/MarlonG1/api-facturacion-sv/internal/application/ports"
+	"github.com/MarlonG1/api-facturacion-sv/internal/domain/auth"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/auth/models"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/constants"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/dte_errors"
-	transmissionPorts "github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/dte_documents/interfaces"
-	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/retention/interfaces"
-	"github.com/MarlonG1/api-facturacion-sv/internal/domain/ports"
+	transmissionPorts "github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/dte_documents"
+	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/retention"
 	"github.com/MarlonG1/api-facturacion-sv/internal/infrastructure/api/response"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/mapper/request_mapper"
 	requestDTO "github.com/MarlonG1/api-facturacion-sv/pkg/mapper/request_mapper/structs"
@@ -21,13 +22,13 @@ import (
 
 type RetentionUseCase struct {
 	dteManager       transmissionPorts.DTEManager
-	authService      ports.AuthManager
-	retentionService interfaces.RetentionManager
+	authService      auth.AuthManager
+	retentionService retention.RetentionManager
 	transmitter      appPorts.BaseTransmitter
 	mapper           *request_mapper.RetentionMapper
 }
 
-func NewRetentionUseCase(authService ports.AuthManager, retentionService interfaces.RetentionManager, dteService transmissionPorts.DTEManager, transmitter appPorts.BaseTransmitter) *RetentionUseCase {
+func NewRetentionUseCase(authService auth.AuthManager, retentionService retention.RetentionManager, dteService transmissionPorts.DTEManager, transmitter appPorts.BaseTransmitter) *RetentionUseCase {
 	return &RetentionUseCase{
 		authService:      authService,
 		dteManager:       dteService,

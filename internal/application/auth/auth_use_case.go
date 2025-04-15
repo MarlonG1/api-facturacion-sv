@@ -2,6 +2,7 @@ package auth
 
 import (
 	"context"
+	"github.com/MarlonG1/api-facturacion-sv/internal/domain/auth"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/auth/models"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/core/user"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/ports"
@@ -9,11 +10,11 @@ import (
 )
 
 type AuthUseCase struct {
-	authManager  ports.AuthManager
+	authManager  auth.AuthManager
 	cryptManager ports.CryptManager
 }
 
-func NewAuthUseCase(authManager ports.AuthManager, cryptManager ports.CryptManager) *AuthUseCase {
+func NewAuthUseCase(authManager auth.AuthManager, cryptManager ports.CryptManager) *AuthUseCase {
 	return &AuthUseCase{
 		authManager:  authManager,
 		cryptManager: cryptManager,

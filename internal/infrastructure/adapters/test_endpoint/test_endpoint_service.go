@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"github.com/MarlonG1/api-facturacion-sv/internal/domain/test_endpoint"
 	"gorm.io/gorm"
 	"net/http"
 	"time"
@@ -20,7 +21,6 @@ import (
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/value_objects/location"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/invoice/invoice_models"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/test_endpoint/models"
-	"github.com/MarlonG1/api-facturacion-sv/internal/domain/test_endpoint/ports"
 	"github.com/MarlonG1/api-facturacion-sv/internal/infrastructure/database/db_models"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/mapper/request_mapper/common"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/mapper/response_mapper"
@@ -32,7 +32,7 @@ type testService struct {
 	db *gorm.DB
 }
 
-func NewTestService(db *gorm.DB) ports.TestManager {
+func NewTestService(db *gorm.DB) test_endpoint.TestManager {
 	return &testService{
 		db: db,
 	}

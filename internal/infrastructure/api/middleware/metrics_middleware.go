@@ -3,14 +3,14 @@ package middleware
 import (
 	"encoding/json"
 	"fmt"
-	metricsModels "github.com/MarlonG1/api-facturacion-sv/internal/domain/metrics/models"
-	"github.com/MarlonG1/api-facturacion-sv/internal/domain/ports"
 	"net/http"
 	"regexp"
 	"strings"
 	"time"
 
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/auth/models"
+	metricsModels "github.com/MarlonG1/api-facturacion-sv/internal/domain/metrics/models"
+	"github.com/MarlonG1/api-facturacion-sv/internal/domain/ports"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/logs"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/utils"
 )
@@ -29,6 +29,8 @@ var (
 		"POST:/api/v1/dte/invoices":     "invoices",
 		"POST:/api/v1/dte/ccf":          "ccf",
 		"POST:/api/v1/dte/invalidation": "invalidation",
+		"POST:/api/v1/dte/retention":    "retention",
+		"POST:/api/v1/dte/credit_note":  "credit_note",
 	}
 )
 

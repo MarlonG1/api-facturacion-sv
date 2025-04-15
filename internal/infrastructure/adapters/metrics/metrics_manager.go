@@ -3,8 +3,8 @@ package metrics
 import (
 	"encoding/json"
 	"fmt"
+	metricsPort "github.com/MarlonG1/api-facturacion-sv/internal/domain/metrics"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/metrics/models"
-	metricsPort "github.com/MarlonG1/api-facturacion-sv/internal/domain/metrics/ports"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/ports"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/logs"
 )
@@ -17,7 +17,7 @@ type MetricManager struct {
 	}
 }
 
-func NewMetricManager(cache ports.CacheManager) metricsPort.MetricsManager {
+func NewMetricService(cache ports.CacheManager) metricsPort.MetricsManager {
 	return &MetricManager{
 		cache: cache,
 		endpoints: []struct {
@@ -27,6 +27,8 @@ func NewMetricManager(cache ports.CacheManager) metricsPort.MetricsManager {
 			{path: "invoices", method: "POST"},
 			{path: "ccf", method: "POST"},
 			{path: "invalidation", method: "POST"},
+			{path: "retention", method: "POST"},
+			{path: "credit_note", method: "POST"},
 			{path: "dte", method: "GET"},
 			{path: "dte/{id}", method: "GET"},
 		},

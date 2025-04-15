@@ -6,9 +6,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/MarlonG1/api-facturacion-sv/config"
+	health2 "github.com/MarlonG1/api-facturacion-sv/internal/domain/health"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/health/constants"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/health/models"
-	"github.com/MarlonG1/api-facturacion-sv/internal/domain/health/ports"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/logs"
 	"github.com/dimiro1/health"
 	"io"
@@ -21,7 +21,7 @@ type haciendaChecker struct {
 	client *http.Client
 }
 
-func NewHaciendaChecker() ports.ComponentChecker {
+func NewHaciendaChecker() health2.ComponentChecker {
 	return &haciendaChecker{
 		client: &http.Client{Timeout: 2 * time.Second},
 	}

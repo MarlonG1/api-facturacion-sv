@@ -2,9 +2,9 @@ package checkers
 
 import (
 	"fmt"
+	"github.com/MarlonG1/api-facturacion-sv/internal/domain/health"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/health/constants"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/health/models"
-	"github.com/MarlonG1/api-facturacion-sv/internal/domain/health/ports"
 	"github.com/dimiro1/health/db"
 	"gorm.io/gorm"
 )
@@ -13,7 +13,7 @@ type databaseChecker struct {
 	db *gorm.DB
 }
 
-func NewDatabaseChecker(db *gorm.DB) ports.ComponentChecker {
+func NewDatabaseChecker(db *gorm.DB) health.ComponentChecker {
 	return &databaseChecker{db: db}
 }
 

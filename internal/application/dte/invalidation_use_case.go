@@ -2,12 +2,13 @@ package dte
 
 import (
 	"context"
+
 	"github.com/MarlonG1/api-facturacion-sv/internal/application/ports"
+	authManager "github.com/MarlonG1/api-facturacion-sv/internal/domain/auth"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/auth/models"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/dte_errors"
-	dteInterfaces "github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/dte_documents/interfaces"
-	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/invalidation/interfaces"
-	authManager "github.com/MarlonG1/api-facturacion-sv/internal/domain/ports"
+	dteInterfaces "github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/dte_documents"
+	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/invalidation"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/mapper/request_mapper"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/mapper/request_mapper/structs"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/mapper/response_mapper"
@@ -18,12 +19,12 @@ import (
 type InvalidationUseCase struct {
 	dteManager          dteInterfaces.DTEManager
 	authManager         authManager.AuthManager
-	invalidationManager interfaces.InvalidationManager
+	invalidationManager invalidation.InvalidationManager
 	mapper              *request_mapper.InvalidationMapper
 	transmitter         ports.BaseTransmitter
 }
 
-func NewInvalidationUseCase(dteManager dteInterfaces.DTEManager, invalidationManager interfaces.InvalidationManager, authManager authManager.AuthManager, transmitter ports.BaseTransmitter) *InvalidationUseCase {
+func NewInvalidationUseCase(dteManager dteInterfaces.DTEManager, invalidationManager invalidation.InvalidationManager, authManager authManager.AuthManager, transmitter ports.BaseTransmitter) *InvalidationUseCase {
 	return &InvalidationUseCase{
 		dteManager:          dteManager,
 		invalidationManager: invalidationManager,

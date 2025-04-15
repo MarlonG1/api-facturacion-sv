@@ -51,11 +51,6 @@ func (s *RelatedDocsStrategy) Validate() *dte_errors.DTEError {
 
 // validateRelatedDoc valida un documento relacionado
 func (s *RelatedDocsStrategy) validateRelatedDoc(doc interfaces.RelatedDocument) *dte_errors.DTEError {
-	// Validar que el tipo de documento sea permitido
-	if !isValidDocType(doc.GetDocumentType()) {
-		return dte_errors.NewDTEErrorSimple("InvalidRelatedDocType",
-			doc.GetDocumentType())
-	}
 
 	// Validar que la fecha no sea futura
 	if doc.GetEmissionDate().After(utils.TimeNow()) {
@@ -70,20 +65,6 @@ func (s *RelatedDocsStrategy) validateRelatedDoc(doc interfaces.RelatedDocument)
 	}
 
 	return nil
-}
-
-func isValidDocType(docType string) bool {
-	validTypes := []string{
-		constants.NotaRemisionElectronica,
-		constants.DocContableLiquidacionElectronico,
-	}
-
-	for _, t := range validTypes {
-		if t == docType {
-			return true
-		}
-	}
-	return false
 }
 
 // validateElectronicDocNumber valida el número de documento electrónico

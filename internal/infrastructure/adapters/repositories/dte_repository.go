@@ -6,7 +6,7 @@ import (
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/auth/models"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/core/dte"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/constants"
-	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/dte_documents/ports"
+	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/dte_documents"
 	"github.com/MarlonG1/api-facturacion-sv/internal/infrastructure/database/db_models"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/utils"
 	"gorm.io/gorm"
@@ -17,7 +17,7 @@ type DTERepository struct {
 	db *gorm.DB
 }
 
-func NewDTERepository(db *gorm.DB) ports.DTERepositoryPort {
+func NewDTERepository(db *gorm.DB) dte_documents.DTERepositoryPort {
 	return &DTERepository{
 		db: db,
 	}

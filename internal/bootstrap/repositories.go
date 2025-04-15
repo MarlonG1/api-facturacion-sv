@@ -2,9 +2,9 @@ package bootstrap
 
 import (
 	"github.com/MarlonG1/api-facturacion-sv/config/drivers"
-	contiPorts "github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/contingency/ports"
-	dtePorts "github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/dte_documents/ports"
-	domainPorts "github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/ports"
+	"github.com/MarlonG1/api-facturacion-sv/internal/domain/auth"
+	contiPorts "github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/contingency"
+	dtePorts "github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/dte_documents"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/ports"
 	"github.com/MarlonG1/api-facturacion-sv/internal/infrastructure/adapters/repositories"
 	"gorm.io/gorm"
@@ -14,9 +14,9 @@ type RepositoryContainer struct {
 	connection *drivers.DbConnection
 	db         *gorm.DB
 
-	authRepo                   ports.AuthRepositoryPort
-	sequentialNumberRepo       domainPorts.SequentialNumberRepositoryPort
-	failedSequentialNumberRepo domainPorts.FailedSequenceNumberRepositoryPort
+	authRepo                   auth.AuthRepositoryPort
+	sequentialNumberRepo       ports.SequentialNumberRepositoryPort
+	failedSequentialNumberRepo ports.FailedSequenceNumberRepositoryPort
 	dteRepo                    dtePorts.DTERepositoryPort
 	contingencyRepo            contiPorts.ContingencyRepositoryPort
 }
@@ -36,7 +36,7 @@ func (c *RepositoryContainer) Initialize() {
 	c.failedSequentialNumberRepo = repositories.NewFailedSequenceNumberRepository(c.db)
 }
 
-func (c *RepositoryContainer) FailedSequentialNumberRepo() domainPorts.FailedSequenceNumberRepositoryPort {
+func (c *RepositoryContainer) FailedSequentialNumberRepo() ports.FailedSequenceNumberRepositoryPort {
 	return c.failedSequentialNumberRepo
 }
 
@@ -48,10 +48,10 @@ func (c *RepositoryContainer) DTERepo() dtePorts.DTERepositoryPort {
 	return c.dteRepo
 }
 
-func (c *RepositoryContainer) AuthRepo() ports.AuthRepositoryPort {
+func (c *RepositoryContainer) AuthRepo() auth.AuthRepositoryPort {
 	return c.authRepo
 }
 
-func (c *RepositoryContainer) SequentialNumberRepo() domainPorts.SequentialNumberRepositoryPort {
+func (c *RepositoryContainer) SequentialNumberRepo() ports.SequentialNumberRepositoryPort {
 	return c.sequentialNumberRepo
 }

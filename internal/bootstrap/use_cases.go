@@ -15,6 +15,7 @@ type UseCaseContainer struct {
 	retentionUseCase    *dte.RetentionUseCase
 	dteConsult          *dte.DTEConsultUseCase
 	invalidationUseCase *dte.InvalidationUseCase
+	creditNoteUseCase   *dte.CreditNoteUseCase
 	baseTransmitter     ports.BaseTransmitter
 }
 
@@ -32,6 +33,11 @@ func (c *UseCaseContainer) Initialize() {
 	c.dteConsult = dte.NewDTEConsultUseCase(c.services.DTEManager())
 	c.invalidationUseCase = dte.NewInvalidationUseCase(c.services.DTEManager(), c.services.InvalidationManager(), c.services.AuthManager(), c.baseTransmitter)
 	c.retentionUseCase = dte.NewRetentionUseCase(c.services.AuthManager(), c.services.RetentionManager(), c.services.DTEManager(), c.baseTransmitter)
+	c.creditNoteUseCase = dte.NewCreditNoteUseCase(c.services.AuthManager(), c.services.CreditNoteManager(), c.baseTransmitter, c.services.DTEManager())
+}
+
+func (c *UseCaseContainer) CreditNoteUseCase() *dte.CreditNoteUseCase {
+	return c.creditNoteUseCase
 }
 
 func (c *UseCaseContainer) RetentionUseCase() *dte.RetentionUseCase {

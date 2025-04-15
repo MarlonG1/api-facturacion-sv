@@ -2,14 +2,15 @@ package dte
 
 import (
 	"context"
+
 	"github.com/MarlonG1/api-facturacion-sv/config"
 	appPorts "github.com/MarlonG1/api-facturacion-sv/internal/application/ports"
+	"github.com/MarlonG1/api-facturacion-sv/internal/domain/auth"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/auth/models"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/constants"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/dte_errors"
-	transmissionPorts "github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/dte_documents/interfaces"
-	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/invoice/interfaces"
-	"github.com/MarlonG1/api-facturacion-sv/internal/domain/ports"
+	transmissionPorts "github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/dte_documents"
+	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/invoice"
 	"github.com/MarlonG1/api-facturacion-sv/internal/infrastructure/api/response"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/mapper/request_mapper"
 	requestDTO "github.com/MarlonG1/api-facturacion-sv/pkg/mapper/request_mapper/structs"
@@ -20,14 +21,14 @@ import (
 )
 
 type InvoiceUseCase struct {
-	authService    ports.AuthManager
-	invoiceService interfaces.InvoiceManager
+	authService    auth.AuthManager
+	invoiceService invoice.InvoiceManager
 	dteService     transmissionPorts.DTEManager
 	transmitter    appPorts.BaseTransmitter
 	mapper         *request_mapper.InvoiceMapper
 }
 
-func NewInvoiceUseCase(authService ports.AuthManager, invoiceService interfaces.InvoiceManager,
+func NewInvoiceUseCase(authService auth.AuthManager, invoiceService invoice.InvoiceManager,
 	transmitter appPorts.BaseTransmitter, dteService transmissionPorts.DTEManager) *InvoiceUseCase {
 	return &InvoiceUseCase{
 		authService:    authService,

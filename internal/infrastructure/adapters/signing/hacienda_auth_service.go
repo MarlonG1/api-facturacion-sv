@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/MarlonG1/api-facturacion-sv/config"
 	ports2 "github.com/MarlonG1/api-facturacion-sv/internal/application/ports"
+	"github.com/MarlonG1/api-facturacion-sv/internal/domain/auth"
 	"io"
 	"net/http"
 	"net/url"
@@ -22,7 +23,7 @@ import (
 type HaciendaAuthService struct {
 	client      *http.Client
 	cache       ports.CacheManager
-	authService ports.AuthManager
+	authService auth.AuthManager
 }
 
 type haciendaAuthRequest struct {
@@ -39,7 +40,7 @@ type haciendaAuthResponse struct {
 }
 
 // NewHaciendaAuthService crea una instancia de HaciendaAuthService. Recibe un cache de tokens de Hacienda.
-func NewHaciendaAuthService(cache ports.CacheManager, authService ports.AuthManager) ports2.HaciendaAuthManager {
+func NewHaciendaAuthService(cache ports.CacheManager, authService auth.AuthManager) ports2.HaciendaAuthManager {
 	return &HaciendaAuthService{
 		authService: authService,
 		client:      &http.Client{},

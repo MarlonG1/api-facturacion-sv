@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/subtle"
 	"errors"
+	"github.com/MarlonG1/api-facturacion-sv/internal/domain/auth"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/auth/constants"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/ports"
 	"time"
@@ -14,12 +15,12 @@ import (
 )
 
 type StandardAuthStrategy struct {
-	authRepo     ports.AuthRepositoryPort
+	authRepo     auth.AuthRepositoryPort
 	cacheService ports.CacheManager
 }
 
 // NewStandardAuthStrategy crea una instancia de StandardAuthStrategy. Recibe un repositorio de clientes.
-func NewStandardAuthStrategy(repo ports.AuthRepositoryPort, cacheService ports.CacheManager) *StandardAuthStrategy {
+func NewStandardAuthStrategy(repo auth.AuthRepositoryPort, cacheService ports.CacheManager) *StandardAuthStrategy {
 	return &StandardAuthStrategy{
 		cacheService: cacheService,
 		authRepo:     repo,

@@ -1,25 +1,25 @@
 package health
 
 import (
+	"github.com/MarlonG1/api-facturacion-sv/internal/domain/health"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/health/constants"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/health/models"
-	"github.com/MarlonG1/api-facturacion-sv/internal/domain/health/ports"
 	"github.com/MarlonG1/api-facturacion-sv/internal/infrastructure/adapters/health/checkers"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/utils"
 	"gorm.io/gorm"
 )
 
 type healthService struct {
-	checkers []ports.ComponentChecker
+	checkers []health.ComponentChecker
 }
 
 type HealthServiceConfig struct {
 	DB *gorm.DB
 }
 
-func NewHealthService(cfg *HealthServiceConfig) ports.HealthManager {
+func NewHealthService(cfg *HealthServiceConfig) health.HealthManager {
 	service := &healthService{
-		checkers: []ports.ComponentChecker{
+		checkers: []health.ComponentChecker{
 			checkers.NewDatabaseChecker(cfg.DB),
 			checkers.NewRedisChecker(),
 			checkers.NewHaciendaChecker(),

@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/core/user"
+	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/contingency"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/logs"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/utils"
 	"github.com/google/uuid"
@@ -14,7 +15,6 @@ import (
 
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/core/dte"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/constants"
-	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/contingency/ports"
 	"github.com/MarlonG1/api-facturacion-sv/internal/infrastructure/database/db_models"
 )
 
@@ -22,7 +22,7 @@ type ContingencyRepository struct {
 	db *gorm.DB
 }
 
-func NewContingencyRepository(db *gorm.DB) ports.ContingencyRepositoryPort {
+func NewContingencyRepository(db *gorm.DB) contingency.ContingencyRepositoryPort {
 	return &ContingencyRepository{db: db}
 }
 

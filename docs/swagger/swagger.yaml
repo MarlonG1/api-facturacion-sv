@@ -307,6 +307,39 @@ definitions:
       third_party_sale:
         $ref: '#/definitions/github_com_MarlonG1_api-facturacion-sv_pkg_mapper_request_mapper_structs.ThirdPartySaleRequest'
     type: object
+  github_com_MarlonG1_api-facturacion-sv_pkg_mapper_request_mapper_structs.CreateCreditNoteRequest:
+    properties:
+      appendixes:
+        items:
+          $ref: '#/definitions/github_com_MarlonG1_api-facturacion-sv_pkg_mapper_request_mapper_structs.AppendixRequest'
+        type: array
+      extension:
+        $ref: '#/definitions/github_com_MarlonG1_api-facturacion-sv_pkg_mapper_request_mapper_structs.ExtensionRequest'
+      items:
+        items:
+          $ref: '#/definitions/github_com_MarlonG1_api-facturacion-sv_pkg_mapper_request_mapper_structs.CreditNoteItemRequest'
+        type: array
+      model_type:
+        type: integer
+      other_docs:
+        items:
+          $ref: '#/definitions/github_com_MarlonG1_api-facturacion-sv_pkg_mapper_request_mapper_structs.OtherDocRequest'
+        type: array
+      payments:
+        items:
+          $ref: '#/definitions/github_com_MarlonG1_api-facturacion-sv_pkg_mapper_request_mapper_structs.PaymentRequest'
+        type: array
+      receiver:
+        $ref: '#/definitions/github_com_MarlonG1_api-facturacion-sv_pkg_mapper_request_mapper_structs.ReceiverRequest'
+      related_docs:
+        items:
+          $ref: '#/definitions/github_com_MarlonG1_api-facturacion-sv_pkg_mapper_request_mapper_structs.RelatedDocRequest'
+        type: array
+      summary:
+        $ref: '#/definitions/github_com_MarlonG1_api-facturacion-sv_pkg_mapper_request_mapper_structs.CreditNoteSummaryRequest'
+      third_party_sale:
+        $ref: '#/definitions/github_com_MarlonG1_api-facturacion-sv_pkg_mapper_request_mapper_structs.ThirdPartySaleRequest'
+    type: object
   github_com_MarlonG1_api-facturacion-sv_pkg_mapper_request_mapper_structs.CreateInvoiceRequest:
     properties:
       appendixes:
@@ -392,6 +425,92 @@ definitions:
       unit_measure:
         type: integer
       unit_price:
+        type: number
+    type: object
+  github_com_MarlonG1_api-facturacion-sv_pkg_mapper_request_mapper_structs.CreditNoteItemRequest:
+    properties:
+      code:
+        type: string
+      description:
+        type: string
+      discount:
+        type: number
+      exempt_sale:
+        type: number
+      non_subject_sale:
+        type: number
+      non_taxed:
+        type: number
+      number:
+        type: integer
+      quantity:
+        type: number
+      related_doc:
+        type: string
+      suggested_price:
+        type: number
+      tax_code:
+        type: string
+      taxed_sale:
+        type: number
+      taxes:
+        items:
+          type: string
+        type: array
+      type:
+        type: integer
+      unit_measure:
+        type: integer
+      unit_price:
+        type: number
+    type: object
+  github_com_MarlonG1_api-facturacion-sv_pkg_mapper_request_mapper_structs.CreditNoteSummaryRequest:
+    properties:
+      balance_in_favor:
+        type: number
+      discount_percentage:
+        type: number
+      exempt_discount:
+        type: number
+      income_retention:
+        type: number
+      iva_perception:
+        type: number
+      iva_retention:
+        type: number
+      non_subject_discount:
+        type: number
+      operation_condition:
+        type: integer
+      payment_types:
+        items:
+          $ref: '#/definitions/github_com_MarlonG1_api-facturacion-sv_pkg_mapper_request_mapper_structs.PaymentRequest'
+        type: array
+      sub_total:
+        type: number
+      sub_total_sales:
+        type: number
+      taxed_discount:
+        type: number
+      taxes:
+        items:
+          $ref: '#/definitions/github_com_MarlonG1_api-facturacion-sv_pkg_mapper_request_mapper_structs.TaxRequest'
+        type: array
+      total_discount:
+        type: number
+      total_exempt:
+        type: number
+      total_in_words:
+        type: string
+      total_non_subject:
+        type: number
+      total_non_taxed:
+        type: number
+      total_operation:
+        type: number
+      total_taxed:
+        type: number
+      total_to_pay:
         type: number
     type: object
   github_com_MarlonG1_api-facturacion-sv_pkg_mapper_request_mapper_structs.CreditSummaryRequest:
@@ -900,6 +1019,43 @@ paths:
       security:
       - BearerAuth: []
       summary: Create CCF
+      tags:
+      - DTE
+  /api/v1/dte/credit_note:
+    post:
+      consumes:
+      - application/json
+      description: Create a new Credit Note
+      parameters:
+      - description: Token JWT with Format 'Bearer {token}'
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Credit Note data
+        in: body
+        name: credit_note
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_MarlonG1_api-facturacion-sv_pkg_mapper_request_mapper_structs.CreateCreditNoteRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/github_com_MarlonG1_api-facturacion-sv_internal_infrastructure_api_response.APIDTEResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_MarlonG1_api-facturacion-sv_internal_infrastructure_api_response.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_MarlonG1_api-facturacion-sv_internal_infrastructure_api_response.APIError'
+      security:
+      - BearerAuth: []
+      summary: Create Credit Note
       tags:
       - DTE
   /api/v1/dte/invalidate:
