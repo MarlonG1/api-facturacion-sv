@@ -15,6 +15,10 @@ type DTEManager interface {
 	VerifyStatus(ctx context.Context, branchID uint, id string) (string, error)
 	// GetByGenerationCode obtiene un DTE por su código de generación para procesos internos.
 	GetByGenerationCode(ctx context.Context, branchID uint, generationCode string) (*dte.DTEDocument, error)
+	// GenerateBalanceTransaction genera una transacción de balance para un DTE.
+	GenerateBalanceTransaction(ctx context.Context, branchID uint, transactionType, id, originalDTE string, document interface{}) error
+	// ValidateForCreditNote valida un DTE para la creación de una Nota de Crédito.
+	ValidateForCreditNote(ctx context.Context, branchID uint, originalDTE string, document interface{}) error
 	// GetByGenerationCodeConsult obtiene un DTE por su código de generación para consultas.
 	GetByGenerationCodeConsult(ctx context.Context, branchID uint, generationCode string) (*dte.DTEResponse, error)
 	// GetAllDTEs obtiene todos los DTEs en la base de datos con filtros y paginación.

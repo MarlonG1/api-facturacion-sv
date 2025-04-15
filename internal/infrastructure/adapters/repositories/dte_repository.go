@@ -62,6 +62,62 @@ func (D *DTERepository) Create(ctx context.Context, document interface{}, transm
 	return nil
 }
 
+func (D *DTERepository) GetDTEBalanceControl(ctx context.Context, branchID uint, id string) (*dte.BalanceControl, error) {
+	var balanceControl db_models.DTEBalanceControl
+
+	// 1. Obtener el balance de un DTE por su ID
+	result := D.db.WithContext(ctx).
+		Preload("Transactions").
+		Where("branch_id = ? AND original_dte_id = ?", branchID, id).
+		First(&balanceControl)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return &dte.BalanceControl{
+		ID:                        balanceControl.ID,
+		BranchID:                  balanceControl.BranchID,
+		OriginalDTEID:             balanceControl.OriginalDTEID,
+		OriginalTaxedAmount:       balanceControl.OriginalTaxedAmount,
+		OriginalExemptAmount:      balanceControl.OriginalExemptAmount,
+		OriginalNotSubjectAmount:  balanceControl.OriginalTotalNotSubjectAmount,
+		RemainingTaxedAmount:      balanceControl.RemainingTaxedAmount,
+		RemainingExemptAmount:     balanceControl.RemainingExemptAmount,
+		RemainingNotSubjectAmount: balanceControl.RemainingNotSubjectAmount,
+	}, nil
+}
+
+func (D *DTERepository) GenerateBalanceTransaction(ctx context.Context, branchID uint, originalDTE string, transaction *dte.BalanceTransaction) error {
+	var balanceControl db_models.DTEBalanceControl
+
+	// 1. Obtener el balance de un DTE por su ID
+	result := D.db.WithContext(ctx).
+		Where("branch_id = ? AND original_dte_id = ?", branchID, originalDTE).
+		First(&balanceControl)
+	if result.Error != nil {
+		return result.Error
+	}
+
+	// 2. Crear un nuevo balance de transacción
+	dteTransaction := &db_models.DTEBalanceTransaction{
+		BalanceControlID:     balanceControl.ID,
+		BalanceControl:       &balanceControl,
+		AdjustmentDocumentID: transaction.AdjustmentDocumentID,
+		TransactionType:      transaction.TransactionType,
+		TaxedAmount:          transaction.TaxedAmount,
+		ExemptAmount:         transaction.ExemptAmount,
+		NotSubjectAmount:     transaction.NotSubjectAmount,
+	}
+
+	// 2. Guardar en la base de datos
+	result = D.db.WithContext(ctx).Create(dteTransaction)
+	if result.Error != nil {
+		return result.Error
+	}
+
+	return nil
+}
+
 func (D *DTERepository) Update(ctx context.Context, branchID uint, document dte.DTEDetails) error {
 	// 1. Actualizar el DTE en la base de datos
 	dbModel := &db_models.DTEDetails{

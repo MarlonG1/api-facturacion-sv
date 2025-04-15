@@ -22,18 +22,20 @@ type DTEHandler struct {
 	dteConsultUseCase   *dte.DTEConsultUseCase
 	invalidationUseCase *dte.InvalidationUseCase
 	contingencyHandler  *helpers.ContingencyHandler
+	creditNoteUseCase   *dte.CreditNoteUseCase
 	respWriter          *response.ResponseWriter
 }
 
 func NewDTEHandler(invoiceUseCase *dte.InvoiceUseCase, ccfUseCase *dte.CCFUseCase, retentionUseCase *dte.RetentionUseCase,
-	dteConsultUseCase *dte.DTEConsultUseCase, invalidationUseCase *dte.InvalidationUseCase,
-	contingencyHandler *helpers.ContingencyHandler) *DTEHandler {
+	creditNoteUseCase *dte.CreditNoteUseCase, dteConsultUseCase *dte.DTEConsultUseCase,
+	invalidationUseCase *dte.InvalidationUseCase, contingencyHandler *helpers.ContingencyHandler) *DTEHandler {
 	return &DTEHandler{
 		invoiceUseCase:      invoiceUseCase,
 		ccfUseCase:          ccfUseCase,
 		retentionUseCase:    retentionUseCase,
 		dteConsultUseCase:   dteConsultUseCase,
 		invalidationUseCase: invalidationUseCase,
+		creditNoteUseCase:   creditNoteUseCase,
 		contingencyHandler:  contingencyHandler,
 		respWriter:          response.NewResponseWriter(),
 	}
@@ -148,6 +150,44 @@ func (h *DTEHandler) CreateRetention(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// 3. Responder con la respuesta de la creación de retención
+	h.respWriter.Success(w, http.StatusCreated, resp, options)
+}
+
+// CreateCreditNote godoc
+// @Summary      Create Credit Note
+// @Description  Create a new Credit Note
+// @Tags         DTE
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param Authorization header string true "Token JWT with Format 'Bearer {token}'"
+// @Param credit_note body structs.CreateCreditNoteRequest true "Credit Note data"
+// @Success      201 {object} response.APIDTEResponse
+// @Failure      400 {object} response.APIResponse
+// @Failure      500 {object} response.APIError
+// @Router       /api/v1/dte/credit_note [post]
+func (h *DTEHandler) CreateCreditNote(w http.ResponseWriter, r *http.Request) {
+	// 1. Decodificar la solicitud de creación de nota de crédito a un DTO de solicitud
+	var req structs.CreateCreditNoteRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		logs.Error("Failed to decode request body", map[string]interface{}{"error": err.Error()})
+		h.respWriter.Error(w, http.StatusBadRequest, "Invalid request format", nil)
+		return
+	}
+
+	// 2. Ejecutar el caso de uso de creación de nota de crédito
+	resp, options, err := h.creditNoteUseCase.Create(r.Context(), &req)
+	if err != nil {
+		logs.Warn("Error transmitting credit note because", map[string]interface{}{"error": err.Error()})
+		err = h.handleErrorForContingency(r.Context(), resp, constants.NotaCreditoElectronica, options, err, w)
+		if err != nil {
+			h.respWriter.HandleError(w, err)
+			return
+		}
+		return
+	}
+
+	// 3. Responder con la respuesta de la creación de nota de crédito
 	h.respWriter.Success(w, http.StatusCreated, resp, options)
 }
 

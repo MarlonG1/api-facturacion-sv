@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/core/dte"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/constants"
+	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/dte_errors"
+	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/credit_note/credit_note_models"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/dte_documents/interfaces"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/dte_documents/ports"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/mapper/response_mapper/structs"
@@ -33,6 +35,58 @@ func (m *DTEManager) Create(ctx context.Context, document interface{}, transmiss
 	// 2. Crear el DTE en la base de datos
 	if err := m.repo.Create(ctx, document, transmission, status, receptionStamp); err != nil {
 		return shared_error.NewGeneralServiceError("DTEManager", "CreateDTE", "failed to create DTE", err)
+	}
+
+	return nil
+}
+
+func (m *DTEManager) GenerateBalanceTransaction(ctx context.Context, branchID uint, transactionType, originalDTE, adjustmentDTE string, document interface{}) error {
+	// 1. Extracer los datos del DTE
+	extractor, err := utils.ExtractSummaryTotalAmounts(document)
+	if err != nil {
+		return shared_error.NewGeneralServiceError("DTEManager", "GenerateBalanceTransaction", "failed to extract summary total amounts", err)
+	}
+
+	// 2. Crear la transacción de balance
+	transaction := dte.BalanceTransaction{
+		AdjustmentDocumentID: adjustmentDTE,
+		TransactionType:      transactionType,
+		TaxedAmount:          extractor.Summary.TotalTaxed,
+		ExemptAmount:         extractor.Summary.TotalExempt,
+		NotSubjectAmount:     extractor.Summary.TotalNotSubject,
+	}
+
+	// 3. Obtener el control de saldo del DTE
+	err = m.repo.GenerateBalanceTransaction(ctx, branchID, originalDTE, &transaction)
+	if err != nil {
+		return shared_error.NewGeneralServiceError("DTEManager", "GenerateBalanceTransaction", "failed to generate balance transaction", err)
+	}
+
+	return nil
+}
+
+func (m *DTEManager) ValidateForCreditNote(ctx context.Context, branchID uint, originalDTE string, document interface{}) error {
+
+	doc := document.(*credit_note_models.CreditNoteModel)
+	if doc == nil {
+		return shared_error.NewGeneralServiceError("DTEManager", "ValidateForCreditNote", "failed to cast document to CreditNoteModel", nil)
+	}
+
+	// 2. Obtener el control de saldo del DTE
+	balanceControl, err := m.repo.GetDTEBalanceControl(ctx, branchID, originalDTE)
+	if err != nil {
+		return shared_error.NewGeneralServiceError("DTEManager", "IsValidForCreditNote", "failed to get DTE balance control", err)
+	}
+
+	// 3. Verificar si el DTE es válido para la Nota de Crédito
+	if (balanceControl.RemainingTaxedAmount - doc.Summary.GetTotalTaxed()) < 0 {
+		return dte_errors.NewValidationError("InvalidCreditNoteTransaction", "Taxed", originalDTE, doc.Summary.GetTotalTaxed(), balanceControl.RemainingTaxedAmount)
+	}
+	if (balanceControl.RemainingExemptAmount - doc.Summary.GetTotalExempt()) < 0 {
+		return dte_errors.NewValidationError("InvalidCreditNoteTransaction", "Exempt", originalDTE, doc.Summary.GetTotalExempt(), balanceControl.RemainingExemptAmount)
+	}
+	if (balanceControl.RemainingNotSubjectAmount - doc.Summary.GetTotalNonSubject()) < 0 {
+		return dte_errors.NewValidationError("InvalidCreditNoteTransaction", "Not Subject", originalDTE, doc.Summary.GetTotalNonSubject(), balanceControl.RemainingNotSubjectAmount)
 	}
 
 	return nil
@@ -148,6 +202,12 @@ func (m *DTEManager) setReceptionStampIntoAppendix(document interface{}, recepti
 	case constants.CCFElectronico:
 		document.(*structs.CCFDTEResponse).Apendice =
 			append(document.(*structs.CCFDTEResponse).Apendice, *appendix)
+	case constants.NotaCreditoElectronica:
+		document.(*structs.CreditNoteDTEResponse).Apendice =
+			append(document.(*structs.CreditNoteDTEResponse).Apendice, *appendix)
+	case constants.ComprobanteRetencionElectronico:
+		document.(*structs.RetentionDTEResponse).Apendice =
+			append(document.(*structs.RetentionDTEResponse).Apendice, *appendix)
 	}
 
 	return nil
