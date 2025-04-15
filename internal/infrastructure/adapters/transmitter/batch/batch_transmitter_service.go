@@ -78,10 +78,8 @@ func (s *BatchTransmitterService) GetDTEVersion(dteType string) int {
 	switch dteType {
 	case constants.FacturaElectronica:
 		return 1
-	case constants.CCFElectronico:
-		return 2
 	default:
-		return 1 // Versión por defecto
+		return 2 // Versión por defecto
 	}
 }
 
@@ -201,16 +199,17 @@ func (s *BatchTransmitterService) transmitToHacienda(
 		)
 	}
 
-	logs.Info("Sending batch to Hacienda", map[string]interface{}{
-		"batchId": batch.SendID,
-		"ambient": batch.Ambient,
-		"docs":    len(batch.Documents),
-	})
-
 	reqBody, err := json.Marshal(batch)
 	if err != nil {
 		return nil, shared_error.NewGeneralServiceError("BatchTransmitterService", "transmitToHacienda", "failed to marshal request", err)
 	}
+
+	logs.Info("Sending batch to Hacienda", map[string]interface{}{
+		"batchId": batch.SendID,
+		"ambient": batch.Ambient,
+		"docs":    len(batch.Documents),
+		"body":    string(reqBody),
+	})
 
 	req, err := http.NewRequestWithContext(ctx, "POST", config.MHPaths.LoteReceptionURL, bytes.NewBuffer(reqBody))
 	if err != nil {
