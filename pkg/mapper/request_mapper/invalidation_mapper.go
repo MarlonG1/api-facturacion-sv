@@ -19,24 +19,24 @@ func NewInvalidationMapper() *InvalidationMapper {
 	return &InvalidationMapper{}
 }
 
-func (i *InvalidationMapper) MapToInvalidationDocument(req *structs.InvalidationRequest, client *dte.IssuerDTE, baseDte *dte.DTEDetails, emissionDate time.Time) (*models.InvalidationDocument, error) {
+func (i *InvalidationMapper) MapToInvalidationData(req *structs.CreateInvalidationRequest, client *dte.IssuerDTE, baseDte *dte.DTEDetails, emissionDate time.Time) (*models.InvalidationDocument, error) {
 	if req == nil {
-		return nil, shared_error.NewGeneralServiceError("InvalidationMapper", "MapToInvalidationDocument", "Invalid request", nil)
+		return nil, shared_error.NewGeneralServiceError("InvalidationMapper", "MapToInvalidationData", "Invalid request", nil)
 	}
 
 	reason, err := invalidation.MapInvalidationReasonRequest(req.Reason)
 	if err != nil {
-		return nil, shared_error.NewGeneralServiceError("InvalidationMapper", "MapToInvalidationDocument", "Error mapping reason", err)
+		return nil, shared_error.NewGeneralServiceError("InvalidationMapper", "MapToInvalidationData", "Error mapping reason", err)
 	}
 
 	document, err := invalidation.MapInvalidatedDocument(baseDte, req, emissionDate)
 	if err != nil {
-		return nil, shared_error.NewGeneralServiceError("InvalidationMapper", "MapToInvalidationDocument", "Error mapping invalidated document", err)
+		return nil, shared_error.NewGeneralServiceError("InvalidationMapper", "MapToInvalidationData", "Error mapping invalidated document", err)
 	}
 
 	identification, err := common.MapCommonRequestIdentification(1, 2, document.DocumentType.GetValue())
 	if err != nil {
-		return nil, shared_error.NewGeneralServiceError("InvalidationMapper", "MapToInvalidationDocument", "Error mapping identification", err)
+		return nil, shared_error.NewGeneralServiceError("InvalidationMapper", "MapToInvalidationData", "Error mapping identification", err)
 	}
 
 	newUUID := uuid.New().String()
@@ -55,7 +55,7 @@ func (i *InvalidationMapper) MapToInvalidationDocument(req *structs.Invalidation
 	}, nil
 }
 
-func (i *InvalidationMapper) ValidateInvalidationReRequest(req *structs.InvalidationRequest) error {
+func (i *InvalidationMapper) ValidateInvalidationReRequest(req *structs.CreateInvalidationRequest) error {
 	if req == nil {
 		return shared_error.NewGeneralServiceError("InvalidationMapper", "validateInvoiceRequest", "Empty request", nil)
 	}

@@ -1,4 +1,4 @@
-package bootstrap
+package containers
 
 import (
 	"github.com/MarlonG1/api-facturacion-sv/config/drivers"

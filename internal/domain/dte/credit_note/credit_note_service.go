@@ -2,6 +2,7 @@ package credit_note
 
 import (
 	"context"
+
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/constants"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/interfaces"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/models"
@@ -9,6 +10,7 @@ import (
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/credit_note/credit_note_models"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/credit_note/validator"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/dte_documents"
+	"github.com/MarlonG1/api-facturacion-sv/internal/domain/ports"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/logs"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/shared_error"
 )
@@ -20,7 +22,7 @@ type creditNoteService struct {
 }
 
 // NewCreditNoteService Crea un nuevo servicio de Nota de Crédito.
-func NewCreditNoteService(seqNumberManager dte_documents.SequentialNumberManager, dteManager dte_documents.DTEManager) CreditNoteManager {
+func NewCreditNoteService(seqNumberManager dte_documents.SequentialNumberManager, dteManager dte_documents.DTEManager) ports.DTEService {
 	return &creditNoteService{
 		validator:        validator.NewCreditNoteRulesValidator(nil),
 		seqNumberManager: seqNumberManager,
@@ -29,7 +31,8 @@ func NewCreditNoteService(seqNumberManager dte_documents.SequentialNumberManager
 }
 
 // Create Crea una nueva Nota de Crédito electrónica con base en los datos proporcionados.
-func (s *creditNoteService) Create(ctx context.Context, data *credit_note_models.CreditNoteInput, branchID uint) (*credit_note_models.CreditNoteModel, error) {
+func (s *creditNoteService) Create(ctx context.Context, input interface{}, branchID uint) (interface{}, error) {
+	data := input.(*credit_note_models.CreditNoteInput)
 	// 1. Validar la existencia de documentos relacionados
 	if err := s.validateRelatedDocs(ctx, data, branchID); err != nil {
 		logs.Error("Failed to validate related documents", map[string]interface{}{"error": err.Error()})
@@ -45,7 +48,7 @@ func (s *creditNoteService) Create(ctx context.Context, data *credit_note_models
 	}
 
 	// 3. Validar el documento base
-	if err := s.Validate(creditNote); err != nil {
+	if err := s.validate(creditNote); err != nil {
 		logs.Error("Failed to validate credit note document basic validation", map[string]interface{}{"error": err.Error()})
 		return nil, err
 	}
@@ -97,7 +100,7 @@ func (s *creditNoteService) validateRelatedDocs(ctx context.Context, data *credi
 }
 
 // Validate Valida una Nota de Crédito electrónica con base en las reglas de negocio.
-func (s *creditNoteService) Validate(creditNote *credit_note_models.CreditNoteModel) error {
+func (s *creditNoteService) validate(creditNote *credit_note_models.CreditNoteModel) error {
 	s.validator = validator.NewCreditNoteRulesValidator(creditNote)
 	err := s.validator.Validate()
 	if err != nil {
@@ -109,11 +112,6 @@ func (s *creditNoteService) Validate(creditNote *credit_note_models.CreditNoteMo
 		)
 	}
 	return nil
-}
-
-// IsValid Comprueba si una Nota de Crédito electrónica es válida según las reglas de negocio.
-func (s *creditNoteService) IsValid(creditNote *credit_note_models.CreditNoteModel) bool {
-	return s.Validate(creditNote) == nil
 }
 
 // generateControlNumber Genera un número de control único para la Nota de Crédito.

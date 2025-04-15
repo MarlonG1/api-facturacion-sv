@@ -18,7 +18,7 @@ import (
 	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/shared_error"
 )
 
-func MapInvalidatedDocument(baseDTE *dte.DTEDetails, request *structs.InvalidationRequest, emissionDate time.Time) (*models.InvalidatedDocument, error) {
+func MapInvalidatedDocument(baseDTE *dte.DTEDetails, request *structs.CreateInvalidationRequest, emissionDate time.Time) (*models.InvalidatedDocument, error) {
 	if baseDTE == nil {
 		return nil, shared_error.NewGeneralServiceError("InvalidationMapper", "MapToInvalidatedDocument", "Invalid base DTE", nil)
 	}

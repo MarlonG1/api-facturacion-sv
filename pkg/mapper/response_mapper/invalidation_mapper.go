@@ -7,16 +7,17 @@ import (
 	"github.com/MarlonG1/api-facturacion-sv/pkg/mapper/response_mapper/structs"
 )
 
-func ToMHInvalidation(doc *models.InvalidationDocument) *structs.InvalidationResponse {
+func ToMHInvalidation(doc interface{}) *structs.InvalidationResponse {
 	if doc == nil {
 		return nil
 	}
 
+	cast := doc.(*models.InvalidationDocument)
 	return &structs.InvalidationResponse{
-		Identificacion: *MapIdentificationResponse(doc.Identification),
-		Emisor:         *MapIssuerResponse(doc.Issuer),
-		Documento:      *invalidation.MapInvalidatedDocumentResponse(doc.Document),
-		Motivo:         *invalidation.MapInvalidationReasonResponse(doc.Reason),
+		Identificacion: *MapIdentificationResponse(cast.Identification),
+		Emisor:         *MapIssuerResponse(cast.Issuer),
+		Documento:      *invalidation.MapInvalidatedDocumentResponse(cast.Document),
+		Motivo:         *invalidation.MapInvalidationReasonResponse(cast.Reason),
 	}
 }
 

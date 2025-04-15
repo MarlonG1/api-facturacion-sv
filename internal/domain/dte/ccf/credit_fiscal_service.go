@@ -10,6 +10,7 @@ import (
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/models"
 	buisnessValidator "github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/validator"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/dte_documents"
+	"github.com/MarlonG1/api-facturacion-sv/internal/domain/ports"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/logs"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/shared_error"
 )
@@ -20,14 +21,15 @@ type creditFiscalService struct {
 }
 
 // NewCCFService Crea un nuevo servicio Comprobante de Crédito Fiscal.
-func NewCCFService(seqNumberManager dte_documents.SequentialNumberManager) CCFManager {
+func NewCCFService(seqNumberManager dte_documents.SequentialNumberManager) ports.DTEService {
 	return &creditFiscalService{
 		validator:        validator.NewCCFRulesValidator(nil),
 		seqNumberManager: seqNumberManager,
 	}
 }
 
-func (c *creditFiscalService) Create(ctx context.Context, data *ccf_models.CCFData, branchID uint) (*ccf_models.CreditFiscalDocument, error) {
+func (s *creditFiscalService) Create(ctx context.Context, input interface{}, branchID uint) (interface{}, error) {
+	data := input.(*ccf_models.CCFData)
 	baseDoc := createBaseDocument(data)
 
 	creditFiscalDocument := &ccf_models.CreditFiscalDocument{
@@ -36,7 +38,7 @@ func (c *creditFiscalService) Create(ctx context.Context, data *ccf_models.CCFDa
 		CreditSummary: *data.CreditSummary,
 	}
 
-	if err := c.Validate(creditFiscalDocument); err != nil {
+	if err := s.validate(creditFiscalDocument); err != nil {
 		logs.Error("Failed to validate credit fiscal document basic validation", map[string]interface{}{"error": err.Error()})
 		return nil, err
 	}
@@ -46,16 +48,16 @@ func (c *creditFiscalService) Create(ctx context.Context, data *ccf_models.CCFDa
 		return nil, err
 	}
 
-	if err := c.generateCodeAndIdentifiers(ctx, creditFiscalDocument, branchID); err != nil {
+	if err := s.generateCodeAndIdentifiers(ctx, creditFiscalDocument, branchID); err != nil {
 		return nil, err
 	}
 
 	return creditFiscalDocument, nil
 }
 
-func (c *creditFiscalService) Validate(ccf *ccf_models.CreditFiscalDocument) error {
-	c.validator = validator.NewCCFRulesValidator(ccf)
-	err := c.validator.Validate()
+func (s *creditFiscalService) validate(ccf *ccf_models.CreditFiscalDocument) error {
+	s.validator = validator.NewCCFRulesValidator(ccf)
+	err := s.validator.Validate()
 	if err != nil {
 		return shared_error.NewGeneralServiceError(
 			"CCFService",
@@ -95,15 +97,11 @@ func (s *creditFiscalService) generateControlNumber(ctx context.Context, ccf *cc
 	return nil
 }
 
-func (c *creditFiscalService) generateCodeAndIdentifiers(ctx context.Context, ccf *ccf_models.CreditFiscalDocument, branchID uint) error {
-	if err := c.generateControlNumber(ctx, ccf, branchID); err != nil {
+func (s *creditFiscalService) generateCodeAndIdentifiers(ctx context.Context, ccf *ccf_models.CreditFiscalDocument, branchID uint) error {
+	if err := s.generateControlNumber(ctx, ccf, branchID); err != nil {
 		return err
 	}
 	return ccf.Identification.GenerateCode()
-}
-
-func (c *creditFiscalService) IsValid(ccf *ccf_models.CreditFiscalDocument) bool {
-	return c.Validate(ccf) == nil
 }
 
 func createBaseDocument(data *ccf_models.CCFData) *models.DTEDocument {

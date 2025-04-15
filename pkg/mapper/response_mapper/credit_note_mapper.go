@@ -7,26 +7,28 @@ import (
 	"github.com/MarlonG1/api-facturacion-sv/pkg/mapper/response_mapper/structs"
 )
 
-func ToMHCreditNote(doc *credit_note_models.CreditNoteModel) (*structs.CreditNoteDTEResponse, error) {
+func ToMHCreditNote(doc interface{}) *structs.CreditNoteDTEResponse {
+
+	cast := doc.(*credit_note_models.CreditNoteModel)
 	dte := &structs.CreditNoteDTEResponse{
-		Identificacion:  common.MapCommonResponseIdentification(doc.Identification),
-		Receptor:        common.MapCommonResponseReceiver(doc.Receiver),
-		Emisor:          credit_note.MapCreditNoteIssuer(doc.Issuer),
-		Resumen:         credit_note.MapCreditNoteResponseSummary(doc.CreditSummary),
-		CuerpoDocumento: credit_note.MapCreditNoteResponseItem(doc.CreditItems),
-		Extension:       credit_note.MapCreditNoteResponseExtension(doc.Extension),
+		Identificacion:  common.MapCommonResponseIdentification(cast.Identification),
+		Receptor:        common.MapCommonResponseReceiver(cast.Receiver),
+		Emisor:          credit_note.MapCreditNoteIssuer(cast.Issuer),
+		Resumen:         credit_note.MapCreditNoteResponseSummary(cast.CreditSummary),
+		CuerpoDocumento: credit_note.MapCreditNoteResponseItem(cast.CreditItems),
+		Extension:       credit_note.MapCreditNoteResponseExtension(cast.Extension),
 	}
 
 	// En Nota de Crédito, los documentos relacionados siempre deben existir
-	dte.DocumentoRelacionado = common.MapCommonResponseRelatedDocuments(doc.GetRelatedDocuments())
+	dte.DocumentoRelacionado = common.MapCommonResponseRelatedDocuments(cast.GetRelatedDocuments())
 
-	if doc.GetThirdPartySale() != nil {
-		dte.VentaTercero = common.MapCommonResponseThirdPartySale(doc.GetThirdPartySale())
+	if cast.GetThirdPartySale() != nil {
+		dte.VentaTercero = common.MapCommonResponseThirdPartySale(cast.GetThirdPartySale())
 	}
 
-	if doc.GetAppendix() != nil {
-		dte.Apendice = common.MapCommonResponseAppendix(doc.GetAppendix())
+	if cast.GetAppendix() != nil {
+		dte.Apendice = common.MapCommonResponseAppendix(cast.GetAppendix())
 	}
 
-	return dte, nil
+	return dte
 }

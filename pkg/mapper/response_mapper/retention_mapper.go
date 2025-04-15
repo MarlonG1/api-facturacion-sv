@@ -7,19 +7,21 @@ import (
 	"github.com/MarlonG1/api-facturacion-sv/pkg/mapper/response_mapper/structs"
 )
 
-func ToRetentionMH(doc *retention_models.RetentionModel) (*structs.RetentionDTEResponse, error) {
+func ToMHRetention(doc interface{}) *structs.RetentionDTEResponse {
+
+	cast := doc.(*retention_models.RetentionModel)
 	dte := &structs.RetentionDTEResponse{
-		Identificacion:  common.MapCommonResponseIdentification(doc.Identification),
-		Emisor:          retention.MapRetentionResponseIssuer(doc.Issuer),
-		Receptor:        common.MapCommonResponseReceiver(doc.Receiver),
-		Resumen:         retention.MapRetentionResponseSummary(doc.RetentionSummary),
-		CuerpoDocumento: retention.MapRetentionResponseItem(doc.RetentionItems),
-		Extension:       common.MapCommonResponseExtension(doc.Extension),
+		Identificacion:  common.MapCommonResponseIdentification(cast.Identification),
+		Emisor:          retention.MapRetentionResponseIssuer(cast.Issuer),
+		Receptor:        common.MapCommonResponseReceiver(cast.Receiver),
+		Resumen:         retention.MapRetentionResponseSummary(cast.RetentionSummary),
+		CuerpoDocumento: retention.MapRetentionResponseItem(cast.RetentionItems),
+		Extension:       common.MapCommonResponseExtension(cast.Extension),
 	}
 
-	if doc.Appendix != nil {
-		dte.Apendice = common.MapCommonResponseAppendix(doc.Appendix)
+	if cast.Appendix != nil {
+		dte.Apendice = common.MapCommonResponseAppendix(cast.Appendix)
 	}
 
-	return dte, nil
+	return dte
 }

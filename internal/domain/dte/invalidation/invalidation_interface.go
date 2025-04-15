@@ -12,7 +12,7 @@ type InvalidationManager interface {
 	// Validate valida el documento de invalidación
 	Validate(ctx context.Context, branchID uint, document *models.InvalidationDocument) error
 	// ValidateStatus valida el estado del documento a invalidar y del documento de reemplazo
-	ValidateStatus(ctx context.Context, branchID uint, req structs.InvalidationRequest) error
+	ValidateStatus(ctx context.Context, branchID uint, req structs.CreateInvalidationRequest) error
 	// InvalidateDocument invalida un documento
 	InvalidateDocument(ctx context.Context, branchID uint, originalCode string) error
 }

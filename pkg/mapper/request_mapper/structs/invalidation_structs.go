@@ -2,7 +2,7 @@ package structs
 
 import "github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/models"
 
-type InvalidationRequest struct {
+type CreateInvalidationRequest struct {
 	GenerationCode            string         `json:"generation_code"`
 	Reason                    *ReasonRequest `json:"reason"`
 	ReplacementGenerationCode *string        `json:"replacement_generation_code,omitempty"`

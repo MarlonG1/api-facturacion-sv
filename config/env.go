@@ -360,7 +360,6 @@ func validateEnvVariables(v reflect.Value, bt map[string]bool, exceptions []stri
 				continue
 			}
 		default:
-			// Para otros tipos, podríamos agregar manejo específico o rechazarlos
 			return fmt.Errorf("unsupported type %s for field %s", f.Kind(), fn)
 		}
 	}

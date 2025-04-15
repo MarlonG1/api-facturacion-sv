@@ -14,6 +14,7 @@ import (
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/dte_documents"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/retention/retention_models"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/retention/validator"
+	"github.com/MarlonG1/api-facturacion-sv/internal/domain/ports"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/shared_error"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/utils"
 )
@@ -25,7 +26,7 @@ type retentionService struct {
 }
 
 // NewRetentionService crea una nueva instancia de RetentionManager
-func NewRetentionService(seqNumberManager dte_documents.SequentialNumberManager, dteManager dte_documents.DTEManager) RetentionManager {
+func NewRetentionService(seqNumberManager dte_documents.SequentialNumberManager, dteManager dte_documents.DTEManager) ports.DTEService {
 	return &retentionService{
 		validator:        validator.NewRetentionRulesValidator(nil),
 		seqNumberManager: seqNumberManager,
@@ -33,9 +34,10 @@ func NewRetentionService(seqNumberManager dte_documents.SequentialNumberManager,
 	}
 }
 
-func (s *retentionService) Create(ctx context.Context, data *retention_models.InputRetentionData, branchID uint, isAllPhysical bool) (*retention_models.RetentionModel, error) {
+func (s *retentionService) Create(ctx context.Context, input interface{}, branchID uint) (interface{}, error) {
+	data := input.(*retention_models.InputRetentionData)
 	// 1. Verificar si todos los documentos son físicos, si no lo son, obtener los detalles de cada documento
-	if !isAllPhysical {
+	if !data.IsAllPhysical() {
 		for i := range data.RetentionItems {
 
 			// 1.1 Obtener el documento DTE correspondiente al número de documento
@@ -71,7 +73,7 @@ func (s *retentionService) Create(ctx context.Context, data *retention_models.In
 	}
 
 	// 3. Validar el documento de retention generado
-	err := s.Validate(retention)
+	err := s.validate(retention)
 	if err != nil {
 		return nil, err
 	}
@@ -85,7 +87,7 @@ func (s *retentionService) Create(ctx context.Context, data *retention_models.In
 
 }
 
-func (s *retentionService) Validate(retention *retention_models.RetentionModel) error {
+func (s *retentionService) validate(retention *retention_models.RetentionModel) error {
 	s.validator = validator.NewRetentionRulesValidator(retention)
 	err := s.validator.Validate()
 	if err != nil {
@@ -153,10 +155,6 @@ func createBaseDocument(data *retention_models.InputRetentionData) *models.DTEDo
 		ThirdPartySale:   thirdPartySale,
 		Appendix:         appendixes,
 	}
-}
-
-func (s *retentionService) IsValid(retention *retention_models.RetentionModel) bool {
-	return s.Validate(retention) == nil
 }
 
 func (s *retentionService) calculateSummary(retention *retention_models.InputRetentionData) {

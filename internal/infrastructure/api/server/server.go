@@ -1,11 +1,13 @@
 package server
 
 import (
-	"github.com/MarlonG1/api-facturacion-sv/config"
+	"context"
+	"errors"
 	"net/http"
 	"time"
 
-	"github.com/MarlonG1/api-facturacion-sv/internal/bootstrap"
+	"github.com/MarlonG1/api-facturacion-sv/config"
+	"github.com/MarlonG1/api-facturacion-sv/internal/bootstrap/containers"
 	"github.com/MarlonG1/api-facturacion-sv/internal/infrastructure/api/routes"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/logs"
 	"github.com/gorilla/mux"
@@ -13,14 +15,15 @@ import (
 
 type Server struct {
 	router    *mux.Router
-	container *bootstrap.Container
+	container *containers.Container
+	srv       *http.Server
 
 	privatePath string
 	publicPath  string
 }
 
 // Initialize crea una nueva instancia de Server
-func Initialize(container *bootstrap.Container) *Server {
+func Initialize(container *containers.Container) *Server {
 	return &Server{
 		router:      mux.NewRouter(),
 		container:   container,
@@ -32,7 +35,6 @@ func Initialize(container *bootstrap.Container) *Server {
 func (s *Server) ConfigureRoutes() {
 	s.configureGlobalMiddlewares()
 	s.configureGlobalOptions()
-	routes.RegisterSwaggerRoutes(s.router)
 
 	// Configurar rutas públicas y protegidas
 	public := s.router.PathPrefix(s.publicPath).Subrouter()
@@ -80,7 +82,7 @@ func (s *Server) configureProtectedMiddlewares(protected *mux.Router) {
 func (s *Server) Start() error {
 	s.ConfigureRoutes()
 
-	srv := &http.Server{
+	s.srv = &http.Server{
 		Handler:      s.router,
 		Addr:         ":" + config.Server.Port,
 		WriteTimeout: 15 * time.Second,
@@ -92,7 +94,7 @@ func (s *Server) Start() error {
 		"port": config.Server.Port,
 	})
 
-	if err := srv.ListenAndServe(); err != nil {
+	if err := s.srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 		logs.Error("Server failed to start", map[string]interface{}{
 			"error": err.Error(),
 		})
@@ -100,4 +102,16 @@ func (s *Server) Start() error {
 	}
 
 	return nil
+}
+
+func (s *Server) Shutdown(ctx context.Context) error {
+	logs.Info("Shutting down server...", nil)
+
+	if s.srv == nil {
+		logs.Warn("Server was not started, nothing to shutdown", nil)
+		return nil
+	}
+
+	// Shutdown espera a que se completen las conexiones existentes
+	return s.srv.Shutdown(ctx)
 }

@@ -104,11 +104,9 @@ func (s *testService) testDTEMapping() models.ComponentTest {
 	// DTE de prueba predefinido
 	testDTE := getTestDTE()
 
-	_, err := response_mapper.ToMHInvoice(testDTE)
-	if err != nil {
-		logs.Error("DTE mapping test failed", map[string]interface{}{
-			"error": err.Error(),
-		})
+	mh := response_mapper.ToMHInvoice(testDTE)
+	if mh == nil {
+		logs.Error("DTE mapping test failed")
 		test.Success = false
 	} else {
 		test.Success = true
@@ -167,11 +165,9 @@ func (s *testService) testHaciendaTransmission(testDTE *invoice_models.Electroni
 		Name: "hacienda_transmission",
 	}
 
-	mhDTE, err := response_mapper.ToMHInvoice(testDTE)
-	if err != nil {
-		logs.Error("Failed to map test DTE", map[string]interface{}{
-			"error": err.Error(),
-		})
+	mhDTE := response_mapper.ToMHInvoice(testDTE)
+	if mhDTE == nil {
+		logs.Error("Failed to map test DTE")
 		test.Success = false
 		test.Duration = time.Since(start).Milliseconds()
 		return test

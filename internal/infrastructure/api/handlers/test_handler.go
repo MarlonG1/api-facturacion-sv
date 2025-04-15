@@ -4,7 +4,6 @@ import (
 	"net/http"
 
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/test_endpoint"
-	_ "github.com/MarlonG1/api-facturacion-sv/internal/domain/test_endpoint/models"
 	"github.com/MarlonG1/api-facturacion-sv/internal/infrastructure/api/response"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/logs"
 )

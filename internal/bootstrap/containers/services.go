@@ -1,4 +1,4 @@
-package bootstrap
+package containers
 
 import (
 	"time"
@@ -46,16 +46,16 @@ type ServicesContainer struct {
 	dteManager              dte_documents.DTEManager
 	sequentialManager       dte_documents.SequentialNumberManager
 	invalidationManager     invalidation.InvalidationManager
-	invoiceManager          invoice.InvoiceManager
-	ccfManager              ccf.CCFManager
 	transmitterBatchManager transmitter.BatchTransmitterPort
 	contingencyEventManager contingency.ContingencyEventSender
 	contingencyManager      contingency.ContingencyManager
 	healthManager           health.HealthManager
 	testManager             test_endpoint.TestManager
 	metricsManager          metrics.MetricsManager
-	retentionManager        retention.RetentionManager
-	creditNoteManager       credit_note.CreditNoteManager
+	invoiceManager          ports.DTEService
+	ccfManager              ports.DTEService
+	retentionManager        ports.DTEService
+	creditNoteManager       ports.DTEService
 }
 
 func NewServicesContainer(repos *RepositoryContainer) *ServicesContainer {
@@ -129,11 +129,11 @@ func (c *ServicesContainer) Initialize() error {
 	return nil
 }
 
-func (c *ServicesContainer) CreditNoteManager() credit_note.CreditNoteManager {
+func (c *ServicesContainer) CreditNoteManager() ports.DTEService {
 	return c.creditNoteManager
 }
 
-func (c *ServicesContainer) RetentionManager() retention.RetentionManager {
+func (c *ServicesContainer) RetentionManager() ports.DTEService {
 	return c.retentionManager
 }
 
@@ -161,11 +161,11 @@ func (c *ServicesContainer) DTEManager() dte_documents.DTEManager {
 	return c.dteManager
 }
 
-func (c *ServicesContainer) CCFService() ccf.CCFManager {
+func (c *ServicesContainer) CCFService() ports.DTEService {
 	return c.ccfManager
 }
 
-func (c *ServicesContainer) InvoiceService() invoice.InvoiceManager {
+func (c *ServicesContainer) InvoiceService() ports.DTEService {
 	return c.invoiceManager
 }
 

@@ -10,6 +10,7 @@ import (
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/dte_documents"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/invoice/invoice_models"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/invoice/validator"
+	"github.com/MarlonG1/api-facturacion-sv/internal/domain/ports"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/shared_error"
 )
 
@@ -19,7 +20,7 @@ type invoiceService struct {
 }
 
 // NewInvoiceService Crea un nuevo servicio de facturas electrónicas.
-func NewInvoiceService(seqNumberManager dte_documents.SequentialNumberManager) InvoiceManager {
+func NewInvoiceService(seqNumberManager dte_documents.SequentialNumberManager) ports.DTEService {
 	return &invoiceService{
 		validator:        validator.NewInvoiceRulesValidator(nil),
 		seqNumberManager: seqNumberManager,
@@ -27,7 +28,8 @@ func NewInvoiceService(seqNumberManager dte_documents.SequentialNumberManager) I
 }
 
 // Create Crea una nueva invoice electrónica con base en los datos proporcionados.
-func (s *invoiceService) Create(ctx context.Context, data *invoice_models.InvoiceData, branchID uint) (*invoice_models.ElectronicInvoice, error) {
+func (s *invoiceService) Create(ctx context.Context, input interface{}, branchID uint) (interface{}, error) {
+	data := input.(*invoice_models.InvoiceData)
 	baseDoc := createBaseDocument(data)
 
 	invoice := &invoice_models.ElectronicInvoice{
@@ -36,7 +38,7 @@ func (s *invoiceService) Create(ctx context.Context, data *invoice_models.Invoic
 		InvoiceSummary: *data.InvoiceSummary,
 	}
 
-	if err := s.Validate(invoice); err != nil {
+	if err := s.validate(invoice); err != nil {
 		return nil, err
 	}
 
@@ -52,7 +54,7 @@ func (s *invoiceService) Create(ctx context.Context, data *invoice_models.Invoic
 }
 
 // Validate Valida una invoice electrónica con base en las reglas de negocio.
-func (s *invoiceService) Validate(invoice *invoice_models.ElectronicInvoice) error {
+func (s *invoiceService) validate(invoice *invoice_models.ElectronicInvoice) error {
 	s.validator = validator.NewInvoiceRulesValidator(invoice)
 	err := s.validator.Validate()
 	if err != nil {
@@ -64,11 +66,6 @@ func (s *invoiceService) Validate(invoice *invoice_models.ElectronicInvoice) err
 		)
 	}
 	return nil
-}
-
-// IsValid Comprueba si una invoice electrónica es válida según las reglas de negocio.
-func (s *invoiceService) IsValid(invoice *invoice_models.ElectronicInvoice) bool {
-	return s.Validate(invoice) == nil
 }
 
 // createBaseDocument Crea un documento base para la invoice electrónica.

@@ -43,7 +43,7 @@ func (s *invalidationService) Validate(ctx context.Context, branchID uint, docum
 	return nil
 }
 
-func (s *invalidationService) ValidateStatus(ctx context.Context, branchID uint, req structs.InvalidationRequest) error {
+func (s *invalidationService) ValidateStatus(ctx context.Context, branchID uint, req structs.CreateInvalidationRequest) error {
 	// 1. Validar la existencia del DTE y que no esté invalidado o rechazado
 	if err := s.validateDTEStatus(ctx,
 		branchID,

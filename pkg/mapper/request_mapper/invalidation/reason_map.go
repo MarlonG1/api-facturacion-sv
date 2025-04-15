@@ -11,17 +11,17 @@ import (
 func MapInvalidationReasonRequest(reason *structs.ReasonRequest) (*models.InvalidationReason, error) {
 	invalidationType, err := document.NewInvalidationType(reason.Type)
 	if err != nil {
-		return nil, shared_error.NewGeneralServiceError("InvalidationMapper", "MapToInvalidationDocument", "Error creating invalidation type", err)
+		return nil, shared_error.NewGeneralServiceError("InvalidationMapper", "MapToInvalidationData", "Error creating invalidation type", err)
 	}
 
 	responsibleDocType, err := document.NewDTETypeForReceiver(reason.ResponsibleDocType)
 	if err != nil {
-		return nil, shared_error.NewGeneralServiceError("InvalidationMapper", "MapToInvalidationDocument", "Error creating responsible document type", err)
+		return nil, shared_error.NewGeneralServiceError("InvalidationMapper", "MapToInvalidationData", "Error creating responsible document type", err)
 	}
 
 	requestorDocType, err := document.NewDTETypeForReceiver(reason.RequestorDocType)
 	if err != nil {
-		return nil, shared_error.NewGeneralServiceError("InvalidationMapper", "MapToInvalidationDocument", "Error creating requester document type", err)
+		return nil, shared_error.NewGeneralServiceError("InvalidationMapper", "MapToInvalidationData", "Error creating requester document type", err)
 	}
 
 	responsibleName := reason.ResponsibleName
@@ -29,12 +29,12 @@ func MapInvalidationReasonRequest(reason *structs.ReasonRequest) (*models.Invali
 
 	responsibleDocNum, err := identification.NewDocumentNumber(reason.ResponsibleNumDoc, reason.ResponsibleDocType)
 	if err != nil {
-		return nil, shared_error.NewGeneralServiceError("InvalidationMapper", "MapToInvalidationDocument", "Error creating responsible document number", err)
+		return nil, shared_error.NewGeneralServiceError("InvalidationMapper", "MapToInvalidationData", "Error creating responsible document number", err)
 	}
 
 	requestorDocNum, err := identification.NewDocumentNumber(reason.RequestorNumDoc, reason.RequestorDocType)
 	if err != nil {
-		return nil, shared_error.NewGeneralServiceError("InvalidationMapper", "MapToInvalidationDocument", "Error creating requester document number", err)
+		return nil, shared_error.NewGeneralServiceError("InvalidationMapper", "MapToInvalidationData", "Error creating requester document number", err)
 	}
 
 	result := &models.InvalidationReason{
@@ -50,7 +50,7 @@ func MapInvalidationReasonRequest(reason *structs.ReasonRequest) (*models.Invali
 	if reason.Reason != nil && reason.Type == 3 {
 		invalidationReason, err := document.NewInvalidationReason(*reason.Reason)
 		if err != nil {
-			return nil, shared_error.NewGeneralServiceError("InvalidationMapper", "MapToInvalidationDocument", "Error creating invalidation reason", err)
+			return nil, shared_error.NewGeneralServiceError("InvalidationMapper", "MapToInvalidationData", "Error creating invalidation reason", err)
 		}
 		result.Reason = invalidationReason
 	}

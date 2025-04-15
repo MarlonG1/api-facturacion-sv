@@ -34,7 +34,7 @@ func NewInvalidationUseCase(dteManager dteInterfaces.DTEManager, invalidationMan
 	}
 }
 
-func (u *InvalidationUseCase) InvalidateDocument(ctx context.Context, request structs.InvalidationRequest) error {
+func (u *InvalidationUseCase) InvalidateDocument(ctx context.Context, request structs.CreateInvalidationRequest) error {
 	// 1. Sacar los claims y el token del contexto
 	claims := ctx.Value("claims").(*models.AuthClaims)
 	token := ctx.Value("token").(string)
@@ -62,7 +62,7 @@ func (u *InvalidationUseCase) InvalidateDocument(ctx context.Context, request st
 	}
 
 	// 6. Mapear a modelo de dominio
-	invalidationDocument, err := u.mapper.MapToInvalidationDocument(&request, issuer, originalDTE.Details, originalDTE.CreatedAt)
+	invalidationDocument, err := u.mapper.MapToInvalidationData(&request, issuer, originalDTE.Details, originalDTE.CreatedAt)
 	if err != nil {
 		return err
 	}
