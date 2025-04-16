@@ -61,7 +61,7 @@ func (s *creditNoteService) Create(ctx context.Context, input interface{}, branc
 		return nil, err
 	}
 
-	// 5. Validar documento totales
+	// 5. Validar totales de documentos relacionados
 	for _, doc := range creditNote.RelatedDocuments {
 		if doc.GetGenerationType() == constants.ElectronicDocument {
 			if err := s.dteManager.ValidateForCreditNote(ctx, branchID, doc.GetDocumentNumber(), creditNote); err != nil {
@@ -96,9 +96,24 @@ func (s *creditNoteService) validateRelatedDocs(ctx context.Context, data *credi
 		if err != nil {
 			return err
 		}
-		data.RelatedDocs[i].EmissionDate = *temporal.NewValidatedEmissionDate(doc.CreatedAt)
+
+		status, err := s.dteManager.VerifyStatus(ctx, branchID, relatedDoc.GetDocumentNumber())
+		if err != nil {
+			return err
+		}
+
+		if status != constants.DocumentReceived {
+			return shared_error.NewFormattedGeneralServiceError(
+				"CreditNoteService",
+				"validateRelatedDocs",
+				"DocumentNotReceived",
+				relatedDoc.GetDocumentNumber(),
+				status,
+			)
+		}
 
 		// 2. Extraer el NIT del receptor del documento relacionado
+		data.RelatedDocs[i].EmissionDate = *temporal.NewValidatedEmissionDate(doc.CreatedAt)
 		extractor, err := utils.ExtractDTEReceiverFromString(doc.Details.JSONData)
 		if err != nil {
 			return err

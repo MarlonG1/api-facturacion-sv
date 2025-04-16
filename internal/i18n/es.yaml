@@ -190,6 +190,7 @@ service_errors:
   InvalidQueryParam: "El parámetro de consulta %s tiene un formato incorrecto, debe ser %s"
   ContingencyActiveTransmission: "El modo de contingencia está activo en este entorno, no puede enviar este DTE a Hacienda, pero los demás procesos funcionan bien"
   NoDetailsAvailable: "No hay más detalles disponibles"
+  RelatedDocumentNotReceived: "El documento relacionado %s no fue recibido por Hacienda, su estado actual es: %s"
 
 health:
   up:

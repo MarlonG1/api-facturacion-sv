@@ -299,7 +299,7 @@ func (s *CreditNoteTaxStrategy) validateTotalAmounts() *dte_errors.DTEError {
 			actualSubTotal.InexactFloat64())
 	}
 
-	// NUEVA VALIDACIÓN: Calcular IVA con descuento
+	// Calcular IVA con descuento
 	if taxedAmount.GreaterThan(decimal.Zero) {
 		taxedWithDiscount := taxedAmount.
 			Sub(decimal.NewFromFloat(s.Document.CreditSummary.TaxedDiscount.GetValue()))

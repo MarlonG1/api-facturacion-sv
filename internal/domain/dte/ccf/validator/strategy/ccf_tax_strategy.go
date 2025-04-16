@@ -281,7 +281,7 @@ func (s *CCFTaxStrategy) validateTotalAmounts() *dte_errors.DTEError {
 	// Obtener montos que afectan el total a pagar
 	taxedAmount := decimal.NewFromFloat(s.Document.CreditSummary.TotalTaxed.GetValue())
 
-	// NUEVA VALIDACIÓN: Calcular subtotal considerando descuentos
+	// Calcular subtotal considerando descuentos
 	expectedSubTotal := decimal.NewFromFloat(s.Document.CreditSummary.SubTotalSales.GetValue()).
 		Sub(decimal.NewFromFloat(s.Document.CreditSummary.TaxedDiscount.GetValue())).
 		Sub(decimal.NewFromFloat(s.Document.CreditSummary.ExemptDiscount.GetValue())).
@@ -303,7 +303,7 @@ func (s *CCFTaxStrategy) validateTotalAmounts() *dte_errors.DTEError {
 			actualSubTotal.InexactFloat64())
 	}
 
-	// NUEVA VALIDACIÓN: Calcular IVA con descuento
+	// Calcular IVA con descuento
 	if taxedAmount.GreaterThan(decimal.Zero) {
 		taxedWithDiscount := taxedAmount.
 			Sub(decimal.NewFromFloat(s.Document.CreditSummary.TaxedDiscount.GetValue()))

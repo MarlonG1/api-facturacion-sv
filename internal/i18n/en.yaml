@@ -190,6 +190,7 @@ service_errors:
   InvalidQueryParam: "The query parameter %s has an incorrect format, it must be %s"
   ContingencyActiveTransmission: "Contingency mode is active in this environment you can't send this DTE to Hacienda but the others processes are working fine"
   NoDetailsAvailable: "No further details available"
+  RelatedDocumentNotReceived: "The related document %s was not received by Hacienda, actual status: %s"
 
 health:
   up:
