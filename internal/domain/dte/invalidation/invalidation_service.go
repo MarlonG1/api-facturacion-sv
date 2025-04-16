@@ -2,8 +2,6 @@ package invalidation
 
 import (
 	"context"
-	"fmt"
-
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/core/dte"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/constants"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/dte_documents"
@@ -78,11 +76,11 @@ func (s *invalidationService) validateDTEStatus(ctx context.Context, branchID ui
 func (s *invalidationService) handleError(status, message string) error {
 	switch status {
 	case constants.DocumentInvalid:
-		return shared_error.NewGeneralServiceError("InvalidationService", "InvalidateDocument", fmt.Sprintf("the %s is already invalid", message), nil)
+		return shared_error.NewFormattedGeneralServiceError("InvalidationService", "InvalidateDocument", "DocumentAlreadyInvalid", message)
 	case constants.DocumentRejected:
-		return shared_error.NewGeneralServiceError("InvalidationService", "InvalidateDocument", fmt.Sprintf("the %s has been rejected by Hacienda, therefore it cannot be invalidated", message), nil)
+		return shared_error.NewFormattedGeneralServiceError("InvalidationService", "InvalidateDocument", "DocumentReject", message)
 	case constants.DocumentPending:
-		return shared_error.NewGeneralServiceError("InvalidationService", "InvalidateDocument", fmt.Sprintf("the %s is still pending, therefore it cannot be invalidated", message), nil)
+		return shared_error.NewFormattedGeneralServiceError("InvalidationService", "InvalidateDocument", "DocumentPending", message)
 	default:
 		return nil
 	}

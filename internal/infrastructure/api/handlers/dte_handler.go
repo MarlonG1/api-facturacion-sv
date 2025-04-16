@@ -72,11 +72,11 @@ func (h *DTEHandler) InvalidateDocument(w http.ResponseWriter, r *http.Request) 
 	}
 
 	// 2. Ejecutar el caso de uso de invalidación de documento
-	err := h.invalidationUseCase.InvalidateDocument(r.Context(), req)
+	invalidation, err := h.invalidationUseCase.InvalidateDocument(r.Context(), req)
 	if err != nil {
 		h.respWriter.HandleError(w, err)
 		return
 	}
 
-	h.respWriter.Success(w, http.StatusOK, "DTE invalidated successfully", nil)
+	h.respWriter.Success(w, http.StatusOK, invalidation, nil)
 }

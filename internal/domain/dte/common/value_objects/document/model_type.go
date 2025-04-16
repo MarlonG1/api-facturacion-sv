@@ -16,7 +16,7 @@ func NewModelType(value int) (*ModelType, error) {
 	if modelType.IsValid() {
 		return modelType, nil
 	}
-	return &ModelType{}, dte_errors.NewValidationError("InvalidLength", "ModelType", "1 o 2", fmt.Sprintf("%d", value))
+	return &ModelType{}, dte_errors.NewValidationError("InvalidLength", "model type", "1-2", fmt.Sprintf("%d", value))
 }
 
 func NewValidatedModelType(value int) *ModelType {

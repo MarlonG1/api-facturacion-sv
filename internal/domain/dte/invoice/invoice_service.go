@@ -58,11 +58,11 @@ func (s *invoiceService) validate(invoice *invoice_models.ElectronicInvoice) err
 	s.validator = validator.NewInvoiceRulesValidator(invoice)
 	err := s.validator.Validate()
 	if err != nil {
-		return shared_error.NewGeneralServiceError(
+		return shared_error.NewFormattedGeneralServiceWithError(
 			"InvoiceService",
 			"Validate",
-			"validation failed, check the error for more details",
 			err,
+			"ValidationFailed",
 		)
 	}
 	return nil
@@ -146,11 +146,11 @@ func (s *invoiceService) generateControlNumber(ctx context.Context, invoice *inv
 
 	err = invoice.Identification.SetControlNumber(controlNumber)
 	if err != nil {
-		return shared_error.NewGeneralServiceError(
+		return shared_error.NewFormattedGeneralServiceWithError(
 			"InvoiceService",
 			"GenerateControlNumber",
-			"failed to set control number",
 			err,
+			"FailedToSetControlNumber",
 		)
 	}
 	return nil

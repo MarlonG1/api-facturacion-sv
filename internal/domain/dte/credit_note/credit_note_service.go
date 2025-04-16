@@ -7,12 +7,14 @@ import (
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/interfaces"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/models"
 	buisnessValidator "github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/validator"
+	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/value_objects/temporal"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/credit_note/credit_note_models"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/credit_note/validator"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/dte_documents"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/ports"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/logs"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/shared_error"
+	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/utils"
 )
 
 type creditNoteService struct {
@@ -80,19 +82,36 @@ func (s *creditNoteService) Create(ctx context.Context, input interface{}, branc
 // validateRelatedDocs verifica que los documentos relacionados existan en la base de datos
 func (s *creditNoteService) validateRelatedDocs(ctx context.Context, data *credit_note_models.CreditNoteInput, branchID uint) error {
 	if data.RelatedDocs == nil || len(data.RelatedDocs) == 0 {
-		return shared_error.NewGeneralServiceError(
+		return shared_error.NewFormattedGeneralServiceError(
 			"CreditNoteService",
 			"validateRelatedDocs",
-			"no related documents provided",
-			nil,
+			"NoRelatedDocs",
 		)
 	}
 
 	// Verificar que cada documento relacionado exista en la base de datos
-	for _, relatedDoc := range data.RelatedDocs {
-		_, err := s.dteManager.GetByGenerationCode(ctx, branchID, relatedDoc.GetDocumentNumber())
+	for i, relatedDoc := range data.RelatedDocs {
+		// 1. Verificar si el documento existe y obtenerlo
+		doc, err := s.dteManager.GetByGenerationCode(ctx, branchID, relatedDoc.GetDocumentNumber())
 		if err != nil {
 			return err
+		}
+		data.RelatedDocs[i].EmissionDate = *temporal.NewValidatedEmissionDate(doc.CreatedAt)
+
+		// 2. Extraer el NIT del receptor del documento relacionado
+		extractor, err := utils.ExtractDTEReceiverFromString(doc.Details.JSONData)
+		if err != nil {
+			return err
+		}
+
+		// 3. Verificar que el NIT del receptor del documento relacionado coincida con el NIT del receptor de la Nota de Crédito
+		if data.Receiver.NIT.GetValue() != extractor.Receiver.NIT {
+			return shared_error.NewFormattedGeneralServiceError(
+				"CreditNoteService",
+				"validateRelatedDocs",
+				"NotMatchingArgs",
+				"receiver", "NIT", "receiver", " NIT",
+			)
 		}
 	}
 
@@ -104,11 +123,11 @@ func (s *creditNoteService) validate(creditNote *credit_note_models.CreditNoteMo
 	s.validator = validator.NewCreditNoteRulesValidator(creditNote)
 	err := s.validator.Validate()
 	if err != nil {
-		return shared_error.NewGeneralServiceError(
+		return shared_error.NewFormattedGeneralServiceWithError(
 			"CreditNoteService",
 			"Validate",
-			"validation failed, check the error for more details",
 			err,
+			"ValidationFailed",
 		)
 	}
 	return nil
@@ -132,11 +151,11 @@ func (s *creditNoteService) generateControlNumber(ctx context.Context, creditNot
 
 	err = creditNote.Identification.SetControlNumber(controlNumber)
 	if err != nil {
-		return shared_error.NewGeneralServiceError(
+		return shared_error.NewFormattedGeneralServiceWithError(
 			"CreditNoteService",
 			"GenerateControlNumber",
-			"failed to set control number",
 			err,
+			"FailedToSetControlNumber",
 		)
 	}
 	return nil

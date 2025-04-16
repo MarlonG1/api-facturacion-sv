@@ -11,7 +11,7 @@ import (
 // MapCommonRequestAddress mapea una dirección común a un modelo de dirección -> Origen: Request
 func MapCommonRequestAddress(address structs.AddressRequest) (*models.Address, error) {
 	if address.Department == "" || address.Municipality == "" || address.Complement == "" {
-		return nil, shared_error.NewGeneralServiceError("CommonMapper", "MapCommonRequestAddress", "When address is present, the fields department, municipality and complement must be present", nil)
+		return nil, shared_error.NewFormattedGeneralServiceError("CommonMapper", "MapCommonRequestAddress", "AddressWithReceiver")
 	}
 
 	department, err := location.NewDepartment(address.Department)

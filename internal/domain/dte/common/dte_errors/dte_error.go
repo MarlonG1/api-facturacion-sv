@@ -62,7 +62,7 @@ func (e *DTEError) Error() string {
 	messages = append(messages, fmt.Sprintf("%s", e.Message))
 
 	if len(e.ValidationErrors) > 0 {
-		messages = append(messages, "Errores de validación:")
+		messages = append(messages, "Errors:")
 		for _, err := range e.ValidationErrors {
 			messages = append(messages, fmt.Sprintf("- %s", err.Error()))
 		}
@@ -79,24 +79,4 @@ func (e *DTEError) GetValidationErrorsString() []string {
 	}
 
 	return messages
-}
-
-// GetValidationErrors Obtiene los errores de validación asociados al error DTE en caso de existir
-func (e *DTEError) GetValidationErrors() []error {
-	return e.ValidationErrors
-}
-
-// HasValidationErrors Indica si el error DTE tiene errores de validación asociados
-func (e *DTEError) HasValidationErrors() bool {
-	return len(e.ValidationErrors) > 0
-}
-
-// HasBusinessErrors Indica si hay errores de negocio
-func (e *DTEError) HasBusinessErrors() bool {
-	return len(e.BusinessErrors) > 0
-}
-
-// GetBusinessErrors Obtiene los errores de negocio
-func (e *DTEError) GetBusinessErrors() []*DTEError {
-	return e.BusinessErrors
 }

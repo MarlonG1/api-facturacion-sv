@@ -14,7 +14,7 @@ func NewAddress(value string) (*Address, error) {
 	if addr.IsValid() {
 		return addr, nil
 	}
-	return &Address{}, dte_errors.NewValidationError("InvalidLength", "Address", "1 a 200 caracteres", value)
+	return &Address{}, dte_errors.NewValidationError("InvalidLength", "address", "1-200", value)
 }
 
 func NewValidatedAddress(value string) *Address {

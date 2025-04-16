@@ -14,7 +14,7 @@ func NewAppendixField(value string) (*AppendixField, error) {
 	if field.IsValid() {
 		return field, nil
 	}
-	return &AppendixField{}, dte_errors.NewValidationError("InvalidLength", "AppendixField", "2 a 25", value)
+	return &AppendixField{}, dte_errors.NewValidationError("InvalidAppendixField", value)
 }
 
 func NewValidatedAppendixField(value string) *AppendixField {

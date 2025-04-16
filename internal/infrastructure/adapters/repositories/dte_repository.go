@@ -3,14 +3,17 @@ package repositories
 import (
 	"context"
 	"encoding/json"
+	"errors"
+	"gorm.io/gorm"
+	"time"
+
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/auth/models"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/core/dte"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/constants"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/dte_documents"
 	"github.com/MarlonG1/api-facturacion-sv/internal/infrastructure/database/db_models"
+	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/shared_error"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/utils"
-	"gorm.io/gorm"
-	"time"
 )
 
 type DTERepository struct {
@@ -71,7 +74,7 @@ func (D *DTERepository) GetDTEBalanceControl(ctx context.Context, branchID uint,
 		Where("branch_id = ? AND original_dte_id = ?", branchID, id).
 		First(&balanceControl)
 	if result.Error != nil {
-		return nil, result.Error
+		return nil, handleGormErr(result.Error, "GetDTEBalanceControl")
 	}
 
 	return &dte.BalanceControl{
@@ -95,7 +98,7 @@ func (D *DTERepository) GenerateBalanceTransaction(ctx context.Context, branchID
 		Where("branch_id = ? AND original_dte_id = ?", branchID, originalDTE).
 		First(&balanceControl)
 	if result.Error != nil {
-		return result.Error
+		return handleGormErr(result.Error, "GenerateBalanceTransaction")
 	}
 
 	// 2. Crear un nuevo balance de transacción
@@ -162,7 +165,7 @@ func (D *DTERepository) VerifyStatus(ctx context.Context, branchID uint, id stri
 		Where("document_id = ? AND branch_id = ?", id, branchID).
 		First(&status)
 	if result.Error != nil {
-		return "", result.Error
+		return "", handleGormErr(result.Error, "VerifyStatus")
 	}
 
 	return status, nil
@@ -311,7 +314,7 @@ func (D *DTERepository) GetByGenerationCode(ctx context.Context, branchID uint, 
 		Where("branch_id = ? AND document_id = ?", branchID, generationCode).
 		First(&document)
 	if result.Error != nil {
-		return nil, result.Error
+		return nil, handleGormErr(result.Error, "GetByGenerationCode")
 	}
 
 	// 3. Retornar el documento DTE
@@ -356,4 +359,12 @@ func loadFilters(query *gorm.DB, filters *dte.DTEFilters) {
 	if filters.Transmission != "" {
 		query = query.Where("dte_details.transmission = ?", filters.Transmission)
 	}
+}
+
+func handleGormErr(err error, operation string) error {
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return shared_error.NewFormattedGeneralServiceError("DTERepo", operation, "NotFound")
+	}
+
+	return err
 }

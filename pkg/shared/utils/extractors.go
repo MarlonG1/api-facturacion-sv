@@ -15,6 +15,12 @@ type AuxiliarIdentificationExtractor struct {
 	} `json:"emisor"`
 }
 
+type AuxiliarReceiverExtractor struct {
+	Receiver struct {
+		NIT string `json:"nit"`
+	} `json:"receptor"`
+}
+
 type AuxiliarSummaryExtractor struct {
 	Summary struct {
 		SubTotal     float64 `json:"subTotal"`
@@ -112,4 +118,18 @@ func ExtractSummaryTotalAmountsFromStringJSON(document interface{}) (AuxiliarTot
 	}
 
 	return summary, nil
+}
+
+func ExtractDTEReceiverFromString(document interface{}) (AuxiliarReceiverExtractor, error) {
+	var receiver AuxiliarReceiverExtractor
+
+	// 1. Convertir a formato JSON el documento
+	jsonData := []byte(document.(string))
+
+	// 2. Extraer parte de la información del Resumen
+	if err := json.Unmarshal(jsonData, &receiver); err != nil {
+		return receiver, err
+	}
+
+	return receiver, nil
 }

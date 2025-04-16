@@ -1,13 +1,13 @@
 package structs
 
 type RetentionDTEResponse struct {
-	Identificacion  *DTEIdentification `json:"identificacion"`
-	Resumen         *RetentionSummary  `json:"resumen"`
-	Emisor          RetentionIssuer    `json:"emisor"`
-	Receptor        DTEReceiver        `json:"receptor"`
-	CuerpoDocumento []RetentionItem    `json:"cuerpoDocumento"`
-	Extension       *DTEExtension      `json:"extension"`
-	Apendice        []DTEApendice      `json:"apendice"`
+	Identificacion  *DTEIdentification  `json:"identificacion"`
+	Resumen         *RetentionSummary   `json:"resumen"`
+	Emisor          RetentionIssuer     `json:"emisor"`
+	Receptor        DTEReceiver         `json:"receptor"`
+	CuerpoDocumento []RetentionItem     `json:"cuerpoDocumento"`
+	Extension       *RetentionExtension `json:"extension"`
+	Apendice        []DTEApendice       `json:"apendice"`
 }
 
 type RetentionSummary struct {
@@ -43,4 +43,12 @@ type RetentionIssuer struct {
 	CodEstable          *string    `json:"codigo"`
 	CodPuntoVentaMH     *string    `json:"puntoVentaMH"`
 	CodPuntoVenta       *string    `json:"puntoVenta"`
+}
+
+type RetentionExtension struct {
+	NombreEntrega    string  `json:"nombEntrega"`
+	DocumentoEntrega string  `json:"docuEntrega"`
+	NombreRecibe     string  `json:"nombRecibe"`
+	DocumentoRecibe  string  `json:"docuRecibe"`
+	Observacion      *string `json:"observaciones"`
 }

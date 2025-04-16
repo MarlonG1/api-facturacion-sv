@@ -39,11 +39,11 @@ func (c *fileSystemChecker) Check() models.Health {
 	health := c.checkHealth()
 
 	status := constants.StatusUp
-	details := "File system is healthy"
+	details := utils.TranslateHealthUp(c.Name())
 
 	if health.IsDown() {
 		status = constants.StatusDown
-		details = "File system is down"
+		details = utils.TranslateHealthDown(c.Name())
 
 		// Extraer detalles si están disponibles
 		if health.GetInfo("error") != nil {
@@ -73,18 +73,18 @@ func (c *fileSystemChecker) checkFileSystem() error {
 	// Aseguramos que el directorio existe
 	dir := filepath.Dir(c.logPath)
 	if err := os.MkdirAll(dir, 0755); err != nil {
-		return fmt.Errorf("failed to create log directory")
+		return fmt.Errorf(utils.TranslateHealthError("FailedToCreateLogDir"))
 	}
 
 	// Verificamos permisos de escritura
 	file, err := os.OpenFile(c.logPath, os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0666)
 	if err != nil {
-		return fmt.Errorf("the system don't have permissions to write in the log file")
+		return fmt.Errorf(utils.TranslateHealthError("SystemDontHavePermissions"))
 	}
 	defer func(file *os.File) {
 		err := file.Close()
 		if err != nil {
-			logs.Logger.Error("Error closing file:", err)
+			logs.Error("Error closing file")
 		}
 	}(file)
 

@@ -3,6 +3,10 @@ package strategies
 import (
 	"context"
 	"errors"
+	errPackage "github.com/MarlonG1/api-facturacion-sv/internal/infrastructure/error"
+	"gorm.io/gorm"
+	"strings"
+
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/auth"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/auth/constants"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/auth/models"
@@ -11,8 +15,6 @@ import (
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/ports"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/logs"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/shared_error"
-	"gorm.io/gorm"
-	"strings"
 )
 
 type AuthService struct {
@@ -41,19 +43,26 @@ func NewAuthService(
 func (s *AuthService) Login(ctx context.Context, credentials *models.AuthCredentials) (string, error) {
 	// 0. Verificar existencia de credenciales
 	if !credentialsExists(credentials) {
-		return "", shared_error.NewGeneralServiceError("AuthService", "Login", "missing credentials", errors.New("all fields are required"))
+		return "", shared_error.NewFormattedGeneralServiceError("AuthService", "Login", "MissingCredentials")
 	}
 
 	// 1. Obtener tipo de autenticación
 	authType, err := s.authRepo.GetAuthTypeByApiKey(ctx, credentials.APIKey)
 	if err != nil {
+		if errors.Is(err, errPackage.ErrUserNotFound) {
+			return "", shared_error.NewFormattedGeneralServiceError("AuthService", "Login", "NotFound")
+		}
+
 		return "", err
 	}
 
 	// 2. Obtener la estrategia apropiada
 	strategy, exists := s.strategies[authType]
 	if !exists {
-		return "", errors.New("unsupported authentication type")
+		logs.Error("Auth strategy not found", map[string]interface{}{
+			"authType": authType,
+		})
+		return "", shared_error.NewFormattedGeneralServiceError("AuthService", "Login", "ServerError", authType)
 	}
 
 	// 3. Validar formato de credenciales
@@ -132,7 +141,7 @@ func credentialsExists(credentials *models.AuthCredentials) bool {
 func (s *AuthService) Create(ctx context.Context, user *user.User) error {
 	err := s.authRepo.Create(ctx, user)
 	if err != nil {
-		return handleGormError("create", err)
+		return handleGormError("Create", err)
 	}
 
 	return nil
@@ -141,7 +150,7 @@ func (s *AuthService) Create(ctx context.Context, user *user.User) error {
 func (s *AuthService) GetByNIT(ctx context.Context, nit string) (*user.User, error) {
 	user, err := s.authRepo.GetByNIT(ctx, nit)
 	if err != nil {
-		return nil, handleGormError("get by nit", err)
+		return nil, handleGormError("GetByNIT", err)
 	}
 
 	return user, nil
@@ -150,7 +159,7 @@ func (s *AuthService) GetByNIT(ctx context.Context, nit string) (*user.User, err
 func (s *AuthService) GetBranchByBranchID(ctx context.Context, branchID uint) (*user.BranchOffice, error) {
 	branch, err := s.authRepo.GetBranchByBranchID(ctx, branchID)
 	if err != nil {
-		return nil, handleGormError("get branch by branch id", err)
+		return nil, handleGormError("GetBranchByBranchID", err)
 	}
 
 	return branch, nil
@@ -158,25 +167,25 @@ func (s *AuthService) GetBranchByBranchID(ctx context.Context, branchID uint) (*
 
 func handleGormError(operation string, err error) error {
 	if errors.Is(err, gorm.ErrInvalidData) {
-		return shared_error.NewGeneralServiceError("AuthService", operation, "invalid data", nil)
+		return shared_error.NewFormattedGeneralServiceError("AuthService", operation, "InvalidData")
 	}
 
 	if isDuplicatedEntryErr(err) {
 		errMsg := err.Error()
 		if strings.Contains(errMsg, "nit") {
-			return shared_error.NewGeneralServiceError("AuthService", operation, "nit already exists", nil)
+			return shared_error.NewFormattedGeneralServiceError("AuthService", operation, "DuplicatedEntry", "nit")
 		}
 
 		if strings.Contains(errMsg, "email") {
-			return shared_error.NewGeneralServiceError("AuthService", operation, "email already exists", nil)
+			return shared_error.NewFormattedGeneralServiceError("AuthService", operation, "DuplicatedEntry", "email")
 		}
 
 		if strings.Contains(errMsg, "phone") {
-			return shared_error.NewGeneralServiceError("AuthService", operation, "phone already exists", nil)
+			return shared_error.NewFormattedGeneralServiceError("AuthService", operation, "DuplicatedEntry", "phone")
 		}
 
 		if strings.Contains(errMsg, "nrc") {
-			return shared_error.NewGeneralServiceError("AuthService", operation, "nrc already exists", nil)
+			return shared_error.NewFormattedGeneralServiceError("AuthService", operation, "DuplicatedEntry", "nrc")
 		}
 	}
 

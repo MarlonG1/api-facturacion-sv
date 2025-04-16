@@ -16,7 +16,7 @@ func NewActivityCode(value string) (*ActivityCode, error) {
 	if code.IsValid() {
 		return code, nil
 	}
-	return &ActivityCode{}, dte_errors.NewValidationError("InvalidPattern", "ActivityCode", "123456", value)
+	return &ActivityCode{}, dte_errors.NewValidationError("InvalidPattern", "activity_code", "123456", value)
 }
 
 func NewValidatedActivityCode(value string) *ActivityCode {

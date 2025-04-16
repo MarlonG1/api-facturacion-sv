@@ -16,7 +16,7 @@ func NewPaymentCondition(value int) (*PaymentCondition, error) {
 	if paymentCondition.IsValid() {
 		return paymentCondition, nil
 	}
-	return &PaymentCondition{}, dte_errors.NewValidationError("InvalidNumberRange", "OperationCondition", "1 a 3", fmt.Sprintf("%d", value))
+	return &PaymentCondition{}, dte_errors.NewValidationError("InvalidNumberRange", "payment.condition", "1-3", fmt.Sprintf("%d", value))
 }
 
 func NewValidatedPaymentCondition(value int) *PaymentCondition {

@@ -2,6 +2,7 @@ package request_mapper
 
 import (
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/core/dte"
+	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/dte_errors"
 	identificationVO "github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/value_objects/identification"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/invalidation/models"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/mapper/request_mapper/common"
@@ -21,22 +22,22 @@ func NewInvalidationMapper() *InvalidationMapper {
 
 func (i *InvalidationMapper) MapToInvalidationData(req *structs.CreateInvalidationRequest, client *dte.IssuerDTE, baseDte *dte.DTEDetails, emissionDate time.Time) (*models.InvalidationDocument, error) {
 	if req == nil {
-		return nil, shared_error.NewGeneralServiceError("InvalidationMapper", "MapToInvalidationData", "Invalid request", nil)
+		return nil, dte_errors.NewValidationError("RequiredField", "Request")
 	}
 
 	reason, err := invalidation.MapInvalidationReasonRequest(req.Reason)
 	if err != nil {
-		return nil, shared_error.NewGeneralServiceError("InvalidationMapper", "MapToInvalidationData", "Error mapping reason", err)
+		return nil, shared_error.NewFormattedGeneralServiceWithError("InvalidationMapper", "MapToInvalidationData", err, "ErrorMapping", "Invalidation->Reason")
 	}
 
 	document, err := invalidation.MapInvalidatedDocument(baseDte, req, emissionDate)
 	if err != nil {
-		return nil, shared_error.NewGeneralServiceError("InvalidationMapper", "MapToInvalidationData", "Error mapping invalidated document", err)
+		return nil, shared_error.NewFormattedGeneralServiceWithError("InvalidationMapper", "MapToInvalidationData", err, "ErrorMapping", "Invalidation->Document")
 	}
 
 	identification, err := common.MapCommonRequestIdentification(1, 2, document.DocumentType.GetValue())
 	if err != nil {
-		return nil, shared_error.NewGeneralServiceError("InvalidationMapper", "MapToInvalidationData", "Error mapping identification", err)
+		return nil, shared_error.NewFormattedGeneralServiceWithError("InvalidationMapper", "MapToInvalidationData", err, "ErrorMapping", "Invalidation->Identification")
 	}
 
 	newUUID := uuid.New().String()
@@ -44,7 +45,7 @@ func (i *InvalidationMapper) MapToInvalidationData(req *structs.CreateInvalidati
 
 	issuer, err := common.MapCommonIssuer(client)
 	if err != nil {
-		return nil, shared_error.NewGeneralServiceError("CCFMapper", "MapToCCFData", "Error mapping issuer", err)
+		return nil, shared_error.NewFormattedGeneralServiceWithError("InvalidationMapper", "MapToInvalidationData", err, "ErrorMapping", "Invalidation->Issuer")
 	}
 
 	return &models.InvalidationDocument{
@@ -57,55 +58,55 @@ func (i *InvalidationMapper) MapToInvalidationData(req *structs.CreateInvalidati
 
 func (i *InvalidationMapper) ValidateInvalidationReRequest(req *structs.CreateInvalidationRequest) error {
 	if req == nil {
-		return shared_error.NewGeneralServiceError("InvalidationMapper", "validateInvoiceRequest", "Empty request", nil)
+		return dte_errors.NewValidationError("RequiredField", "Request")
 	}
 
 	if req.Reason == nil {
-		return shared_error.NewGeneralServiceError("InvalidationMapper", "validateInvoiceRequest", "Empty reason", nil)
+		return dte_errors.NewValidationError("RequiredField", "Request->Reason")
 	}
 
 	if (req.Reason.Type == 1 || req.Reason.Type == 3) && req.ReplacementGenerationCode == nil {
-		return shared_error.NewGeneralServiceError("InvalidationMapper", "validateInvoiceRequest", "Replacement code is required for type 1 and 3", nil)
+		return shared_error.NewFormattedGeneralServiceError("InvalidationMapper", "validateInvoiceRequest", "InvalidReplacementCode1And3")
 	}
 
 	if req.Reason.Type == 2 && req.ReplacementGenerationCode != nil {
-		return shared_error.NewGeneralServiceError("InvalidationMapper", "validateInvoiceRequest", "Replacement code must be null for type 2", nil)
+		return shared_error.NewFormattedGeneralServiceError("InvalidationMapper", "validateInvoiceRequest", "InvalidInvalidationType2")
 	}
 
 	if req.GenerationCode == "" {
-		return shared_error.NewGeneralServiceError("InvalidationMapper", "validateInvoiceRequest", "Empty generation code", nil)
+		return dte_errors.NewValidationError("RequiredField", "Request->GenerationCode")
 	}
 
 	if req.Reason.Type == 0 {
-		return shared_error.NewGeneralServiceError("InvalidationMapper", "validateInvoiceRequest", "Empty reason type", nil)
+		return dte_errors.NewValidationError("RequiredField", "Request->Reason->Type")
 	}
 
 	if req.Reason.ResponsibleName == "" {
-		return shared_error.NewGeneralServiceError("InvalidationMapper", "validateInvoiceRequest", "Empty responsible name", nil)
+		return dte_errors.NewValidationError("RequiredField", "Request->Reason->ResponsibleName")
 	}
 
 	if req.Reason.ResponsibleDocType == "" {
-		return shared_error.NewGeneralServiceError("InvalidationMapper", "validateInvoiceRequest", "Empty responsible document type", nil)
+		return dte_errors.NewValidationError("RequiredField", "Request->Reason->ResponsibleDocType")
 	}
 
 	if req.Reason.ResponsibleNumDoc == "" {
-		return shared_error.NewGeneralServiceError("InvalidationMapper", "validateInvoiceRequest", "Empty responsible document number", nil)
+		return dte_errors.NewValidationError("RequiredField", "Request->Reason->ResponsibleNumDoc")
 	}
 
 	if req.Reason.RequestorName == "" {
-		return shared_error.NewGeneralServiceError("InvalidationMapper", "validateInvoiceRequest", "Empty requestor name", nil)
+		return dte_errors.NewValidationError("RequiredField", "Request->Reason->RequestorName")
 	}
 
 	if req.Reason.RequestorDocType == "" {
-		return shared_error.NewGeneralServiceError("InvalidationMapper", "validateInvoiceRequest", "Empty requestor document type", nil)
+		return dte_errors.NewValidationError("RequiredField", "Request->Reason->RequestorDocType")
 	}
 
 	if req.Reason.RequestorNumDoc == "" {
-		return shared_error.NewGeneralServiceError("InvalidationMapper", "validateInvoiceRequest", "Empty requestor document number", nil)
+		return dte_errors.NewValidationError("RequiredField", "Request->Reason->RequestorNumDoc")
 	}
 
 	if req.Reason.Reason == nil && req.Reason.Type == 3 {
-		return shared_error.NewGeneralServiceError("InvalidationMapper", "validateInvoiceRequest", "If the reason type is 3, the reason field in reason object must be provided", nil)
+		return shared_error.NewFormattedGeneralServiceError("InvalidationMapper", "validateInvoiceRequest", "InvalidInvalidationType3")
 	}
 
 	return nil

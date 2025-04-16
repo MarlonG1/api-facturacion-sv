@@ -31,6 +31,10 @@ func (r *AuthRepository) GetAuthTypeByApiKey(ctx context.Context, apiKey string)
 		}
 	}
 
+	if user == nil {
+		return "", errPackage.ErrUserNotFound
+	}
+
 	return user.AuthType, nil
 }
 

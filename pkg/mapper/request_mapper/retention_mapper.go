@@ -22,17 +22,17 @@ func NewRetentionMapper() *RetentionMapper {
 func (m *RetentionMapper) MapToRetentionData(req *structs.CreateRetentionRequest, client *dte.IssuerDTE) (*retention_models.InputRetentionData, error) {
 	issuer, err := common.MapCommonIssuer(client)
 	if err != nil {
-		return nil, shared_error.NewGeneralServiceError("RetentionMapper", "MapToRetentionData", "Error mapping issuer", err)
+		return nil, shared_error.NewFormattedGeneralServiceWithError("RetentionMapper", "MapToRetentionData", err, "ErrorMapping", "Retention->Issuer")
 	}
 
 	items, err := retention.MapRetentionItemList(req.Items)
 	if err != nil {
-		return nil, shared_error.NewGeneralServiceError("RetentionMapper", "MapToRetentionData", "Error mapping items", err)
+		return nil, shared_error.NewFormattedGeneralServiceWithError("RetentionMapper", "MapToRetentionData", err, "ErrorMapping", "Retention->Items")
 	}
 
 	identification, err := common.MapCommonRequestIdentification(constants.ModeloFacturacionPrevio, 1, constants.ComprobanteRetencionElectronico)
 	if err != nil {
-		return nil, shared_error.NewGeneralServiceError("RetentionMapper", "MapToRetentionData", "Error mapping identification", err)
+		return nil, shared_error.NewFormattedGeneralServiceWithError("RetentionMapper", "MapToRetentionData", err, "ErrorMapping", "Retention->Identification")
 	}
 
 	if err = validateReceiverRequest(req); err != nil {
@@ -41,7 +41,7 @@ func (m *RetentionMapper) MapToRetentionData(req *structs.CreateRetentionRequest
 
 	receiver, err := retention.MapRetentionRequestReceiver(req.Receiver)
 	if err != nil {
-		return nil, shared_error.NewGeneralServiceError("RetentionMapper", "MapToRetentionData", "Error mapping receiver", err)
+		return nil, shared_error.NewFormattedGeneralServiceWithError("RetentionMapper", "MapToRetentionData", err, "ErrorMapping", "Retention->Receiver")
 	}
 
 	result := &retention_models.InputRetentionData{
@@ -61,11 +61,11 @@ func (m *RetentionMapper) MapToRetentionData(req *structs.CreateRetentionRequest
 	if m.IsAllPhysical(req.Items) {
 
 		if req.Summary == nil {
-			return nil, dte_errors.NewValidationError("RequiredField", "Summary")
+			return nil, dte_errors.NewValidationError("RequiredField", "Request->Summary")
 		}
 		result.RetentionSummary, err = retention.MapRetentionSummary(req.Summary)
 		if err != nil {
-			return nil, shared_error.NewGeneralServiceError("RetentionMapper", "MapToRetentionData", "Error mapping summary", err)
+			return nil, shared_error.NewFormattedGeneralServiceWithError("RetentionMapper", "MapToRetentionData", err, "ErrorMapping", "Retention->Summary")
 		}
 	}
 
@@ -75,7 +75,7 @@ func (m *RetentionMapper) MapToRetentionData(req *structs.CreateRetentionRequest
 func validateReceiverRequest(req *structs.CreateRetentionRequest) error {
 
 	if req.Receiver == nil {
-		return dte_errors.NewValidationError("RequiredField", "Receiver")
+		return dte_errors.NewValidationError("RequiredField", "Request->Receiver")
 	}
 
 	if req.Receiver.DocumentType == nil {
@@ -91,12 +91,12 @@ func validateReceiverRequest(req *structs.CreateRetentionRequest) error {
 func mapRetentionOptionalFields(req *structs.CreateRetentionRequest, result *retention_models.InputRetentionData) error {
 	if req.Extension != nil {
 		if req.Extension.VehiculePlate != nil {
-			return dte_errors.NewValidationError("InvalidField", "Request->Extension->VehiculePlate")
+			return dte_errors.NewValidationError("InvalidFieldValue", "Request->Extension->VehiculePlate")
 		}
 
 		extension, err := common.MapCommonRequestExtension(req.Extension)
 		if err != nil {
-			return shared_error.NewGeneralServiceError("MapCommonRequestExtension", "MapToRetentionData", "Error mapping extension", err)
+			return shared_error.NewFormattedGeneralServiceWithError("MapCommonRequestExtension", "MapToRetentionData", err, "ErrorMapping", "Retention->Extension")
 		}
 		result.Extension = extension
 	}
@@ -104,7 +104,7 @@ func mapRetentionOptionalFields(req *structs.CreateRetentionRequest, result *ret
 	if req.Appendixes != nil {
 		appendixes, err := common.MapCommonRequestAppendix(req.Appendixes)
 		if err != nil {
-			return shared_error.NewGeneralServiceError("MapAppendixes", "MapToInvoiceData", "Error mapping appendixes", err)
+			return shared_error.NewFormattedGeneralServiceWithError("MapAppendixes", "MapToRetentionData", err, "ErrorMapping", "Retention->Appendixes")
 		}
 		result.Appendixes = appendixes
 	}

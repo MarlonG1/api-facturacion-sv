@@ -72,7 +72,7 @@ func parseDTEFilters(r *http.Request) (*dte.DTEFilters, error) {
 	if startDateStr != "" {
 		parsedStartDate, err := time.Parse(time.RFC3339, startDateStr)
 		if err != nil {
-			return nil, shared_error.NewGeneralServiceError("ListDTEsUseCase", "parseDTEFilters", "Invalid query param startDate format", nil)
+			return nil, shared_error.NewFormattedGeneralServiceError("ListDTEsUseCase", "parseDTEFilters", "InvalidQueryParam", "startDate", "0000-00-00")
 		}
 		startDate = &parsedStartDate
 	}
@@ -80,7 +80,7 @@ func parseDTEFilters(r *http.Request) (*dte.DTEFilters, error) {
 	if endDateStr != "" {
 		parsedEndDate, err := time.Parse(time.RFC3339, endDateStr)
 		if err != nil {
-			return nil, shared_error.NewGeneralServiceError("ListDTEsUseCase", "parseDTEFilters", "Invalid query param endDate format", nil)
+			return nil, shared_error.NewFormattedGeneralServiceError("ListDTEsUseCase", "parseDTEFilters", "InvalidQueryParam", "endDate", "0000-00-00")
 		}
 		endDate = &parsedEndDate
 	}
@@ -88,7 +88,7 @@ func parseDTEFilters(r *http.Request) (*dte.DTEFilters, error) {
 	// 2.2 Status
 	if status := r.URL.Query().Get("status"); status != "" {
 		if !constants.ValidReceiverDocumentStates[strings.ToUpper(status)] {
-			return nil, shared_error.NewGeneralServiceError("ListDTEsUseCase", "parseDTEFilters", "Invalid query param status, only 'received', 'invalidated' or 'rejected' are allowed", nil)
+			return nil, shared_error.NewFormattedGeneralServiceError("ListDTEsUseCase", "parseDTEFilters", "InvalidQueryParam", "status", "'received', 'invalidated', 'rejected'", nil)
 		} else {
 			filters.Status = strings.ToUpper(status)
 		}
@@ -108,7 +108,7 @@ func parseDTEFilters(r *http.Request) (*dte.DTEFilters, error) {
 	// 2.4 Transmisión
 	if transmission := r.URL.Query().Get("transmission"); transmission != "" {
 		if !constants.ValidTransmissionTypes[strings.ToUpper(transmission)] {
-			return nil, shared_error.NewGeneralServiceError("ListDTEsUseCase", "parseDTEFilters", "Invalid query param transmission type, only 'normal' or 'contingency' are allowed", nil)
+			return nil, shared_error.NewFormattedGeneralServiceError("ListDTEsUseCase", "parseDTEFilters", "InvalidQueryParam", "transmission", "'normal', 'contingency'", nil)
 		} else {
 			filters.Transmission = strings.ToUpper(transmission)
 		}
@@ -128,7 +128,7 @@ func parseDTEFilters(r *http.Request) (*dte.DTEFilters, error) {
 	// 2.6 Tipo de DTE
 	if dteType := r.URL.Query().Get("type"); dteType != "" {
 		if !constants.ValidDTETypes[dteType] {
-			return nil, shared_error.NewGeneralServiceError("ListDTEsUseCase", "parseDTEFilters", "Invalid query param DTE type", nil)
+			return nil, shared_error.NewFormattedGeneralServiceError("ListDTEsUseCase", "parseDTEFilters", "InvalidQueryParam", "type", "01-15")
 		} else {
 			filters.DTEType = dteType
 		}

@@ -4,13 +4,12 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/MarlonG1/api-facturacion-sv/internal/domain/ports"
 	"github.com/go-redis/redis/v8"
 	"time"
 
 	"github.com/MarlonG1/api-facturacion-sv/config"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/auth/models"
-	errPackage "github.com/MarlonG1/api-facturacion-sv/internal/infrastructure/error"
+	"github.com/MarlonG1/api-facturacion-sv/internal/domain/ports"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/logs"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/shared_error"
 )
@@ -99,11 +98,10 @@ func (c *RedisTokenCache) SetCredentials(token string, creds *models.HaciendaCre
 			"token": token,
 			"error": err.Error(),
 		})
-		return shared_error.NewGeneralServiceError(
+		return shared_error.NewFormattedGeneralServiceError(
 			"RedisTokenCache",
 			"SetCredentials",
-			"failed to encrypt credentials",
-			err,
+			"FailedToSetCache",
 		)
 	}
 
@@ -113,11 +111,10 @@ func (c *RedisTokenCache) SetCredentials(token string, creds *models.HaciendaCre
 			"key":   key,
 			"error": err.Error(),
 		})
-		return shared_error.NewGeneralServiceError(
+		return shared_error.NewFormattedGeneralServiceError(
 			"RedisTokenCache",
 			"SetCredentials",
-			"failed to set credentials in Redis",
-			err,
+			"FailedToSetCache",
 		)
 	}
 
@@ -135,11 +132,10 @@ func (c *RedisTokenCache) Get(key string) (string, error) {
 		logs.Error("Token not found in Redis", map[string]interface{}{
 			"key": key,
 		})
-		return "", shared_error.NewGeneralServiceError(
+		return "", shared_error.NewFormattedGeneralServiceError(
 			"RedisTokenCache",
 			"Get",
-			"token not found in Redis",
-			errPackage.ErrTokenNotFound,
+			"TokenNotExist",
 		)
 	}
 	if err != nil {
@@ -147,11 +143,10 @@ func (c *RedisTokenCache) Get(key string) (string, error) {
 			"key":   key,
 			"error": err.Error(),
 		})
-		return "", shared_error.NewGeneralServiceError(
+		return "", shared_error.NewFormattedGeneralServiceError(
 			"RedisTokenCache",
 			"Get",
-			"failed to get value from Redis",
-			err,
+			"FailedToGetCache",
 		)
 	}
 
@@ -165,14 +160,13 @@ func (c *RedisTokenCache) GetCredentials(token string) (*models.HaciendaCredenti
 
 	cipherStruct, err := c.client.Get(c.ctx, key).Result()
 	if errors.Is(err, redis.Nil) {
-		logs.Error("Credentials not found in Redis", map[string]interface{}{
+		logs.Error("Token not found in Redis", map[string]interface{}{
 			"key": key,
 		})
-		return nil, shared_error.NewGeneralServiceError(
+		return nil, shared_error.NewFormattedGeneralServiceError(
 			"RedisTokenCache",
 			"GetCredentials",
-			"credentials not found in Redis",
-			errPackage.ErrTokenNotFound,
+			"TokenNotExist",
 		)
 	}
 	if err != nil {
@@ -180,11 +174,10 @@ func (c *RedisTokenCache) GetCredentials(token string) (*models.HaciendaCredenti
 			"key":   key,
 			"error": err.Error(),
 		})
-		return nil, shared_error.NewGeneralServiceError(
+		return nil, shared_error.NewFormattedGeneralServiceError(
 			"RedisTokenCache",
 			"GetCredentials",
-			"failed to get credentials from Redis",
-			err,
+			"FailedToGetCache",
 		)
 	}
 

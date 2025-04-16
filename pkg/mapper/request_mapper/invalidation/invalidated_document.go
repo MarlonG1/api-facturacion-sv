@@ -20,7 +20,7 @@ import (
 
 func MapInvalidatedDocument(baseDTE *dte.DTEDetails, request *structs.CreateInvalidationRequest, emissionDate time.Time) (*models.InvalidatedDocument, error) {
 	if baseDTE == nil {
-		return nil, shared_error.NewGeneralServiceError("InvalidationMapper", "MapToInvalidatedDocument", "Invalid base DTE", nil)
+		return nil, shared_error.NewFormattedGeneralServiceError("InvalidationMapper", "MapToInvalidatedDocument", "InvalidBaseDTE")
 	}
 
 	// Deserializar JSON del DTE original

@@ -16,7 +16,7 @@ func NewControlNumber(value string) (*ControlNumber, error) {
 	if controlNumber.IsValid() {
 		return controlNumber, nil
 	}
-	return &ControlNumber{}, dte_errors.NewValidationError("InvalidPattern", "ControlNumber", "DTE-00-XXXXXXXX-000000000000000", value)
+	return &ControlNumber{}, dte_errors.NewValidationError("InvalidPattern", "control_number", "DTE-00-XXXXXXXX-000000000000000", value)
 }
 
 func NewValidatedControlNumber(value string) *ControlNumber {

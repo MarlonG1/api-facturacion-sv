@@ -55,7 +55,7 @@ func (m *AuthMiddleware) Handle(next http.Handler) http.Handler {
 				"path":   r.URL.Path,
 				"method": r.Method,
 			})
-			m.respWriter.Error(w, http.StatusUnauthorized, "Invalid token", []string{"Token is expired or has been tampered with"})
+			m.respWriter.Error(w, http.StatusUnauthorized, "error", []string{err.Error()})
 			return
 		}
 

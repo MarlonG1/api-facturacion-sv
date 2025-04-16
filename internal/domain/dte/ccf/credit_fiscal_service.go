@@ -59,11 +59,11 @@ func (s *creditFiscalService) validate(ccf *ccf_models.CreditFiscalDocument) err
 	s.validator = validator.NewCCFRulesValidator(ccf)
 	err := s.validator.Validate()
 	if err != nil {
-		return shared_error.NewGeneralServiceError(
+		return shared_error.NewFormattedGeneralServiceWithError(
 			"CCFService",
 			"Validate",
-			"validation failed, check the error for more details",
 			err,
+			"ValidationFailed",
 		)
 	}
 	return nil
@@ -87,11 +87,11 @@ func (s *creditFiscalService) generateControlNumber(ctx context.Context, ccf *cc
 
 	err = ccf.Identification.SetControlNumber(controlNumber)
 	if err != nil {
-		return shared_error.NewGeneralServiceError(
+		return shared_error.NewFormattedGeneralServiceWithError(
 			"CCFService",
 			"GenerateControlNumber",
-			"failed to set control number",
 			err,
+			"FailedToSetControlNumber",
 		)
 	}
 	return nil

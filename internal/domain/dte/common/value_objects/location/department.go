@@ -16,7 +16,7 @@ func NewDepartment(value string) (*Department, error) {
 	if dept.IsValid() {
 		return dept, nil
 	}
-	return &Department{}, dte_errors.NewValidationError("InvalidPattern", "Department", "01 a 14, debe ser de dos dígitos", value)
+	return &Department{}, dte_errors.NewValidationError("InvalidPattern", "Department", "01-14", value)
 }
 
 func NewValidatedDepartment(value string) *Department {

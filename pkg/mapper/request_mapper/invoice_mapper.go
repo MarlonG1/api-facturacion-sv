@@ -26,27 +26,27 @@ func (m *InvoiceMapper) MapToInvoiceData(req *structs.CreateInvoiceRequest, clie
 
 	items, err := invoice.MapInvoiceItems(req.Items)
 	if err != nil {
-		return nil, shared_error.NewGeneralServiceError("InvoiceMapper", "MapToInvoiceData", "Error mapping items", err)
+		return nil, shared_error.NewFormattedGeneralServiceWithError("InvoiceMapper", "MapToInvoiceData", err, "ErrorMapping", "Invoice->Items")
 	}
 
 	receiver, err := common.MapCommonRequestReceiver(req.Receiver)
 	if err != nil {
-		return nil, shared_error.NewGeneralServiceError("InvoiceMapper", "MapToInvoiceData", "Error mapping receiver", err)
+		return nil, shared_error.NewFormattedGeneralServiceWithError("InvoiceMapper", "MapToInvoiceData", err, "ErrorMapping", "Invoice->Receiver")
 	}
 
 	identification, err := common.MapCommonRequestIdentification(constants.ModeloFacturacionPrevio, 1, constants.FacturaElectronica)
 	if err != nil {
-		return nil, shared_error.NewGeneralServiceError("InvoiceMapper", "MapToInvoiceData", "Error mapping identification", err)
+		return nil, shared_error.NewFormattedGeneralServiceWithError("InvoiceMapper", "MapToInvoiceData", err, "ErrorMapping", "Invoice->Identification")
 	}
 
 	summary, err := invoice.MapInvoiceRequestSummary(req.Summary)
 	if err != nil {
-		return nil, shared_error.NewGeneralServiceError("InvoiceMapper", "MapToInvoiceData", "Error mapping summary", err)
+		return nil, shared_error.NewFormattedGeneralServiceWithError("InvoiceMapper", "MapToInvoiceData", err, "ErrorMapping", "Invoice->Summary")
 	}
 
 	issuer, err := common.MapCommonIssuer(client)
 	if err != nil {
-		return nil, shared_error.NewGeneralServiceError("InvoiceMapper", "MapToInvoiceData", "Error mapping issuer", err)
+		return nil, shared_error.NewFormattedGeneralServiceWithError("InvoiceMapper", "MapToInvoiceData", err, "ErrorMapping", "Invoice->Issuer")
 	}
 
 	result := &invoice_models.InvoiceData{
@@ -69,7 +69,7 @@ func (m *InvoiceMapper) MapToInvoiceData(req *structs.CreateInvoiceRequest, clie
 // validateInvoiceRequest valida los campos requeridos en la solicitud de invoice_models.
 func validateInvoiceRequest(req *structs.CreateInvoiceRequest) error {
 	if req == nil {
-		return shared_error.NewGeneralServiceError("InvoiceMapper", "MapToInvoiceData", "The request is empty", nil)
+		return dte_errors.NewValidationError("RequiredField", "Request")
 	}
 	if req.Items == nil {
 		return dte_errors.NewValidationError("RequiredField", "Request->Items")
@@ -80,7 +80,7 @@ func validateInvoiceRequest(req *structs.CreateInvoiceRequest) error {
 
 	if req.Receiver != nil {
 		if req.Receiver.DocumentType != nil && req.Receiver.DocumentNumber == nil || req.Receiver.DocumentType == nil && req.Receiver.DocumentNumber != nil {
-			return dte_errors.NewValidationError("InvalidField", "DocumentType, DocumentNumber. If DocumentType is present, DocumentNumber must be present and vice versa, there fields")
+			return shared_error.NewFormattedGeneralServiceError("InvoiceMapper", "MapToInvoiceData", "InvalidDocumentTypeAndNumber")
 		}
 	}
 	return nil
@@ -91,7 +91,7 @@ func mapOptionalFields(req *structs.CreateInvoiceRequest, result *invoice_models
 	if req.ThirdPartySale != nil {
 		thirdPartySale, err := common.MapCommonRequestThirdPartySale(req.ThirdPartySale)
 		if err != nil {
-			return shared_error.NewGeneralServiceError("MapCommonRequestThirdPartySale", "MapToInvoiceData", "Error mapping third party sale", err)
+			return shared_error.NewFormattedGeneralServiceWithError("MapCommonRequestThirdPartySale", "MapToInvoiceData", err, "ErrorMapping", "Invoice->ThirdPartySales")
 		}
 		result.ThirdPartySale = thirdPartySale
 	}
@@ -103,7 +103,7 @@ func mapOptionalFields(req *structs.CreateInvoiceRequest, result *invoice_models
 
 		extension, err := common.MapCommonRequestExtension(req.Extension)
 		if err != nil {
-			return shared_error.NewGeneralServiceError("MapCommonRequestExtension", "MapToInvoiceData", "Error mapping extension", err)
+			return shared_error.NewFormattedGeneralServiceWithError("MapCommonRequestExtension", "MapToInvoiceData", err, "ErrorMapping", "Invoice->Extension")
 		}
 		result.Extension = extension
 	}
@@ -111,7 +111,7 @@ func mapOptionalFields(req *structs.CreateInvoiceRequest, result *invoice_models
 	if req.Payments != nil {
 		payments, err := common.MapCommonRequestPaymentsType(req.Payments)
 		if err != nil {
-			return shared_error.NewGeneralServiceError("MapCommonRequestPaymentsType", "MapToInvoiceData", "Error mapping payments", err)
+			return shared_error.NewFormattedGeneralServiceWithError("MapCommonRequestPaymentsType", "MapToInvoiceData", err, "ErrorMapping", "Invoice->PaymentTypes")
 		}
 		result.InvoiceSummary.PaymentTypes = payments
 	}
@@ -119,7 +119,7 @@ func mapOptionalFields(req *structs.CreateInvoiceRequest, result *invoice_models
 	if req.OtherDocs != nil {
 		otherDocs, err := common.MapCommonRequestOtherDocuments(req.OtherDocs)
 		if err != nil {
-			return shared_error.NewGeneralServiceError("MapCommonRequestOtherDocuments", "MapToInvoiceData", "Error mapping other documents", err)
+			return shared_error.NewFormattedGeneralServiceWithError("MapCommonRequestOtherDocuments", "MapToInvoiceData", err, "ErrorMapping", "Invoice->OtherDocs")
 		}
 		result.OtherDocs = otherDocs
 	}
@@ -127,7 +127,7 @@ func mapOptionalFields(req *structs.CreateInvoiceRequest, result *invoice_models
 	if req.RelatedDocs != nil {
 		relatedDocs, err := common.MapCommonRequestRelatedDocuments(req.RelatedDocs)
 		if err != nil {
-			return shared_error.NewGeneralServiceError("MapCommonRequestRelatedDocuments", "MapToInvoiceData", "Error mapping related documents", err)
+			return shared_error.NewFormattedGeneralServiceWithError("MapCommonRequestRelatedDocuments", "MapToInvoiceData", err, "ErrorMapping", "Invoice->RelatedDocs")
 		}
 		result.RelatedDocs = relatedDocs
 	}
@@ -135,7 +135,7 @@ func mapOptionalFields(req *structs.CreateInvoiceRequest, result *invoice_models
 	if req.Appendixes != nil {
 		appendixes, err := common.MapCommonRequestAppendix(req.Appendixes)
 		if err != nil {
-			return shared_error.NewGeneralServiceError("MapAppendixes", "MapToInvoiceData", "Error mapping appendixes", err)
+			return shared_error.NewFormattedGeneralServiceWithError("MapAppendixes", "MapToInvoiceData", err, "ErrorMapping", "Invoice->Appendixes")
 		}
 		result.Appendixes = appendixes
 	}

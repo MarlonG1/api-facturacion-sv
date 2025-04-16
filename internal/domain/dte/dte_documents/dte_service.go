@@ -27,13 +27,13 @@ func (m *DTEService) Create(ctx context.Context, document interface{}, transmiss
 	// 1. Establecer el sello de recepción en el apéndice del DTE
 	if transmission != constants.TransmissionContingency {
 		if err := m.setReceptionStampIntoAppendix(document, receptionStamp); err != nil {
-			return shared_error.NewGeneralServiceError("DTEService", "CreateDTE", "failed to set reception stamp into appendix", err)
+			return shared_error.NewFormattedGeneralServiceWithError("DTEService", "CreateDTE", err, "FailedToSetReceptionStamp")
 		}
 	}
 
 	// 2. Crear el DTE en la base de datos
 	if err := m.repo.Create(ctx, document, transmission, status, receptionStamp); err != nil {
-		return shared_error.NewGeneralServiceError("DTEService", "CreateDTE", "failed to create DTE", err)
+		return shared_error.NewFormattedGeneralServiceWithError("DTEService", "CreateDTE", err, "FailedToCreateDTE")
 	}
 
 	return nil
@@ -43,7 +43,7 @@ func (m *DTEService) GenerateBalanceTransaction(ctx context.Context, branchID ui
 	// 1. Extracer los datos del DTE
 	extractor, err := utils.ExtractSummaryTotalAmounts(document)
 	if err != nil {
-		return shared_error.NewGeneralServiceError("DTEService", "GenerateBalanceTransaction", "failed to extract summary total amounts", err)
+		return shared_error.NewFormattedGeneralServiceError("DTEService", "GenerateBalanceTransaction", "FailedToExtractSummaryTotals")
 	}
 
 	// 2. Crear la transacción de balance
@@ -58,7 +58,7 @@ func (m *DTEService) GenerateBalanceTransaction(ctx context.Context, branchID ui
 	// 3. Obtener el control de saldo del DTE
 	err = m.repo.GenerateBalanceTransaction(ctx, branchID, originalDTE, &transaction)
 	if err != nil {
-		return shared_error.NewGeneralServiceError("DTEService", "GenerateBalanceTransaction", "failed to generate balance transaction", err)
+		return shared_error.NewFormattedGeneralServiceWithError("DTEService", "GenerateBalanceTransaction", err, "FailedToGenerateBalanceTransaction")
 	}
 
 	return nil
@@ -74,7 +74,7 @@ func (m *DTEService) ValidateForCreditNote(ctx context.Context, branchID uint, o
 	// 2. Obtener el control de saldo del DTE
 	balanceControl, err := m.repo.GetDTEBalanceControl(ctx, branchID, originalDTE)
 	if err != nil {
-		return shared_error.NewGeneralServiceError("DTEService", "IsValidForCreditNote", "failed to get DTE balance control", err)
+		return shared_error.NewFormattedGeneralServiceWithError("DTEService", "IsValidForCreditNote", err, "FailedToGetBalanceControl")
 	}
 
 	// 3. Verificar si el DTE es válido para la Nota de Crédito
@@ -94,7 +94,7 @@ func (m *DTEService) ValidateForCreditNote(ctx context.Context, branchID uint, o
 func (m *DTEService) UpdateDTE(ctx context.Context, branchID uint, document dte.DTEDetails) error {
 	// 1. Actualizar el DTE en la base de datos
 	if err := m.repo.Update(ctx, branchID, document); err != nil {
-		return shared_error.NewGeneralServiceError("DTEService", "UpdateDTE", "failed to update DTE", err)
+		return shared_error.NewFormattedGeneralServiceWithError("DTEService", "UpdateDTE", err, "FailedToUpdateDTE")
 	}
 
 	return nil
@@ -104,7 +104,7 @@ func (m *DTEService) VerifyStatus(ctx context.Context, branchID uint, id string)
 	// 1. Verificar el estado del DTE en la base de datos
 	status, err := m.repo.VerifyStatus(ctx, branchID, id)
 	if err != nil {
-		return "", shared_error.NewGeneralServiceError("DTEService", "VerifyStatus", "failed to verify DTE status", err)
+		return "", shared_error.NewFormattedGeneralServiceWithError("DTEService", "VerifyStatus", err, "FailedToVerifyDTE")
 	}
 
 	return status, nil
@@ -114,7 +114,7 @@ func (m *DTEService) GetByGenerationCode(ctx context.Context, branchID uint, gen
 	// 1. Obtener el DTE por su código de generación
 	dteDocument, err := m.repo.GetByGenerationCode(ctx, branchID, generationCode)
 	if err != nil {
-		return nil, shared_error.NewGeneralServiceError("DTEService", "GetByGenerationCode", "failed to get DTE by generation code", err)
+		return nil, shared_error.NewFormattedGeneralServiceWithError("DTEService", "GetByGenerationCode", err, "FailedToGetDTE", generationCode)
 	}
 
 	return dteDocument, nil
@@ -124,7 +124,7 @@ func (m *DTEService) GetByGenerationCodeConsult(ctx context.Context, branchID ui
 	// 1. Obtener el DTE por su código de generación
 	dteDocument, err := m.repo.GetByGenerationCode(ctx, branchID, generationCode)
 	if err != nil {
-		return nil, shared_error.NewGeneralServiceError("DTEService", "GetByGenerationCodeConsult", "failed to get DTE by generation code", err)
+		return nil, shared_error.NewFormattedGeneralServiceWithError("DTEService", "GetByGenerationCode", err, "FailedToGetDTE", generationCode)
 	}
 
 	// 2. Deserializar JSON data
@@ -150,7 +150,7 @@ func (m *DTEService) GetAllDTEs(ctx context.Context, filters *dte.DTEFilters) (*
 	// 1. Obtener las estadísticas resumidas de los DTEs
 	summaryStats, err := m.repo.GetSummaryStats(ctx, filters)
 	if err != nil {
-		return nil, shared_error.NewGeneralServiceError("DTEService", "GetAll", "failed to get summary stats", err)
+		return nil, shared_error.NewFormattedGeneralServiceError("DTEService", "GetAll", "FailedToGetSummaryStats")
 	}
 
 	// 2. Crear la respuesta base
@@ -172,7 +172,7 @@ func (m *DTEService) GetAllDTEs(ctx context.Context, filters *dte.DTEFilters) (*
 	// 4. Obtener los documentos paginados
 	documents, err := m.repo.GetPagedDocuments(ctx, filters)
 	if err != nil {
-		return nil, shared_error.NewGeneralServiceError("DTEService", "GetAll", "failed to get paged documents", err)
+		return nil, shared_error.NewFormattedGeneralServiceError("DTEService", "GetAll", "FailedToGetPagedDoc")
 	}
 	response.Documents = documents
 

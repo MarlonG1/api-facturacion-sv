@@ -10,30 +10,6 @@ import (
 	"github.com/MarlonG1/api-facturacion-sv/pkg/mapper/request_mapper/structs"
 )
 
-/*
-	1. DocType 1 (Fisico):
-		- Tipo de documento document.OperationType
-		- Numero de documento (Numero correlativo tradicional) document.NewDocumentNumber(string, documentType)
-		- Descripcion string
-		- Monto gravado financial.NewAmount
-		- Fecha de Emision temporal.NewEmissionDate
-		- Tipo de DTE document.NewDTEType
-		- Codigo de retencion de MH document.NewRetentionCode
-
-     2. DocType 2 (Electronico):
-		- Descripcion string
-		- Tipo de documento document.OperationType
-		- Tipo de DTE document.NewDTEType
-		- Numero de documento (Codigo de generacion UUID) document.NewDocumentNumber(string, documentType)
-		- Codigo de retencion de MH document.NewRetentionCode
-
-	Validaciones:
-		- Los campos Extension y Appendixes son opcionales en ambos casos, de estar presentes, deben ser validos
-		- Si todos los items son document_type 1, entonces la seccion de receptor es obligatoria
-		- Si todos los items son document_type 2, entonces la seccion de receptor es excluida
-		- Si son mixtos, entonces la seccion receptor es excluida
-*/
-
 func MapRetentionItemList(req []structs.RetentionItem) ([]retention_models.RetentionItem, error) {
 	if req == nil {
 		return nil, dte_errors.NewValidationError("RequiredField", "Items")

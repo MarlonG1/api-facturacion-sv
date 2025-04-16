@@ -14,7 +14,7 @@ func NewAppendixLabel(value string) (*AppendixLabel, error) {
 	if label.IsValid() {
 		return label, nil
 	}
-	return &AppendixLabel{}, dte_errors.NewValidationError("InvalidLength", "AppendixLabel", "3 a 50", value)
+	return &AppendixLabel{}, dte_errors.NewValidationError("InvalidAppendixLabel", value)
 }
 
 func NewValidatedAppendixLabel(value string) *AppendixLabel {

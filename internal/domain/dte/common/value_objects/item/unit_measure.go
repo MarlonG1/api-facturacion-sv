@@ -16,7 +16,7 @@ func NewUnitMeasure(value int) (*UnitMeasure, error) {
 	if unitMeasure.IsValid() {
 		return unitMeasure, nil
 	}
-	return &UnitMeasure{}, dte_errors.NewValidationError("InvalidNumberRange", "UnitMeasure", "1-99", fmt.Sprintf("%d", value))
+	return &UnitMeasure{}, dte_errors.NewValidationError("InvalidNumberRange", "unit_measure", "1-99", fmt.Sprintf("%d", value))
 }
 
 func NewValidatedUnitMeasure(value int) *UnitMeasure {

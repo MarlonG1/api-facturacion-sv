@@ -2,8 +2,6 @@ package retention
 
 import (
 	"context"
-	"fmt"
-
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/core/dte"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/constants"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/interfaces"
@@ -48,7 +46,7 @@ func (s *retentionService) Create(ctx context.Context, input interface{}, branch
 
 			// 1.2 Verificar si el tipo de DTE es válido para retención
 			if !constants.ValidRetentionDTETypes[dte.Details.DTEType] {
-				return nil, shared_error.NewGeneralServiceError("RetentionUseCase", "Create", fmt.Sprintf("dte type for %s is not valid for retention", data.RetentionItems[i].DocumentNumber.GetValue()), nil)
+				return nil, shared_error.NewFormattedGeneralServiceError("RetentionUseCase", "Create", "InvalidDTETypeForRetention", data.RetentionItems[i].DocumentNumber.GetValue())
 			}
 
 			// 1.3 Verificar si el documento tiene detalles
@@ -91,11 +89,11 @@ func (s *retentionService) validate(retention *retention_models.RetentionModel) 
 	s.validator = validator.NewRetentionRulesValidator(retention)
 	err := s.validator.Validate()
 	if err != nil {
-		return shared_error.NewGeneralServiceError(
+		return shared_error.NewFormattedGeneralServiceWithError(
 			"RetentionService",
 			"Validate",
-			"validation failed, check the error for more details",
 			err,
+			"ValidationFailed",
 		)
 	}
 
@@ -208,11 +206,11 @@ func (s *retentionService) generateControlNumber(ctx context.Context, retention 
 
 	err = retention.Identification.SetControlNumber(controlNumber)
 	if err != nil {
-		return shared_error.NewGeneralServiceError(
+		return shared_error.NewFormattedGeneralServiceWithError(
 			"RetentionManager",
 			"GenerateControlNumber",
-			"failed to set control number",
 			err,
+			"FailedToSetControlNumber",
 		)
 	}
 	return nil

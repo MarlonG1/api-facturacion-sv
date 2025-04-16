@@ -14,7 +14,7 @@ func NewItemCode(value string) (*ItemCode, error) {
 	if itemCode.IsValid() {
 		return itemCode, nil
 	}
-	return &ItemCode{}, dte_errors.NewValidationError("InvalidLength", "ItemCode", "1 a 25", value)
+	return &ItemCode{}, dte_errors.NewValidationError("InvalidLength", "item.code", "1 a 25", value)
 }
 
 func NewValidatedItemCode(value string) *ItemCode {

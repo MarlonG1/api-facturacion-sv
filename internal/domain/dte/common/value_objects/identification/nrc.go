@@ -16,7 +16,7 @@ func NewNRC(value string) (*NRC, error) {
 	if nrc.IsValid() {
 		return nrc, nil
 	}
-	return &NRC{}, dte_errors.NewValidationError("InvalidFormat", "NRC", "12345678", value)
+	return &NRC{}, dte_errors.NewValidationError("InvalidFormat", "nrc", "12345678", value)
 }
 
 func NewValidatedNRC(value string) *NRC {

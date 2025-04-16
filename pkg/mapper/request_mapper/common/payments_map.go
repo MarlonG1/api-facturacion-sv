@@ -16,11 +16,10 @@ func MapCommonRequestPaymentsType(payments []structs.PaymentRequest) ([]interfac
 		var term *financial.PaymentTerm
 
 		if payment.Code == "" || payment.Amount == 0 {
-			return nil, shared_error.NewGeneralServiceError(
+			return nil, shared_error.NewFormattedGeneralServiceError(
 				"CommonMapper",
 				"MapCommonRequestPaymentsType",
-				"Code and Amount are required and cannot be empty in payment_types",
-				nil,
+				"InvalidPaymentTypeInfo",
 			)
 		}
 

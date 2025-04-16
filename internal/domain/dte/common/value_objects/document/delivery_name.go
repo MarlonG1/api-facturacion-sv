@@ -14,7 +14,7 @@ func NewDeliveryName(value string) (*DeliveryName, error) {
 	if name.IsValid() {
 		return name, nil
 	}
-	return &DeliveryName{}, dte_errors.NewValidationError("InvalidLength", "DeliveryName", "1 a 100", value)
+	return &DeliveryName{}, dte_errors.NewValidationError("InvalidDeliveryName", value)
 }
 
 func NewValidatedDeliveryName(value string) *DeliveryName {

@@ -2,8 +2,6 @@ package document
 
 import (
 	"fmt"
-	"strconv"
-
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/dte_errors"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/interfaces"
 )
@@ -17,7 +15,7 @@ func NewServiceType(value int) (*ServiceType, error) {
 	if service.IsValid() {
 		return &service, nil
 	}
-	return nil, dte_errors.NewValidationError("InvalidServiceType", strconv.Itoa(value))
+	return nil, dte_errors.NewValidationError("InvalidServiceType", value)
 }
 
 func NewValidatedServiceType(value int) *ServiceType {

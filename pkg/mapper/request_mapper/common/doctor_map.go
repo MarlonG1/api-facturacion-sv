@@ -13,11 +13,11 @@ func MapCommonRequestDoctorInfo(docInfo structs.DoctorRequest) (*models.DoctorIn
 	var docNIT *identification.NIT
 	var err error
 	if docInfo.Name == "" || docInfo.ServiceType == 0 {
-		return nil, shared_error.NewGeneralServiceError("CommonMapper", "MapCommonRequestDoctorInfo", "Doctor name and service type are required, but one or both are empty (service_type 0 is considered empty)", nil)
+		return nil, shared_error.NewFormattedGeneralServiceError("CommonMapper", "MapCommonRequestDoctorInfo", "InvalidDoctorInfo")
 	}
 
 	if docInfo.IdentificationDoc == nil && docInfo.NIT == nil {
-		return nil, shared_error.NewGeneralServiceError("CommonMapper", "MapCommonRequestDoctorInfo", "Doctor identification or NIT is required, but both are empty", nil)
+		return nil, shared_error.NewFormattedGeneralServiceError("CommonMapper", "MapCommonRequestDoctorInfo", "InvalidDoctorDocuments")
 	}
 
 	if docInfo.NIT != nil {

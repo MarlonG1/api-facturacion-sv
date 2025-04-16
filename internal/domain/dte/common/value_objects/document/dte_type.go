@@ -18,7 +18,7 @@ func NewDTEType(value string) (*DTEType, error) {
 	if tipoDte.IsValid() {
 		return tipoDte, nil
 	}
-	return &DTEType{}, dte_errors.NewValidationError("InvalidFormat", "tipoDte", "a valid electronic document type", value)
+	return &DTEType{}, dte_errors.NewValidationError("InvalidDTEType", value)
 }
 
 func NewValidatedDTEType(value string) *DTEType {
@@ -31,7 +31,7 @@ func NewDTETypeForReceiver(value string) (*DTEType, error) {
 	if tipoDte.IsForReception() {
 		return tipoDte, nil
 	}
-	return &DTEType{}, dte_errors.NewValidationError("InvalidFormat", "tipoDte", "a valid electronic document type for reception", value)
+	return &DTEType{}, dte_errors.NewValidationError("InvalidDocumentForReceiver", value)
 }
 
 // NewDTETypeForRetention crea un nuevo tipo de documento electrónico válido para retención
@@ -40,7 +40,7 @@ func NewDTETypeForRetention(value string) (*DTEType, error) {
 	if tipoDte.IsForRetention() {
 		return tipoDte, nil
 	}
-	return &DTEType{}, dte_errors.NewValidationError("InvalidFormat", "tipoDte", "a valid electronic document type for retention", value)
+	return &DTEType{}, dte_errors.NewValidationError("InvalidDTETypeForRetention", value)
 }
 
 // IsValid válido si el valor es un string y es un tipo de documento electrónico válido

@@ -5,6 +5,8 @@ import (
 	"context"
 	"fmt"
 	"github.com/MarlonG1/api-facturacion-sv/internal/bootstrap/containers"
+	"github.com/MarlonG1/api-facturacion-sv/internal/i18n"
+	"log"
 	"os"
 	"os/signal"
 	"syscall"
@@ -63,14 +65,19 @@ func (app *Application) Initialize() error {
 		return fmt.Errorf("error initializing global time: %w", err)
 	}
 
-	// 4. Iniciar la configuración de la base de datos y las migraciones
+	// 4. Inicializar el sistema de traducción
+	if err = i18n.InitTranslations(rootPath+"/internal/i18n", config.Server.AppLang); err != nil {
+		log.Fatalf("Failed to initialize translation system: %v", err)
+	}
+
+	// 5. Iniciar la configuración de la base de datos y las migraciones
 	app.dbConnection, err = app.initDatabaseConfigurations()
 	if err != nil {
 		logs.Fatal("Failed to initialize database configurations", map[string]interface{}{"error": err.Error()})
 		return fmt.Errorf("error initializing database configurations: %w", err)
 	}
 
-	// 5. Inicializar el contenedor de dependencias
+	// 6. Inicializar el contenedor de dependencias
 	app.container = containers.NewContainer(app.dbConnection)
 	err = app.container.Initialize()
 	if err != nil {
@@ -78,10 +85,10 @@ func (app *Application) Initialize() error {
 		return fmt.Errorf("error initializing container: %w", err)
 	}
 
-	// 6. Inicializar el servidor
+	// 7. Inicializar el servidor
 	app.server = server.Initialize(app.container)
 
-	// 7. Inicializar los jobs
+	// 8. Inicializar los jobs
 	err = setup.SetupJobs(app.container.Services().ContingencyManager(), config.Server.AmbientCode, app.dbConnection)
 	if err != nil {
 		logs.Error("Failed to setup jobs", map[string]interface{}{"error": err.Error()})

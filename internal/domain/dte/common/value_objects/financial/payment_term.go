@@ -16,7 +16,7 @@ func NewPaymentTerm(value string) (*PaymentTerm, error) {
 	if paymentTerm.IsValid() {
 		return paymentTerm, nil
 	}
-	return &PaymentTerm{}, dte_errors.NewValidationError("InvalidPattern", "PaymentTerm", "01 a 03", value)
+	return &PaymentTerm{}, dte_errors.NewValidationError("InvalidPattern", "operation_condition", "01-03", value)
 }
 
 func NewValidatedPaymentTerm(value string) *PaymentTerm {

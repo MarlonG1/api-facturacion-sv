@@ -12,7 +12,7 @@ type ContingencyReason struct {
 func NewContingencyReason(value string) (*ContingencyReason, error) {
 	reason := &ContingencyReason{Value: value}
 	if !reason.IsValid() {
-		return nil, dte_errors.NewValidationError("InvalidLength", "ContingencyReason", "5 a 150", value)
+		return nil, dte_errors.NewValidationError("InvalidLength", "contingency reason", "5-150", value)
 	}
 	return reason, nil
 }

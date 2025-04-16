@@ -10,9 +10,11 @@ import (
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/health/constants"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/health/models"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/logs"
+	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/utils"
 	"github.com/dimiro1/health"
 	"io"
 	"net/http"
+	"strings"
 	"time"
 )
 
@@ -37,11 +39,11 @@ func (c *haciendaChecker) Check() models.Health {
 	health := c.checkHealth()
 
 	status := constants.StatusUp
-	details := "Hacienda service is healthy"
+	details := utils.TranslateHealthUp(c.Name())
 
 	if health.IsDown() {
 		status = constants.StatusDown
-		details = "Hacienda service is down"
+		details = utils.TranslateHealthDown(c.Name())
 
 		// Extraer detalles si están disponibles
 		if health.GetInfo("error") != nil {
@@ -73,7 +75,13 @@ func (c *haciendaChecker) checkHealth() health.Health {
 			})
 
 			result.Down()
-			result.AddInfo("error", fmt.Sprintf("Endpoint %s unavailable: %s", name, err.Error()))
+
+			if strings.Contains(err.Error(), "dial tcp") {
+				result.AddInfo("error", fmt.Sprintf(utils.TranslateHealthError("NotInternet", name, err.Error())))
+				return result
+			}
+
+			result.AddInfo("error", fmt.Sprintf(utils.TranslateHealthError("HaciendaEndpointUnavailable", name, err.Error())))
 			return result
 		}
 	}
@@ -85,7 +93,7 @@ func (c *haciendaChecker) checkHealth() health.Health {
 		})
 
 		result.Down()
-		result.AddInfo("error", fmt.Sprintf("Authentication processing failed: %s", err.Error()))
+		result.AddInfo("error", fmt.Sprintf(utils.TranslateHealthError("HaciendaEndpointAuthFailed", err.Error())))
 		return result
 	}
 
@@ -117,7 +125,7 @@ func (c *haciendaChecker) checkEndpoint(url string) error {
 	}(resp.Body)
 
 	if resp.StatusCode >= 500 {
-		return fmt.Errorf("service unavailable (status: %d)", resp.StatusCode)
+		return fmt.Errorf(utils.TranslateHealthError("HaciendaServiceUnavailable", resp.StatusCode))
 	}
 
 	return nil
@@ -169,7 +177,7 @@ func (c *haciendaChecker) checkAuthProcessing() error {
 	if resp.StatusCode != http.StatusUnauthorized &&
 		resp.StatusCode != http.StatusBadRequest &&
 		resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("unexpected service response: %d", resp.StatusCode)
+		return fmt.Errorf(utils.TranslateHealthError("UnexpectedHaciendaServiceResponse", resp.StatusCode))
 	}
 
 	return nil

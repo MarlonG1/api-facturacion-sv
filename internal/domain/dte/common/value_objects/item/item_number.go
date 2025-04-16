@@ -16,7 +16,7 @@ func NewItemNumber(value int) (*ItemNumber, error) {
 	if itemNumber.IsValid() {
 		return itemNumber, nil
 	}
-	return &ItemNumber{}, dte_errors.NewValidationError("InvalidLength", "ItemNumber", "1 a 2000", fmt.Sprintf("%d", value))
+	return &ItemNumber{}, dte_errors.NewValidationError("InvalidLength", "item.number", "1 a 2000", fmt.Sprintf("%d", value))
 }
 
 func NewValidatedItemNumber(value int) *ItemNumber {
