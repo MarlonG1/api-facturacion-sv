@@ -1,8 +1,6 @@
 package strategy
 
 import (
-	"github.com/shopspring/decimal"
-
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/constants"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/dte_errors"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/interfaces"
@@ -46,11 +44,6 @@ func (s *CreditNoteItemStrategy) Validate() *dte_errors.DTEError {
 		}
 	}
 
-	// Validar totales de ítems
-	if err := s.validateTotalNonTaxed(); err != nil {
-		return err
-	}
-
 	return nil
 }
 
@@ -88,47 +81,6 @@ func (s *CreditNoteItemStrategy) validateItemNonTaxedRules(item *credit_note_mod
 				item.GetNumber())
 		}
 	}
-	return nil
-}
-
-func (s *CreditNoteItemStrategy) validateTotalNonTaxed() *dte_errors.DTEError {
-	var totalNonTaxed float64
-	for _, item := range s.Document.CreditItems {
-		totalNonTaxed += item.NonTaxed.GetValue()
-	}
-
-	totalToPay := decimal.NewFromFloat(s.Document.CreditSummary.TotalToPay.GetValue())
-	totalOperation := decimal.NewFromFloat(s.Document.CreditSummary.TotalOperation.GetValue())
-	totalNonTaxedDecimal := decimal.NewFromFloat(totalNonTaxed)
-	perception := decimal.NewFromFloat(s.Document.CreditSummary.IVAPerception.GetValue())
-	ivaRetention := decimal.NewFromFloat(s.Document.CreditSummary.IVARetention.GetValue())
-	incomeRetention := decimal.NewFromFloat(s.Document.CreditSummary.IncomeRetention.GetValue())
-
-	expectedTotalToPay := totalOperation.
-		Add(totalNonTaxedDecimal).
-		Add(perception).
-		Sub(ivaRetention).
-		Sub(incomeRetention)
-
-	// Usar comparación con una pequeña tolerancia
-	diff := totalToPay.Sub(expectedTotalToPay).Abs()
-	if diff.GreaterThan(decimal.NewFromFloat(0.000001)) {
-		logs.Error("Total to pay must be equal to total operation plus sum of non_taxed amounts", map[string]interface{}{
-			"totalToPay":     totalToPay,
-			"totalOperation": totalOperation,
-			"totalNonTaxed":  totalNonTaxedDecimal,
-			"perception":     perception,
-			"expectedTotal":  expectedTotalToPay,
-			"difference":     diff,
-		})
-		return dte_errors.NewDTEErrorSimple("InvalidTotalToPayNonTaxedCreditNote",
-			totalToPay.InexactFloat64(),
-			totalOperation.InexactFloat64(),
-			totalNonTaxedDecimal.InexactFloat64(),
-			perception.InexactFloat64(),
-			expectedTotalToPay.InexactFloat64())
-	}
-
 	return nil
 }
 
@@ -196,7 +148,7 @@ func (s *CreditNoteItemStrategy) validateCreditNoteType4Rules(item interfaces.It
 
 		// 2. Solo tenga el impuesto IVA (20)
 		if len(item.GetTaxes()) != 1 || item.GetTaxes()[0] != constants.TaxIVA {
-			return dte_errors.NewDTEErrorSimple("InvalidTaxRulesCreditNote")
+			return dte_errors.NewDTEErrorSimple("InvalidTaxRulesCCF")
 		}
 	}
 

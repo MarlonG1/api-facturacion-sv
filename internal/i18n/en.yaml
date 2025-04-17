@@ -80,6 +80,7 @@ validation_errors:
   TransmissionFailed: "The transmission failed, the document was not received by Hacienda"
   ExceededRelatedDocsLimit: "The number of related documents (%d) exceeds the allowed limit of 50"
   InvalidRelatedDocType: "The related document type %s is not valid, it must be (04) -> Nota de Crédito, (08) -> Factura de Sujeto Excluido or (09) -> Nota de Débito"
+  InvalidRelatedDocTypeForCreditNote: "The related document type %s is not valid for credit notes, it must be (03) -> Electronic Tax Credit Voucher or (07) -> Electronic Withholding Receipt"
   InvalidRelatedDocDate: "The related document date %s is not valid, it must be a date less than or equal to the current date"
   InvalidRelatedDocNumberContingency: "The related document number %s is not valid, it must be a number between 1 and 36 characters"
   InvalidRelatedDocNumberNormal: "The related document number %s is not valid, it must be a number between 1 and 20 characters"

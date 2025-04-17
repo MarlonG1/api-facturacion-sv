@@ -92,6 +92,7 @@ El servicio expone las siguientes APIs:
 - `POST /api/v1/dte/invoices`: Crear factura electrónica
 - `POST /api/v1/dte/ccf`: Crear comprobante de crédito fiscal
 - `POST /api/v1/dte/retention`: Crear comprobante de retención
+- `POST /api/v1/dte/creditnote`: Crear nota de crédito
 - `POST /api/v1/dte/invalidation`: Invalidar documento
 - `GET /api/v1/dte`: Listar todos los documentos emitidos por el usuario
 - `GET /api/v1/dte/{id}`: Obtener documento específico por ID

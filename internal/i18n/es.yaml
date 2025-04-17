@@ -80,6 +80,7 @@ validation_errors:
   TransmissionFailed: "La transmisión falló, el documento no fue recibido por Hacienda"
   ExceededRelatedDocsLimit: "El número de documentos relacionados (%d) excede el límite permitido de 50"
   InvalidRelatedDocType: "El tipo de documento relacionado %s no es válido, debe ser (04) -> Nota de Crédito, (08) -> Factura de Sujeto Excluido o (09) -> Nota de Débito"
+  InvalidRelatedDocTypeForCreditNote: "El tipo de documento relacionado %s no es válido para notas de crédito, debe ser (03) -> Comprobante de Crédito Fiscal o (07) -> Comprobante de Retención Electrónico"
   InvalidRelatedDocDate: "La fecha del documento relacionado %s no es válida, debe ser una fecha menor o igual a la fecha actual"
   InvalidRelatedDocNumberContingency: "El número de documento relacionado %s no es válido, debe ser un número entre 1 y 36 caracteres"
   InvalidRelatedDocNumberNormal: "El número de documento relacionado %s no es válido, debe ser un número entre 1 y 20 caracteres"

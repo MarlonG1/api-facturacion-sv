@@ -56,7 +56,7 @@ func (c *HandlerContainer) initializeGenericCreatorHandler(contingencyHandler *h
 		UsesContingency: true,
 	})
 
-	genericHandler.RegisterDocument("/dte/credit_note", helpers.DocumentConfig{
+	genericHandler.RegisterDocument("/dte/creditnote", helpers.DocumentConfig{
 		UseCase:         c.useCases.CreditNoteUseCase(),
 		RequestType:     &structs.CreateCreditNoteRequest{},
 		DocumentType:    constants.NotaCreditoElectronica,

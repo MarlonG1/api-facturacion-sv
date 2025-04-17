@@ -27,10 +27,10 @@ func MapCreditNoteRequestSummary(summary *structs.CreditNoteSummaryRequest) (*cr
 		TotalOperation:     summary.TotalOperation,
 		TotalNonTaxed:      summary.TotalNonTaxed,
 		SubTotalSales:      summary.SubTotalSales,
-		TotalToPay:         summary.TotalToPay,
+		TotalToPay:         1,
 		OperationCondition: summary.OperationCondition,
 		Taxes:              summary.Taxes,
-		PaymentTypes:       summary.PaymentTypes,
+		PaymentTypes:       []structs.PaymentRequest{},
 		TotalInWords:       summary.TotalInWords,
 	})
 

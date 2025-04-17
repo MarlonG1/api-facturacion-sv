@@ -327,45 +327,41 @@ func (s *CreditNoteTaxStrategy) validateTotalAmounts() *dte_errors.DTEError {
 	}
 
 	// Inicializar el total a pagar con el total operación
-	totalToPay := totalOperation
+	expectedTotalOperation := actualSubTotal
 
 	if taxedAmount.GreaterThan(decimal.Zero) {
 		// Agregar percepción
 		perception := decimal.NewFromFloat(s.Document.CreditSummary.IVAPerception.GetValue())
-		totalToPay = totalToPay.Add(perception)
+		expectedTotalOperation = expectedTotalOperation.Add(perception)
 
 		// Restar retención IVA
 		ivaRetention := decimal.NewFromFloat(s.Document.CreditSummary.IVARetention.GetValue())
-		totalToPay = totalToPay.Sub(ivaRetention)
+		expectedTotalOperation = expectedTotalOperation.Sub(ivaRetention)
 
 		// Restar retención de renta
 		incomeRetention := decimal.NewFromFloat(s.Document.CreditSummary.IncomeRetention.GetValue())
-		totalToPay = totalToPay.Sub(incomeRetention)
+		expectedTotalOperation = expectedTotalOperation.Sub(incomeRetention)
 	}
 
-	// Agregar monto no gravado si existe
-	totalNonTaxed := decimal.NewFromFloat(s.Document.CreditSummary.TotalNonTaxed.GetValue())
-	if totalNonTaxed.GreaterThan(decimal.Zero) {
-		totalToPay = totalToPay.Add(totalNonTaxed)
+	for _, taxes := range s.Document.CreditSummary.GetTotalTaxes() {
+		expectedTotalOperation = expectedTotalOperation.Add(decimal.NewFromFloat(taxes.GetTotalAmount()))
 	}
-
-	actualTotalToPay := decimal.NewFromFloat(s.Document.CreditSummary.TotalToPay.GetValue())
 
 	// Usar una pequeña tolerancia para comparaciones con decimales
-	diff = totalToPay.Sub(actualTotalToPay).Abs()
+	diff = expectedTotalOperation.Sub(totalOperation).Abs()
 	if diff.GreaterThan(decimal.NewFromFloat(0.01)) {
-		logs.Error("Invalid total to pay", map[string]interface{}{
-			"calculated":      totalToPay,
-			"declared":        actualTotalToPay,
+		logs.Error("Invalid total operation", map[string]interface{}{
+			"calculated":      expectedTotalOperation,
+			"declared":        totalOperation,
 			"difference":      diff,
 			"operation":       totalOperation,
 			"perception":      s.Document.CreditSummary.IVAPerception.GetValue(),
 			"ivaRetention":    s.Document.CreditSummary.IVARetention.GetValue(),
 			"incomeRetention": s.Document.CreditSummary.IncomeRetention.GetValue(),
 		})
-		return dte_errors.NewDTEErrorSimple("InvalidTotalToPayCalculation",
-			actualTotalToPay.InexactFloat64(),
-			totalToPay.InexactFloat64())
+		return dte_errors.NewDTEErrorSimple("InvalidTotalOperation",
+			totalOperation.InexactFloat64(),
+			expectedTotalOperation.InexactFloat64())
 	}
 
 	return nil
@@ -379,11 +375,6 @@ func (s *CreditNoteTaxStrategy) validateMonetaryAmounts() *dte_errors.DTEError {
 
 	// Validar Total Operation
 	if err := ValidateMonetaryAmount(s.Document.CreditSummary.TotalOperation.GetValue(), "total_operation"); err != nil {
-		return err
-	}
-
-	// Validar Total To Pay
-	if err := ValidateMonetaryAmount(s.Document.CreditSummary.TotalToPay.GetValue(), "total_to_pay"); err != nil {
 		return err
 	}
 
