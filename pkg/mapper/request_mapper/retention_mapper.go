@@ -20,6 +20,10 @@ func NewRetentionMapper() *RetentionMapper {
 
 // MapToRetentionData convierte una solicitud de retención a datos de retención_models.
 func (m *RetentionMapper) MapToRetentionData(req *structs.CreateRetentionRequest, client *dte.IssuerDTE) (*retention_models.InputRetentionData, error) {
+	if req == nil {
+		return nil, dte_errors.NewValidationError("RequiredField", "Request")
+	}
+
 	issuer, err := common.MapCommonIssuer(client)
 	if err != nil {
 		return nil, shared_error.NewFormattedGeneralServiceWithError("RetentionMapper", "MapToRetentionData", err, "ErrorMapping", "Retention->Issuer")

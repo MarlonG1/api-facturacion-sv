@@ -97,10 +97,6 @@ func mapOptionalFields(req *structs.CreateInvoiceRequest, result *invoice_models
 	}
 
 	if req.Extension != nil {
-		if req.Extension.VehiculePlate != nil {
-			return dte_errors.NewValidationError("InvalidField", "Request->Extension->VehiculePlate")
-		}
-
 		extension, err := common.MapCommonRequestExtension(req.Extension)
 		if err != nil {
 			return shared_error.NewFormattedGeneralServiceWithError("MapCommonRequestExtension", "MapToInvoiceData", err, "ErrorMapping", "Invoice->Extension")
