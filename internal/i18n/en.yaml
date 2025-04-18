@@ -38,6 +38,7 @@ validation_errors:
   InvalidMunicipality: "Invalid municipality code %s for department %s. Municipality code must be a two-digit number that follows the official catalog pattern. For example, valid codes for this department include: %s. Please refer to the official municipality catalog."
   InvalidEstablishmentType: "The establishment type %s is not valid, it must be: 01 -> (Headquarters), 02 -> (Branch), 04 -> (Warehouse), 07 -> (Property or Yard) and 20 -> (Other)"
   InvalidDocumentNumberItem: "The document number %s is not valid, when document type is '1' (physical), it must be a number between 1 and 20 characters, when document type is '2' (electronic), it must be a valid UUID"
+  InvalidEmissionDateForPhysicalDocument: "The emission date %s is not valid, it must be a date less than or equal to the current date when generation type is '1' (physical)"
   UnknownError: "No documentation found for the error, please contact the support team"
   ServerError: "An unexpected error has occurred"
   InvalidTotalAmount: "The total amounts do not match. Calculated total: %f, declared total: %f"

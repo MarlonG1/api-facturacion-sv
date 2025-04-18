@@ -3,7 +3,6 @@ package common
 import (
 	"time"
 
-	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/dte_errors"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/models"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/value_objects/document"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/value_objects/temporal"
@@ -16,7 +15,7 @@ func MapCommonRequestRelatedDocuments(relatedDocuments []structs.RelatedDocReque
 	result := make([]models.RelatedDocument, len(relatedDocuments))
 
 	for i, relatedDocument := range relatedDocuments {
-		relatedDoc, err := MapInvoiceRequestRelatedDocument(relatedDocument)
+		relatedDoc, err := MapCommonRequestRelatedDocumentIndex(relatedDocument)
 		if err != nil {
 			return nil, err
 		}
@@ -26,8 +25,8 @@ func MapCommonRequestRelatedDocuments(relatedDocuments []structs.RelatedDocReque
 	return result, nil
 }
 
-// MapInvoiceRequestRelatedDocument mapea un documento relacionado a un modelo de documento relacionado -> Origen: Request
-func MapInvoiceRequestRelatedDocument(doc structs.RelatedDocRequest) (*models.RelatedDocument, error) {
+// MapCommonRequestRelatedDocumentIndex mapea un documento relacionado a un modelo de documento relacionado -> Origen: Request
+func MapCommonRequestRelatedDocumentIndex(doc structs.RelatedDocRequest) (*models.RelatedDocument, error) {
 
 	dteType, err := document.NewDTEType(doc.DocumentType)
 	if err != nil {
@@ -35,6 +34,11 @@ func MapInvoiceRequestRelatedDocument(doc structs.RelatedDocRequest) (*models.Re
 	}
 
 	generationType, err := document.NewModelType(doc.GenerationType)
+	if err != nil {
+		return nil, err
+	}
+
+	docNumber, err := document.NewDocumentNumber(doc.DocumentNumber, doc.GenerationType)
 	if err != nil {
 		return nil, err
 	}
@@ -53,14 +57,10 @@ func MapInvoiceRequestRelatedDocument(doc structs.RelatedDocRequest) (*models.Re
 		return nil, err
 	}
 
-	if doc.DocumentNumber == "" {
-		return nil, dte_errors.NewValidationError("RequiredField", "DocumentNumber")
-	}
-
 	return &models.RelatedDocument{
 		DocumentType:   *dteType,
 		GenerationType: *generationType,
-		DocumentNumber: doc.DocumentNumber,
+		DocumentNumber: docNumber.GetValue(),
 		EmissionDate:   *emissionDate,
 	}, nil
 }

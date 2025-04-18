@@ -49,11 +49,18 @@ func (m *CreditNoteMapper) MapToCreditNoteData(req *structs.CreateCreditNoteRequ
 		return nil, shared_error.NewFormattedGeneralServiceWithError("CreditNoteMapper", "MapToCreditNoteData", err, "ErrorMapping", "CreditNote->Issuer")
 	}
 
+	// En notas de crédito, los documentos relacionados son obligatorios y ya validados
+	relatedDocs, err := common.MapCommonRequestRelatedDocuments(req.RelatedDocs)
+	if err != nil {
+		return nil, shared_error.NewFormattedGeneralServiceWithError("MapCommonRequestRelatedDocuments", "MapToCreditNoteData", err, "ErrorMapping", "CreditNote->RelatedDocs")
+	}
+
 	result := &credit_note_models.CreditNoteInput{
 		InputDataCommon: &models.InputDataCommon{
 			Issuer:         issuer,
 			Identification: identification,
 			Receiver:       receiver,
+			RelatedDocs:    relatedDocs,
 		},
 		Items:         items,
 		CreditSummary: summary,
@@ -83,6 +90,23 @@ func validateCreditNoteRequest(req *structs.CreateCreditNoteRequest) error {
 	// Para notas de crédito, los documentos relacionados son obligatorios
 	if req.RelatedDocs == nil || len(req.RelatedDocs) == 0 {
 		return dte_errors.NewValidationError("RequiredField", "Request->RelatedDocs")
+	}
+
+	for _, doc := range req.RelatedDocs {
+		if doc.DocumentType == "" {
+			return dte_errors.NewValidationError("RequiredField", "Request->RelatedDocs->DocumentType")
+		}
+		if doc.DocumentNumber == "" {
+			return dte_errors.NewValidationError("RequiredField", "Request->RelatedDocs->DocumentNumber")
+		}
+
+		if doc.GenerationType == 0 {
+			return dte_errors.NewValidationError("RequiredField", "Request->RelatedDocs->GenerationType")
+		}
+
+		if doc.GenerationType == constants.PhysicalDocument && doc.EmissionDate == "" {
+			return dte_errors.NewValidationError("InvalidEmissionDateForPhysicalDocument", doc.EmissionDate)
+		}
 	}
 
 	return nil
@@ -121,13 +145,6 @@ func mapCreditNoteOptionalFields(req *structs.CreateCreditNoteRequest, result *c
 		}
 		result.OtherDocs = otherDocs
 	}
-
-	// En notas de crédito, los documentos relacionados son obligatorios y ya validados
-	relatedDocs, err := common.MapCommonRequestRelatedDocuments(req.RelatedDocs)
-	if err != nil {
-		return shared_error.NewFormattedGeneralServiceWithError("MapCommonRequestRelatedDocuments", "MapToCreditNoteData", err, "ErrorMapping", "CreditNote->RelatedDocs")
-	}
-	result.RelatedDocs = relatedDocs
 
 	if req.Appendixes != nil {
 		appendixes, err := common.MapCommonRequestAppendix(req.Appendixes)

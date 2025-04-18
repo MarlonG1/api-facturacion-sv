@@ -38,6 +38,7 @@ validation_errors:
   InvalidMunicipality: "Código de municipio %s inválido para el departamento %s. El código de municipio debe ser un número de dos dígitos que siga el patrón del catálogo oficial. Por ejemplo, códigos válidos para este departamento incluyen: %s. Consulte el catálogo oficial de municipios."
   InvalidEstablishmentType: "El tipo de establecimiento %s no es válido, debe ser: 01 -> (Casa Matriz), 02 -> (Sucursal), 04 -> (Bodega), 07 -> (Propiedad o Terreno) y 20 -> (Otro)"
   InvalidDocumentNumberItem: "El número de documento %s no es válido, cuando el tipo de documento es '1' (físico), debe ser un número entre 1 y 20 caracteres, cuando el tipo de documento es '2' (electrónico), debe ser un UUID válido"
+  InvalidEmissionDateForPhysicalDocument: "La fecha de emisión %s no es válida, debe ser una fecha menor o igual a la fecha actual cuando el tipo de generación es '1' (física)"
   UnknownError: "No se encontró documentación para el error, por favor contacte al equipo de soporte"
   ServerError: "Ha ocurrido un error inesperado"
   InvalidTotalAmount: "Los montos totales no coinciden. Total calculado: %f, total declarado: %f"
