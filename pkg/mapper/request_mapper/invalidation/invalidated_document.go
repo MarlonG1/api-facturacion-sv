@@ -14,7 +14,6 @@ import (
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/value_objects/temporal"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/invalidation/models"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/mapper/request_mapper/structs"
-	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/logs"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/shared_error"
 )
 
@@ -34,14 +33,6 @@ func MapInvalidatedDocument(baseDTE *dte.DTEDetails, request *structs.CreateInva
 	if err != nil {
 		return nil, err
 	}
-
-	logs.Info("DEBUG", map[string]interface{}{
-		"docType": docType,
-		"numDoc":  numDoc,
-		"name":    name,
-		"email":   email,
-		"phone":   phone,
-	})
 
 	// Extraer monto IVA del resumen
 	montoIVA, err := extractIVAAmount(dteData)

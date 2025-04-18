@@ -42,7 +42,6 @@ func NewMetricsMiddleware(cache ports.CacheManager) *MetricsMiddleware {
 }
 
 func extractEndpoint(method, path string) string {
-	// Normalizar la ruta
 	path = strings.TrimSuffix(path, "/")
 
 	// Primero intentar coincidencia directa
@@ -69,7 +68,6 @@ func extractEndpoint(method, path string) string {
 			return endpoint
 		}
 
-		// Si no hay mapeo específico, usar "consult" como valor predeterminado para GETs con UUID
 		if method == "GET" {
 			return "consult"
 		}
