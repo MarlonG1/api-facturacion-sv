@@ -1,6 +1,7 @@
 package models
 
 import (
+	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/dte_errors"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/value_objects/document"
 	"time"
 
@@ -29,4 +30,38 @@ func (r *RelatedDocument) GetDocumentNumber() string {
 
 func (r *RelatedDocument) GetEmissionDate() time.Time {
 	return r.EmissionDate.GetValue()
+}
+func (r *RelatedDocument) SetDocumentType(documentType string) error {
+	dtObj, err := document.NewDTEType(documentType)
+	if err != nil {
+		return err
+	}
+	r.DocumentType = *dtObj
+	return nil
+}
+
+func (r *RelatedDocument) SetGenerationType(generationType int) error {
+	gtObj, err := document.NewModelType(generationType)
+	if err != nil {
+		return err
+	}
+	r.GenerationType = *gtObj
+	return nil
+}
+
+func (r *RelatedDocument) SetDocumentNumber(documentNumber string) error {
+	if documentNumber == "" {
+		return dte_errors.NewValidationError("RequiredField", "DocumentNumber")
+	}
+	r.DocumentNumber = documentNumber
+	return nil
+}
+
+func (r *RelatedDocument) SetEmissionDate(emissionDate time.Time) error {
+	edObj, err := temporal.NewEmissionDate(emissionDate)
+	if err != nil {
+		return err
+	}
+	r.EmissionDate = *edObj
+	return nil
 }

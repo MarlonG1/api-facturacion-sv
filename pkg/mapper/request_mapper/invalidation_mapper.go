@@ -4,7 +4,7 @@ import (
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/core/dte"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/dte_errors"
 	identificationVO "github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/value_objects/identification"
-	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/invalidation/models"
+	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/invalidation/invalidation_models"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/mapper/request_mapper/common"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/mapper/request_mapper/invalidation"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/mapper/request_mapper/structs"
@@ -20,7 +20,7 @@ func NewInvalidationMapper() *InvalidationMapper {
 	return &InvalidationMapper{}
 }
 
-func (i *InvalidationMapper) MapToInvalidationData(req *structs.CreateInvalidationRequest, client *dte.IssuerDTE, baseDte *dte.DTEDetails, emissionDate time.Time) (*models.InvalidationDocument, error) {
+func (i *InvalidationMapper) MapToInvalidationData(req *structs.CreateInvalidationRequest, client *dte.IssuerDTE, baseDte *dte.DTEDetails, emissionDate time.Time) (*invalidation_models.InvalidationDocument, error) {
 	if req == nil {
 		return nil, dte_errors.NewValidationError("RequiredField", "Request")
 	}
@@ -48,7 +48,7 @@ func (i *InvalidationMapper) MapToInvalidationData(req *structs.CreateInvalidati
 		return nil, shared_error.NewFormattedGeneralServiceWithError("InvalidationMapper", "MapToInvalidationData", err, "ErrorMapping", "Invalidation->Issuer")
 	}
 
-	return &models.InvalidationDocument{
+	return &invalidation_models.InvalidationDocument{
 		Identification: identification,
 		Reason:         reason,
 		Issuer:         issuer,

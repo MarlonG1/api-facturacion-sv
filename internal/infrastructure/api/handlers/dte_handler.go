@@ -12,7 +12,7 @@ import (
 )
 
 type DTEHandler struct {
-	GenericHandler      *helpers.GenericCreatorDTEHandler
+	GenericHandler      *GenericCreatorDTEHandler
 	dteConsultUseCase   *dte.DTEConsultUseCase
 	invalidationUseCase *dte.InvalidationUseCase
 	respWriter          *response.ResponseWriter
@@ -21,7 +21,7 @@ type DTEHandler struct {
 func NewDTEHandler(
 	dteConsultUseCase *dte.DTEConsultUseCase,
 	invalidationUseCase *dte.InvalidationUseCase,
-	genericHandler *helpers.GenericCreatorDTEHandler,
+	genericHandler *GenericCreatorDTEHandler,
 ) *DTEHandler {
 	return &DTEHandler{
 		GenericHandler:      genericHandler,

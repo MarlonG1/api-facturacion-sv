@@ -1,4 +1,4 @@
-package helpers
+package handlers
 
 import (
 	"context"
@@ -8,38 +8,30 @@ import (
 	"reflect"
 	"strings"
 
-	"github.com/MarlonG1/api-facturacion-sv/internal/application/dte"
+	"github.com/MarlonG1/api-facturacion-sv/internal/infrastructure/api/helpers"
 	"github.com/MarlonG1/api-facturacion-sv/internal/infrastructure/api/response"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/logs"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/utils"
 )
 
-// DocumentConfig contiene la configuración para manejar un tipo específico de documento
-type DocumentConfig struct {
-	UseCase         *dte.GenericDTEUseCase
-	RequestType     interface{}
-	DocumentType    string
-	UsesContingency bool
-}
-
 // GenericCreatorDTEHandler maneja las solicitudes para crear cualquier tipo de documento DTE
 type GenericCreatorDTEHandler struct {
-	documentConfigs    map[string]DocumentConfig
+	documentConfigs    map[string]helpers.DocumentConfig
 	respWriter         *response.ResponseWriter
-	contingencyHandler *ContingencyHandler
+	contingencyHandler *helpers.ContingencyHandler
 }
 
 // NewGenericDTEHandler crea una nueva instancia de GenericCreatorDTEHandler
-func NewGenericDTEHandler(contingencyHandler *ContingencyHandler) *GenericCreatorDTEHandler {
+func NewGenericDTEHandler(contingencyHandler *helpers.ContingencyHandler) *GenericCreatorDTEHandler {
 	return &GenericCreatorDTEHandler{
-		documentConfigs:    make(map[string]DocumentConfig),
+		documentConfigs:    make(map[string]helpers.DocumentConfig),
 		respWriter:         response.NewResponseWriter(),
 		contingencyHandler: contingencyHandler,
 	}
 }
 
 // RegisterDocument registra un nuevo tipo de documento para ser manejado
-func (h *GenericCreatorDTEHandler) RegisterDocument(path string, config DocumentConfig) {
+func (h *GenericCreatorDTEHandler) RegisterDocument(path string, config helpers.DocumentConfig) {
 	h.documentConfigs[path] = config
 }
 
@@ -112,17 +104,17 @@ func (h *GenericCreatorDTEHandler) handleErrorForContingency(ctx context.Context
 }
 
 // GetDocumentConfigs devuelve la configuración de documentos registrada
-func (h *GenericCreatorDTEHandler) GetDocumentConfigs() map[string]DocumentConfig {
+func (h *GenericCreatorDTEHandler) GetDocumentConfigs() map[string]helpers.DocumentConfig {
 	return h.documentConfigs
 }
 
 // getDocumentTypeFromPath obtiene el tipo de documento basado en la ruta
-func (h *GenericCreatorDTEHandler) getDocumentTypeFromPath(path string) (DocumentConfig, error) {
+func (h *GenericCreatorDTEHandler) getDocumentTypeFromPath(path string) (helpers.DocumentConfig, error) {
 	for key := range h.documentConfigs {
 		if strings.Contains(path, key) {
 			return h.documentConfigs[key], nil
 		}
 	}
 
-	return DocumentConfig{}, errors.New("error was found in the path")
+	return helpers.DocumentConfig{}, errors.New("error was found in the path")
 }

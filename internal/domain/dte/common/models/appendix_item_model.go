@@ -22,3 +22,30 @@ func (a *Appendix) GetLabel() string {
 func (a *Appendix) GetValue() string {
 	return a.Value.GetValue()
 }
+
+func (a *Appendix) SetField(field string) error {
+	fieldObj, err := document.NewAppendixField(field)
+	if err != nil {
+		return err
+	}
+	a.Field = *fieldObj
+	return nil
+}
+
+func (a *Appendix) SetLabel(label string) error {
+	labelObj, err := document.NewAppendixLabel(label)
+	if err != nil {
+		return err
+	}
+	a.Label = *labelObj
+	return nil
+}
+
+func (a *Appendix) SetValue(value string) error {
+	valueObj, err := document.NewAppendixValue(value)
+	if err != nil {
+		return err
+	}
+	a.Value = *valueObj
+	return nil
+}

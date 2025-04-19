@@ -37,9 +37,9 @@ func (c *HandlerContainer) Initialize() {
 	)
 }
 
-func (c *HandlerContainer) initializeGenericCreatorHandler(contingencyHandler *helpers.ContingencyHandler) *helpers.GenericCreatorDTEHandler {
+func (c *HandlerContainer) initializeGenericCreatorHandler(contingencyHandler *helpers.ContingencyHandler) *handlers.GenericCreatorDTEHandler {
 	// Crear el handler genérico
-	genericHandler := helpers.NewGenericDTEHandler(contingencyHandler)
+	genericHandler := handlers.NewGenericDTEHandler(contingencyHandler)
 
 	// Registrar los tipos de documentos
 	genericHandler.RegisterDocument("/dte/invoices", helpers.DocumentConfig{

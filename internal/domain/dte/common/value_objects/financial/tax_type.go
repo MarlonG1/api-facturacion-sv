@@ -23,6 +23,10 @@ func NewValidatedTaxType(value string) *TaxType {
 }
 
 func (t *TaxType) GetValue() string {
+	if t == nil {
+		return ""
+	}
+
 	return t.Value
 }
 

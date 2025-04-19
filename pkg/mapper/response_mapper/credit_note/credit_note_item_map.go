@@ -9,6 +9,7 @@ import (
 func MapCreditNoteResponseItem(items []credit_note_models.CreditNoteItem) []structs.CreditNoteDTEItem {
 	result := make([]structs.CreditNoteDTEItem, len(items))
 	for i, item := range items {
+
 		result[i] = structs.CreditNoteDTEItem{
 			NumItem:         item.GetNumber(),
 			TipoItem:        item.GetType(),

@@ -1,34 +1,17 @@
 package mappers
 
 import (
-	"github.com/MarlonG1/api-facturacion-sv/test/fixtures"
 	"testing"
 
-	"github.com/MarlonG1/api-facturacion-sv/config"
-	"github.com/MarlonG1/api-facturacion-sv/internal/i18n"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/mapper/request_mapper/common"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/mapper/request_mapper/structs"
-	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/utils"
+	"github.com/MarlonG1/api-facturacion-sv/test"
+	"github.com/MarlonG1/api-facturacion-sv/test/fixtures"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestCommonMappers(t *testing.T) {
-	// Inicialización estándar
-	rootPath := utils.FindProjectRoot()
-	err := config.InitEnvConfig(rootPath)
-	if err != nil {
-		t.Fatalf("Error initializing environment config: %v", err)
-	}
-
-	err = utils.TimeInit()
-	if err != nil {
-		t.Fatalf("Error initializing time: %v", err)
-	}
-
-	err = i18n.InitTranslations(rootPath+"/internal/i18n", "en")
-	if err != nil {
-		t.Fatalf("Error initializing translations: %v", err)
-	}
+	test.TestMain(t)
 
 	// Test para MapCommonRequestAddress
 	t.Run("TestMapCommonRequestAddress", func(t *testing.T) {

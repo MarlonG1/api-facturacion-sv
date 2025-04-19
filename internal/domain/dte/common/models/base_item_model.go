@@ -1,6 +1,7 @@
 package models
 
 import (
+	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/dte_errors"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/value_objects/financial"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/value_objects/item"
 )
@@ -54,4 +55,97 @@ func (i *Item) GetTaxes() []string {
 }
 func (i *Item) GetRelatedDoc() *string {
 	return i.RelatedDoc
+}
+
+func (i *Item) SetQuantity(quantity float64) error {
+	quantityObj, err := item.NewQuantity(quantity)
+	if err != nil {
+		return err
+	}
+	i.Quantity = *quantityObj
+	return nil
+}
+
+func (i *Item) SetItemCode(itemCode string) error {
+	if itemCode == "" {
+		i.Code = nil
+		return nil
+	}
+	codeObj, err := item.NewItemCode(itemCode)
+	if err != nil {
+		return err
+	}
+	i.Code = codeObj
+	return nil
+}
+
+func (i *Item) SetDescription(description string) error {
+	if description == "" {
+		return dte_errors.NewValidationError("RequiredField", "Description")
+	}
+	i.Description = description
+	return nil
+}
+
+func (i *Item) SetType(itemType int) error {
+	typeObj, err := item.NewItemType(itemType)
+	if err != nil {
+		return err
+	}
+	i.Type = *typeObj
+	return nil
+}
+
+func (i *Item) SetUnitPrice(unitPrice float64) error {
+	upObj, err := financial.NewAmount(unitPrice)
+	if err != nil {
+		return err
+	}
+	i.UnitPrice = *upObj
+	return nil
+}
+
+func (i *Item) SetDiscount(discount float64) error {
+	discountObj, err := financial.NewDiscount(discount)
+	if err != nil {
+		return err
+	}
+	i.Discount = *discountObj
+	return nil
+}
+
+func (i *Item) SetTaxes(taxes []string) error {
+	if len(taxes) == 0 {
+		return dte_errors.NewValidationError("RequiredField", "Taxes")
+	}
+
+	i.Taxes = taxes
+	return nil
+}
+
+func (i *Item) SetRelatedDoc(relatedDoc *string) error {
+	if relatedDoc == nil {
+		return dte_errors.NewValidationError("RequiredField", "RelatedDoc")
+	}
+
+	i.RelatedDoc = relatedDoc
+	return nil
+}
+
+func (i *Item) SetNumber(number int) error {
+	numberObj, err := item.NewItemNumber(number)
+	if err != nil {
+		return err
+	}
+	i.Number = *numberObj
+	return nil
+}
+
+func (i *Item) SetUnitMeasure(unitMeasure int) error {
+	umObj, err := item.NewUnitMeasure(unitMeasure)
+	if err != nil {
+		return err
+	}
+	i.UnitMeasure = *umObj
+	return nil
 }

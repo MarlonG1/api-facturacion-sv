@@ -1,12 +1,12 @@
 package invalidation
 
 import (
-	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/invalidation/models"
+	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/invalidation/invalidation_models"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/mapper/response_mapper/structs"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/utils"
 )
 
-func MapInvalidationReasonResponse(reason *models.InvalidationReason) *structs.ReasonResponse {
+func MapInvalidationReasonResponse(reason *invalidation_models.InvalidationReason) *structs.ReasonResponse {
 	if reason == nil {
 		return nil
 	}

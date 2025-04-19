@@ -101,9 +101,9 @@ func (w *ResponseWriter) handleValidationError(rw http.ResponseWriter, err error
 		json.NewEncoder(rw).Encode(APIResponse{
 			Success: false,
 			Error: &APIError{
-				Message: dteErr.Message,
+				Message: dteErr.GetMessage(),
 				Details: dteErr.GetValidationErrorsString(),
-				Code:    "VALIDATION_ERROR",
+				Code:    dteErr.GetCode(),
 			},
 		})
 		return

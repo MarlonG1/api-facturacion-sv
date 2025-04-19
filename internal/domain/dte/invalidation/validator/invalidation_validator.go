@@ -3,16 +3,16 @@ package validator
 import (
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/dte_errors"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/interfaces"
-	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/invalidation/models"
+	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/invalidation/invalidation_models"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/invalidation/validator/strategy"
 )
 
 type InvalidationRulesValidator struct {
-	document   *models.InvalidationDocument
+	document   *invalidation_models.InvalidationDocument
 	strategies []interfaces.DTEValidationStrategy
 }
 
-func NewInvalidationRulesValidator(doc *models.InvalidationDocument) *InvalidationRulesValidator {
+func NewInvalidationRulesValidator(doc *invalidation_models.InvalidationDocument) *InvalidationRulesValidator {
 	validator := &InvalidationRulesValidator{
 		document: doc,
 		strategies: []interfaces.DTEValidationStrategy{

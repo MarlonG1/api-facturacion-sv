@@ -2,6 +2,8 @@ package fixtures
 
 import (
 	"github.com/MarlonG1/api-facturacion-sv/pkg/mapper/request_mapper/structs"
+	respStructs "github.com/MarlonG1/api-facturacion-sv/pkg/mapper/response_mapper/structs"
+	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/utils"
 )
 
 // CreateDefaultInvoiceItem crea un ítem de factura predeterminado válido
@@ -151,4 +153,144 @@ func CreateInvoiceRequestWithAllOptionalFields() *structs.CreateInvoiceRequest {
 	req.OtherDocs = []structs.OtherDocRequest{CreateDefaultOtherDocument()}
 	req.Appendixes = []structs.AppendixRequest{CreateDefaultAppendix()}
 	return req
+}
+
+// CreateExpectedInvoiceResponse crea una respuesta esperada de factura para pruebas
+func CreateExpectedInvoiceResponse() *respStructs.InvoiceDTEResponse {
+	// Campos de identificación
+	identificacion := &respStructs.DTEIdentification{
+		Version:          1,
+		Ambiente:         "00",
+		TipoDte:          "01",
+		NumeroControl:    "DTE-01-00000000-000000000000001",
+		CodigoGeneracion: "FF54E9DB-79C3-42CE-B432-EC522C97EFB9", // Será ignorado en las comparaciones
+		TipoModelo:       1,
+		TipoOperacion:    1,
+		TipoContingencia: nil,
+		MotivoContin:     nil,
+		FecEmi:           "2025-04-18", // Sera ignroado en las comparaciones - fecha actual en formato YYYY-MM-DD
+		HorEmi:           "15:30:00",   // Sera ignorado en las comparaciones - hora actual en formato HH:MM:SS
+		TipoMoneda:       "USD",
+	}
+
+	// Datos del emisor
+	emisor := respStructs.DTEIssuer{
+		NIT:                 "11111111111111",
+		NRC:                 "1111111",
+		Nombre:              "EMPRESA DE PRUEBAS SA DE CV",
+		CodActividad:        "11111",
+		DescActividad:       "Venta al por mayor de otros productos",
+		NombreComercial:     utils.ToStringPointer("EJEMPLO SA"),
+		TipoEstablecimiento: "02",
+		Direccion: respStructs.DTEAddress{
+			Departamento: "06",
+			Municipio:    "20",
+			Complemento:  "BOULEVARD SANTA ELENA SUR, SANTA TECLA",
+		},
+		Telefono:        "22567890",
+		Correo:          "email@gmail.com",
+		CodEstableMH:    nil,
+		CodEstable:      utils.ToStringPointer("C001"),
+		CodPuntoVentaMH: nil,
+		CodPuntoVenta:   nil,
+	}
+
+	// Datos del receptor
+	receptor := respStructs.InvoiceReceiver{
+		Nombre:        utils.ToStringPointer("Empresa Servicios Generales, S.A. de C.V."),
+		TipoDocumento: utils.ToStringPointer("36"),
+		NumDocumento:  utils.ToStringPointer("06141804941035"),
+		NRC:           utils.ToStringPointer("123456"),
+		CodActividad:  utils.ToStringPointer("46900"),
+		DescActividad: utils.ToStringPointer("Venta al por mayor de otros productos"),
+		Direccion: &respStructs.DTEAddress{
+			Departamento: "06",
+			Municipio:    "20",
+			Complemento:  "Colonia Escalón, Calle La Reforma #123, San Salvador",
+		},
+		Telefono: utils.ToStringPointer("22123456"),
+		Correo:   utils.ToStringPointer("empresa@example.com"),
+	}
+
+	// Ítems del documento
+	items := []respStructs.InvoiceItem{
+		{
+			NumItem:      1,
+			TipoItem:     1,
+			Codigo:       utils.ToStringPointer("CODA"),
+			Descripcion:  "Producto A",
+			Cantidad:     10,
+			UniMedida:    59,
+			PrecioUni:    5,
+			MontoDescu:   0,
+			VentaNoSuj:   0,
+			VentaExenta:  0,
+			VentaGravada: 50,
+			Tributos:     []string{"20"},
+			PSV:          0,
+			NoGravado:    0,
+			IvaItem:      6.5,
+		},
+		{
+			NumItem:      2,
+			TipoItem:     1,
+			Codigo:       utils.ToStringPointer("CODB"),
+			Descripcion:  "Producto B",
+			Cantidad:     10,
+			UniMedida:    59,
+			PrecioUni:    5,
+			MontoDescu:   0,
+			VentaNoSuj:   0,
+			VentaExenta:  0,
+			VentaGravada: 50,
+			Tributos:     []string{"20"},
+			PSV:          0,
+			NoGravado:    0,
+			IvaItem:      6.5,
+		},
+	}
+
+	// Resumen
+	resumen := &respStructs.InvoiceSummary{
+		TotalNoSuj:          0,
+		TotalExenta:         0,
+		TotalGravada:        100,
+		SubTotalVentas:      100,
+		DescuNoSuj:          0,
+		DescuExenta:         0,
+		DescuGravada:        0,
+		PorcentajeDescuento: 0,
+		TotalDescu:          0,
+		SubTotal:            100,
+		ReteRenta:           0,
+		IvaRete1:            0,
+		IvaPerci1:           nil,
+		MontoTotalOperacion: 100,
+		TotalNoGravado:      0,
+		TotalPagar:          100,
+		TotalLetras:         "CIEN DÓLARES",
+		TotalIva:            13.0,
+		SaldoFavor:          0,
+		CondicionOperacion:  1,
+		Pagos: []respStructs.DTEPayment{
+			{
+				Codigo:     "01",
+				MontoPago:  100,
+				Referencia: utils.ToStringPointer(""),
+				Plazo:      nil,
+				Periodo:    nil,
+			},
+		},
+		NumPagoElectronico: nil,
+	}
+
+	// Construir respuesta completa
+	return &respStructs.InvoiceDTEResponse{
+		Identificacion:  identificacion,
+		Emisor:          emisor,
+		Receptor:        receptor,
+		CuerpoDocumento: items,
+		Resumen:         resumen,
+		// Otros campos quedan como nil al no estar en el fixture básico
+	}
 }

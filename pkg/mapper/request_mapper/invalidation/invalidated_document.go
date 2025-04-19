@@ -12,12 +12,12 @@ import (
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/value_objects/financial"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/value_objects/identification"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/value_objects/temporal"
-	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/invalidation/models"
+	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/invalidation/invalidation_models"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/mapper/request_mapper/structs"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/shared_error"
 )
 
-func MapInvalidatedDocument(baseDTE *dte.DTEDetails, request *structs.CreateInvalidationRequest, emissionDate time.Time) (*models.InvalidatedDocument, error) {
+func MapInvalidatedDocument(baseDTE *dte.DTEDetails, request *structs.CreateInvalidationRequest, emissionDate time.Time) (*invalidation_models.InvalidatedDocument, error) {
 	if baseDTE == nil {
 		return nil, shared_error.NewFormattedGeneralServiceError("InvalidationMapper", "MapToInvalidatedDocument", "InvalidBaseDTE")
 	}
@@ -41,7 +41,7 @@ func MapInvalidatedDocument(baseDTE *dte.DTEDetails, request *structs.CreateInva
 	}
 
 	// Crear documento invalidado
-	doc := &models.InvalidatedDocument{
+	doc := &invalidation_models.InvalidatedDocument{
 		Type:           *document.NewValidatedDTEType(baseDTE.DTEType),
 		GenerationCode: *identification.NewValidatedGenerationCode(baseDTE.ID),
 		ControlNumber:  *identification.NewValidatedControlNumber(baseDTE.ControlNumber),

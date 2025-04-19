@@ -26,3 +26,4 @@ go.work
 *.sh
 *.log
 scripts/temp/*
+/test/mocks

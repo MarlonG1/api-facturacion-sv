@@ -2,7 +2,7 @@ package response_mapper
 
 import (
 	commonModels "github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/models"
-	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/invalidation/models"
+	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/invalidation/invalidation_models"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/mapper/response_mapper/invalidation"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/mapper/response_mapper/structs"
 )
@@ -12,7 +12,7 @@ func ToMHInvalidation(doc interface{}) *structs.InvalidationResponse {
 		return nil
 	}
 
-	cast := doc.(*models.InvalidationDocument)
+	cast := doc.(*invalidation_models.InvalidationDocument)
 	return &structs.InvalidationResponse{
 		Identificacion: *MapIdentificationResponse(cast.Identification),
 		Emisor:         *MapIssuerResponse(cast.Issuer),
