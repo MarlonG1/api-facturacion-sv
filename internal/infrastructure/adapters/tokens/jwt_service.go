@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/ports"
-	"github.com/golang-jwt/jwt"
+	"github.com/golang-jwt/jwt/v5"
 	"time"
 
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/auth/models"

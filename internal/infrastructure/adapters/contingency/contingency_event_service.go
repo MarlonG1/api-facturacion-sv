@@ -10,7 +10,7 @@ import (
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/auth"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/contingency"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/shared_error"
-	"github.com/golang-jwt/jwt"
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
 	"io"
 	"net/http"
