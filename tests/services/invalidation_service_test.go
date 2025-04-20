@@ -17,9 +17,9 @@ import (
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/invalidation/invalidation_models"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/mapper/request_mapper/structs"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/shared_error"
-	"github.com/MarlonG1/api-facturacion-sv/test"
-	"github.com/MarlonG1/api-facturacion-sv/test/fixtures"
-	"github.com/MarlonG1/api-facturacion-sv/test/mocks"
+	"github.com/MarlonG1/api-facturacion-sv/tests"
+	"github.com/MarlonG1/api-facturacion-sv/tests/fixtures"
+	"github.com/MarlonG1/api-facturacion-sv/tests/mocks"
 )
 
 func TestInvalidationServiceValidate(t *testing.T) {

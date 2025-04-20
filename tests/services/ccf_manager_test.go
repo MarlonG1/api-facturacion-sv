@@ -18,9 +18,9 @@ import (
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/value_objects/financial"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/shared_error"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/utils"
-	"github.com/MarlonG1/api-facturacion-sv/test"
-	"github.com/MarlonG1/api-facturacion-sv/test/fixtures"
-	"github.com/MarlonG1/api-facturacion-sv/test/mocks"
+	"github.com/MarlonG1/api-facturacion-sv/tests"
+	"github.com/MarlonG1/api-facturacion-sv/tests/fixtures"
+	"github.com/MarlonG1/api-facturacion-sv/tests/mocks"
 )
 
 func TestCreditFiscalServiceCreate(t *testing.T) {
