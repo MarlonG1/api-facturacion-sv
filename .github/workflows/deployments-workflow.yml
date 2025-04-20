@@ -1,18 +1,17 @@
 name: Go Release Branches
 
 #==========================================================================================================#
-#=                         INSTRUCCIONES PARA LA CREACIÓN DE RAMAS DE ENTREGA                          =#
+#=                         INSTRUCCIONES PARA LA CREACIÓN DE RAMAS DE ENTREGA                             =#
 #==========================================================================================================#
 #                                                                                                          #
 # 1. Este flujo de trabajo se activa cuando se realiza un push a la rama main.                             #
 # 2. El flujo de trabajo compila la aplicación para arquitecturas AMD64 y ARM64.                           #
-# 3. Se crean dos ramas de despliegue: release-amd64 y release-arm64.                                #
+# 3. Se crean dos ramas de despliegue: release-amd64 y release-arm64.                                      #
 # 4. Cada rama contiene solo los archivos necesarios para desplegar la aplicación en la arquitectura       #
 #    correspondiente.                                                                                      #
 # 5. Se genera un binario precompilado y un Dockerfile para cada rama.                                     #
-# 6. Se elimina la documentación, scripts de desarrollo y configuraciones de Swagger.                      #
-# 7. Se modifica el archivo main.go para eliminar la importación de Swagger.                               #
-# 8. Se modifica el archivo server.go para eliminar la inicialización de Swagger.                          #
+# 6. Se ejecutan las pruebas inicialmente                                                                  #
+# 7. En caso de que las pruebas fallen, se generara una Issue para ver que sucedio                         #
 #                                                                                                          #
 #==========================================================================================================#
 
@@ -25,9 +24,79 @@ on:
 permissions:
   contents: write
   packages: read
+  issues: write
 
 jobs:
+  run-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Setup Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.23.x'
+
+      - name: Run tests
+        id: run_tests
+        run: |
+          cd tests 2>/dev/null || (echo "Tests directory not found"; exit 0)
+          
+          TEST_OUTPUT=$(go test ./... 2>&1)
+          TEST_EXIT_CODE=$?
+          
+          # Guardar la salida de test en una variable de entorno para pasos posteriores
+          echo "TEST_OUTPUT<<EOF" >> $GITHUB_ENV
+          echo "$TEST_OUTPUT" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+          
+          echo "TEST_EXIT_CODE=$TEST_EXIT_CODE" >> $GITHUB_ENV
+          
+          # Si fallan los tests, terminar con error
+          if [ $TEST_EXIT_CODE -ne 0 ]; then
+            echo "::error::Tests failed with exit code $TEST_EXIT_CODE"
+            exit 1
+          fi
+          
+          echo "Tests completed successfully"
+
+      - name: Create Issue on Test Failure
+        if: failure() && steps.run_tests.outcome == 'failure'
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const testOutput = process.env.TEST_OUTPUT || "No test output available";
+            const issueTitle = `🔴 Test failures detected in build from ${context.sha.substring(0, 7)}`;
+            
+            github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: issueTitle,
+              body: `### Test Failures Detected
+            
+            The CI pipeline detected test failures when attempting to create release branches.
+            
+            #### Commit Information
+            - Commit: ${context.sha}
+            - Branch: ${context.ref}
+            - Workflow: ${context.workflow}
+            
+            #### Test Output
+            \`\`\`
+            ${testOutput}
+            \`\`\`
+            
+            Please fix these test failures before proceeding with the release.`
+            });
+            console.log("Created issue for test failures");
+  
+
   build-and-deploy:
+    needs: run-tests
     runs-on: ubuntu-latest
 
     strategy:
@@ -80,23 +149,11 @@ jobs:
           
           # Eliminar solo los archivos y directorios específicos que no son necesarios
           rm -rf ./.github 2>/dev/null || true
-          rm -rf ./api 2>/dev/null || true
-          rm -rf ./docs 2>/dev/null || true
           rm -rf ./scripts 2>/dev/null || true
           rm -rf ./tests 2>/dev/null || true
           rm -f ./.gitignore 2>/dev/null || true
           rm -f ./.gitattributes 2>/dev/null || true
           rm -f ./README.md 2>/dev/null || true
-          rm -f ./internal/infrastructure/api/routes/swagger_routes.go 2>/dev/null || true
-          
-          # Modificar main.go para eliminar la línea de importación de Swagger
-          if [ -f ./cmd/main.go ]; then
-            sed -i '/_ "github.com\/MarlonG1\/api-facturacion-sv\/docs\/swagger/d' ./cmd/main.go
-          fi
-
-          if [ -f ./internal/infrastructure/api/server/server.go ]; then
-            sed -i '/routes.RegisterSwaggerRoutes(s.router)/d' ./internal/infrastructure/api/server/server.go
-          fi
           
           # Compilar la aplicación para la arquitectura específica
           echo "Compilando la aplicación para ${ARCHITECTURE_NAME}..."

@@ -121,6 +121,23 @@ var Log *log
 var Signer *signer
 var MHPaths *mhPaths
 
+// InitEnvTesting inicializa la configuración del entorno de pruebas
+func InitEnvTesting() {
+	EnvConfig = &envConfig{}
+	Server = &EnvConfig.Server
+	Database = &EnvConfig.Database
+	Redis = &EnvConfig.Redis
+	Log = &EnvConfig.Log
+	Signer = &EnvConfig.Signer
+	MHPaths = &EnvConfig.MHPaths
+
+	// Configurar a modo de prueba
+	Server.AmbientCode = "00"
+	Log.Path = "/pkg/shared/logs/"
+	Server.Debug = true
+	Server.AppLang = "en"
+}
+
 // InitEnvConfig inicializa la configuración del archivo .env
 func InitEnvConfig(rootPath string) error {
 	v := viper.New()

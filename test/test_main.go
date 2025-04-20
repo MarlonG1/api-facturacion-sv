@@ -16,17 +16,10 @@ func TestMain(m *testing.T) {
 	rootPath := utils.FindProjectRoot()
 
 	// Inicializar configuración
-	err := config.InitEnvConfig(rootPath)
-	if err != nil {
-		panic("Error initializing environment config: " + err.Error())
-	}
-
-	// Configurar a modo de prueba
-	config.Server.AmbientCode = "00"
-	config.Server.Debug = true
+	config.InitEnvTesting()
 
 	// Inicializar el tiempo
-	err = utils.TimeInit()
+	err := utils.TimeInit()
 	if err != nil {
 		panic("Error initializing time: " + err.Error())
 	}
