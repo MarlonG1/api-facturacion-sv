@@ -1,7 +1,6 @@
 package strategy
 
 import (
-	"fmt"
 	"github.com/shopspring/decimal"
 
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/constants"
@@ -31,10 +30,6 @@ func (s *InvoiceTaxStrategy) Validate() *dte_errors.DTEError {
 
 	// 2. Validar IVA
 	if err := s.validateIVA(); err != nil {
-		return err
-	}
-
-	if err := s.validatePerception(); err != nil {
 		return err
 	}
 
@@ -97,7 +92,7 @@ func (s *InvoiceTaxStrategy) validateTotalAmounts() *dte_errors.DTEError {
 		Sub(decimal.NewFromFloat(s.Document.InvoiceSummary.NonSubjectDiscount.GetValue()))
 
 	actualSubTotal := decimal.NewFromFloat(s.Document.InvoiceSummary.SubTotal.GetValue())
-	if !expectedSubTotal.Equal(actualSubTotal) {
+	if !s.CompareTaxWithTolerance(actualSubTotal, expectedSubTotal, 0.01) {
 		logs.Error("Invalid subtotal calculation with discounts", map[string]interface{}{
 			"expected":           expectedSubTotal,
 			"actual":             actualSubTotal,
@@ -118,7 +113,7 @@ func (s *InvoiceTaxStrategy) validateTotalAmounts() *dte_errors.DTEError {
 		for _, tax := range s.Document.InvoiceSummary.TotalTaxes {
 			if tax.GetCode() == constants.TaxIVA {
 				actualIVA := decimal.NewFromFloat(tax.GetValue())
-				if !expectedIVA.Equal(actualIVA) {
+				if !s.CompareTaxWithTolerance(actualIVA, expectedIVA, 0.01) {
 					logs.Error("Invalid IVA calculation with discount", map[string]interface{}{
 						"expected":      expectedIVA,
 						"actual":        actualIVA,
@@ -138,10 +133,6 @@ func (s *InvoiceTaxStrategy) validateTotalAmounts() *dte_errors.DTEError {
 	totalToPay := totalOperation
 
 	if taxedAmount.GreaterThan(decimal.Zero) {
-		// Agregar percepción
-		perception := decimal.NewFromFloat(s.Document.InvoiceSummary.IVAPerception.GetValue())
-		totalToPay = totalToPay.Add(perception)
-
 		// Restar retención IVA
 		ivaRetention := decimal.NewFromFloat(s.Document.InvoiceSummary.IVARetention.GetValue())
 		totalToPay = totalToPay.Sub(ivaRetention)
@@ -151,8 +142,40 @@ func (s *InvoiceTaxStrategy) validateTotalAmounts() *dte_errors.DTEError {
 		totalToPay = totalToPay.Sub(incomeRetention)
 	}
 
-	// Agregar monto no gravado si existe
+	// Validar que la retención de IVA y la retención de renta no sean mayores al monto gravado
+	if s.Document.InvoiceSummary.IVARetention.GetValue() > 0 && taxedAmount.IsZero() {
+		logs.Error("IVA retention without taxed amount", map[string]interface{}{
+			"ivaRetention": s.Document.InvoiceSummary.IVARetention.GetValue(),
+			"taxedAmount":  taxedAmount,
+		})
+		return dte_errors.NewDTEErrorSimple("InvalidIVARetentionWithoutTaxedAmount")
+	}
+	if s.Document.InvoiceSummary.IncomeRetention.GetValue() > 0 && taxedAmount.IsZero() {
+		logs.Error("Income retention without taxed amount", map[string]interface{}{
+			"incomeRetention": s.Document.InvoiceSummary.IncomeRetention.GetValue(),
+			"taxedAmount":     taxedAmount,
+		})
+		return dte_errors.NewDTEErrorSimple("InvalidIncomeRetentionWithoutTaxedAmount")
+	}
+
+	// Validar que las ventas no gravadas no sean mayores al monto no gravado
+	var nonTaxed decimal.Decimal
+	for _, item := range s.Document.InvoiceItems {
+		nonTaxed = nonTaxed.Add(decimal.NewFromFloat(item.NonTaxed.GetValue()))
+	}
 	totalNonTaxed := decimal.NewFromFloat(s.Document.InvoiceSummary.TotalNonTaxed.GetValue())
+	if (nonTaxed.GreaterThan(decimal.Zero) && totalNonTaxed.Equal(decimal.Zero)) || (nonTaxed.Equal(decimal.Zero) && totalNonTaxed.GreaterThan(decimal.Zero)) {
+		return dte_errors.NewDTEErrorSimple("InvalidNonTaxedAmount")
+	}
+
+	diff := nonTaxed.Sub(totalNonTaxed).Abs()
+	if diff.GreaterThan(decimal.NewFromFloat(0.01)) {
+		return dte_errors.NewDTEErrorSimple("InvalidNonTaxedAmountCalculation",
+			totalNonTaxed.InexactFloat64(),
+			nonTaxed.InexactFloat64())
+	}
+
+	// Agregar monto no gravado si existe
 	if totalNonTaxed.GreaterThan(decimal.Zero) {
 		totalToPay = totalToPay.Add(totalNonTaxed)
 	}
@@ -160,43 +183,18 @@ func (s *InvoiceTaxStrategy) validateTotalAmounts() *dte_errors.DTEError {
 	actualTotalToPay := decimal.NewFromFloat(s.Document.InvoiceSummary.TotalToPay.GetValue())
 
 	// Usar una pequeña tolerancia para comparaciones con decimales
-	diff := totalToPay.Sub(actualTotalToPay).Abs()
-	if diff.GreaterThan(decimal.NewFromFloat(0.01)) {
+	if !s.CompareTaxWithTolerance(totalToPay, actualTotalToPay, 0.01) {
 		logs.Error("Invalid total to pay", map[string]interface{}{
 			"calculated":      totalToPay,
 			"declared":        actualTotalToPay,
 			"difference":      diff,
 			"operation":       totalOperation,
-			"perception":      s.Document.InvoiceSummary.IVAPerception.GetValue(),
 			"ivaRetention":    s.Document.InvoiceSummary.IVARetention.GetValue(),
 			"incomeRetention": s.Document.InvoiceSummary.IncomeRetention.GetValue(),
 		})
 		return dte_errors.NewDTEErrorSimple("InvalidTotalToPayCalculation",
 			totalToPay.InexactFloat64(),
 			actualTotalToPay.InexactFloat64())
-	}
-
-	return nil
-}
-
-func (s *InvoiceTaxStrategy) validatePerception() *dte_errors.DTEError {
-	baseTaxed := decimal.NewFromFloat(s.Document.InvoiceSummary.TotalTaxed.GetValue())
-	if baseTaxed.GreaterThan(decimal.Zero) && s.Document.InvoiceSummary.IVAPerception.GetValue() > 0 {
-		expectedPerception := baseTaxed.Mul(decimal.NewFromFloat(0.01))
-		actualPerception := decimal.NewFromFloat(s.Document.InvoiceSummary.IVAPerception.GetValue())
-
-		diff := expectedPerception.Sub(actualPerception).Abs()
-		if diff.GreaterThan(decimal.NewFromFloat(0.01)) {
-			logs.Error("Invalid perception amount", map[string]interface{}{
-				"expected":   expectedPerception,
-				"actual":     actualPerception,
-				"taxedBase":  baseTaxed,
-				"difference": diff,
-			})
-			return dte_errors.NewDTEErrorSimple("InvalidPerceptionAmount",
-				actualPerception.StringFixed(2),
-				expectedPerception.StringFixed(2))
-		}
 	}
 
 	return nil
@@ -210,7 +208,7 @@ func ValidateMonetaryAmount(amount float64, fieldName string) *dte_errors.DTEErr
 	if !scaled.Equal(decimal.NewFromInt(scaled.IntPart())) {
 		return dte_errors.NewDTEErrorSimple("InvalidMonetaryAmount",
 			fieldName,
-			fmt.Sprintf("Must be multiple of 0.01, got: %v", amount))
+			amount)
 	}
 
 	return nil
@@ -294,7 +292,8 @@ func (s *InvoiceTaxStrategy) validateTaxCalculation(tax interfaces.Tax, baseTaxe
 	}
 
 	actualTax := decimal.NewFromFloat(tax.GetValue())
-	if !actualTax.Equal(expectedTax) {
+	diff := expectedTax.Sub(actualTax).Abs()
+	if diff.GreaterThan(decimal.NewFromFloat(0.01)) {
 		return dte_errors.NewDTEErrorSimple("InvalidTaxCalculation",
 			tax.GetCode(),
 			expectedTax.InexactFloat64(),

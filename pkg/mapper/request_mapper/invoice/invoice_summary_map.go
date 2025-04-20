@@ -42,11 +42,6 @@ func MapInvoiceRequestSummary(summary *structs.InvoiceSummaryRequest) (*invoice_
 		return nil, err
 	}
 
-	ivaPerception, err := financial.NewAmountForTotal(summary.IVAPerception)
-	if err != nil {
-		return nil, err
-	}
-
 	ivaRetention, err := financial.NewAmountForTotal(summary.IVARetention)
 	if err != nil {
 		return nil, err
@@ -70,7 +65,6 @@ func MapInvoiceRequestSummary(summary *structs.InvoiceSummaryRequest) (*invoice_
 	return &invoice_models.InvoiceSummary{
 		Summary:                 baseSummary,
 		TaxedDiscount:           *taxedDiscount,
-		IVAPerception:           *ivaPerception,
 		IVARetention:            *ivaRetention,
 		IncomeRetention:         *incomeRetention,
 		TotalIva:                *totalIva,

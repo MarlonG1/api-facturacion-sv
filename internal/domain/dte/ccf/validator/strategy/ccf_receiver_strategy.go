@@ -4,6 +4,7 @@ import (
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/ccf/ccf_models"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/constants"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/dte_errors"
+	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/utils"
 )
 
 type CCFReceiverStrategy struct {
@@ -19,7 +20,7 @@ func (s *CCFReceiverStrategy) Validate() *dte_errors.DTEError {
 	// CCF requiere NRC obligatoriamente según schema
 	if s.Document.GetReceiver().GetNRC() == nil {
 		return dte_errors.NewDTEErrorSimple("MissingNRC",
-			s.Document.GetReceiver().GetName(),
+			utils.PointerToString(s.Document.GetReceiver().GetName()),
 			constants.CCFElectronico)
 	}
 

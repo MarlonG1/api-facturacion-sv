@@ -3,6 +3,7 @@ package interfaces
 // Summary es una interfaz que define los métodos que debe implementar un resumen
 type Summary interface {
 	SummaryGetters
+	SummarySetters
 }
 
 type SummaryGetters interface {
@@ -44,6 +45,7 @@ type SummarySetters interface {
 	SetElectronicPayment(electronicPayment *string) error   // SetElectronicPayment establece el medio de pago electrónico
 	SetTotalInWords(totalInWords string) error              // SetTotalInWords establece el total en palabras
 	SetTotalToPay(totalToPay float64) error                 // SetTotalToPay establece el total a pagar
+	SetForceTotalToPay(totalToPay float64)                  // SetForceTotalToPay establece el total a pagar sin validación
 }
 
 // SummaryManager es una interfaz que combina los getters y setters de Summary

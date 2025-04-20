@@ -29,6 +29,7 @@ type IdentificationSetter interface {
 	SetVersion(version int) error                         // SetVersion establece la versión del DTE (Documento Tributario Electrónico)
 	SetAmbient(ambient string) error                      // SetAmbient establece el ambiente en el que se está emitiendo el DTE 00 -> Pruebas, 01 -> Producción
 	SetDTEType(dteType string) error                      // SetDTEType establece el tipo de DTE que se está emitiendo
+	SetDTETypeForce(dteType string)                       // SetDTETypeForce establece el tipo de DTE que se está emitiendo sin validar
 	SetModelType(modelType int) error                     // SetModelType establece el tipo de modelo del DTE
 	SetOperationType(operationType int) error             // SetOperationType establece el tipo de operación del DTE
 	SetEmissionDate(emissionDate time.Time) error         // SetEmissionDate establece la fecha de emisión del DTE

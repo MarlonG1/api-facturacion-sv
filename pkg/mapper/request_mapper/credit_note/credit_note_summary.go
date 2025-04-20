@@ -58,17 +58,11 @@ func MapCreditNoteRequestSummary(summary *structs.CreditNoteSummaryRequest) (*cr
 		return nil, err
 	}
 
-	balanceInFavor, err := financial.NewAmountForTotal(summary.BalanceInFavor)
-	if err != nil {
-		return nil, err
-	}
-
 	return &credit_note_models.CreditNoteSummary{
 		Summary:         baseSummary,
 		TaxedDiscount:   *taxedDiscount,
 		IVAPerception:   *ivaPerception,
 		IVARetention:    *ivaRetention,
 		IncomeRetention: *incomeRetention,
-		BalanceInFavor:  *balanceInFavor,
 	}, nil
 }

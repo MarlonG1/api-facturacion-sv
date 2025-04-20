@@ -21,9 +21,11 @@ type ItemSetter interface {
 	SetDescription(description string) error // SetDescription establece la descripción del item
 	SetType(itemType int) error              // SetType establece el tipo de item
 	SetUnitPrice(unitPrice float64) error    // SetUnitPrice establece el precio unitario del item
+	SetForceUnitPrice(unitPrice float64)     // SetUnitPrice establece el precio unitario del item
 	SetDiscount(discount float64) error      // SetDiscount establece el descuento aplicado al item
 	SetTaxes(taxes []string) error           // SetTaxes establece los impuestos aplicados al item
 	SetRelatedDoc(relatedDoc *string) error  // SetRelatedDoc establece el documento relacionado al item
+	SetForceRelatedDoc(relatedDoc *string)   // SetRelatedDoc establece el documento relacionado al item
 	SetNumber(number int) error              // SetNumber establece el número del item
 	SetUnitMeasure(unitMeasure int) error    // SetUnitMeasure establece la unidad de medida del item
 }

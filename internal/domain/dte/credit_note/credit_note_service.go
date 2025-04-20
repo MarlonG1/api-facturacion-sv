@@ -124,8 +124,7 @@ func (s *creditNoteService) validateRelatedDocs(ctx context.Context, data *credi
 			return shared_error.NewFormattedGeneralServiceError(
 				"CreditNoteService",
 				"validateRelatedDocs",
-				"NotMatchingArgs",
-				"receiver", "NIT", "receiver", " NIT",
+				"NotMatchingReceiverNIT",
 			)
 		}
 	}

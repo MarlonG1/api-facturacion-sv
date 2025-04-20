@@ -1,6 +1,7 @@
 package invoice
 
 import (
+	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/dte_errors"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/value_objects/financial"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/invoice/invoice_models"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/mapper/request_mapper/common"
@@ -39,6 +40,10 @@ func MapInvoiceRequestItem(item structs.InvoiceItemRequest, index int) (*invoice
 
 	if err != nil {
 		return nil, err
+	}
+
+	if item.TaxedSale > 0 && item.IVAItem == 0 {
+		return nil, dte_errors.NewValidationError("RequiredField", "Request->Item->IVAItem")
 	}
 
 	nonSubjectSale, err := financial.NewAmount(item.NonSubjectSale)

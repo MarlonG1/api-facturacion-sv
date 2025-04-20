@@ -150,20 +150,13 @@ func (w *ResponseWriter) handleBusinessError(rw http.ResponseWriter, err error) 
 
 	var svcErr *shared_error.ServiceError
 	if errors.As(err, &svcErr) {
-		var details []string
 		rw.WriteHeader(http.StatusBadRequest)
-
-		if svcErr.Err != nil {
-			details = append(details, svcErr.Err.Error())
-		} else {
-			details = append(details, i18n.Translate("service_errors.NoDetailsAvailable"))
-		}
 
 		json.NewEncoder(rw).Encode(APIResponse{
 			Success: false,
 			Error: &APIError{
 				Message: svcErr.Message,
-				Details: details,
+				Details: svcErr.GetErrError(),
 				Code:    strings.ToUpper(svcErr.GetCode()),
 			},
 		})

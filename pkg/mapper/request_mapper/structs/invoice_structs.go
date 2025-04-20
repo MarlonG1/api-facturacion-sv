@@ -29,7 +29,6 @@ type InvoiceItemRequest struct {
 type InvoiceSummaryRequest struct {
 	SummaryRequest
 	TaxedDiscount   float64 `json:"taxed_discount"`
-	IVAPerception   float64 `json:"iva_perception"`
 	IVARetention    float64 `json:"iva_retention"`
 	IncomeRetention float64 `json:"income_retention"`
 	TotalIVA        float64 `json:"total_iva"`

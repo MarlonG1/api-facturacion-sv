@@ -10,6 +10,4 @@ type CreditNoteItem struct {
 	NonSubjectSale financial.Amount
 	ExemptSale     financial.Amount
 	TaxedSale      financial.Amount
-	SuggestedPrice financial.Amount
-	NonTaxed       financial.Amount
 }

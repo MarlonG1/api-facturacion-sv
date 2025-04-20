@@ -1,6 +1,7 @@
 package strategy
 
 import (
+	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/constants"
 	"github.com/shopspring/decimal"
 
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/dte_errors"
@@ -111,12 +112,6 @@ func (s *InvoiceItemsStrategy) validateItem(item invoice_models.InvoiceItem) *dt
 			maxPossible.InexactFloat64())
 	}
 
-	// Validar que el total de ventas no sea negativo
-	if totalSales.LessThan(decimal.Zero) {
-		return dte_errors.NewDTEErrorSimple("NegativeItemTotal",
-			totalSales.InexactFloat64())
-	}
-
 	// Validar montos no gravados
 	if item.NonTaxed.GetValue() != 0 {
 		if err := s.validateNonTaxedAmount(item); err != nil {
@@ -145,6 +140,20 @@ func (s *InvoiceItemsStrategy) validateItem(item invoice_models.InvoiceItem) *dt
 			return dte_errors.NewDTEErrorSimple("InvalidTaxedAmount",
 				item.TaxedSale.GetValue(),
 				expectedTaxed.InexactFloat64())
+		}
+	}
+
+	for _, tax := range item.Taxes {
+		if tax == constants.TaxIVA && item.GetType() == constants.Producto {
+			return dte_errors.NewDTEErrorSimple("InvalidTaxForProduct", item.GetNumber())
+		}
+	}
+
+	if item.GetType() == constants.Producto {
+		for _, summaryTax := range s.Document.InvoiceSummary.TotalTaxes {
+			if summaryTax.GetCode() == constants.TaxIVA {
+				return dte_errors.NewDTEErrorSimple("InvalidSummaryTaxForProduct")
+			}
 		}
 	}
 

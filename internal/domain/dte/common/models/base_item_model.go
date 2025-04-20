@@ -105,6 +105,11 @@ func (i *Item) SetUnitPrice(unitPrice float64) error {
 	return nil
 }
 
+func (i *Item) SetForceUnitPrice(unitPrice float64) {
+	upObj := financial.NewValidatedAmount(unitPrice)
+	i.UnitPrice = *upObj
+}
+
 func (i *Item) SetDiscount(discount float64) error {
 	discountObj, err := financial.NewDiscount(discount)
 	if err != nil {
@@ -130,6 +135,10 @@ func (i *Item) SetRelatedDoc(relatedDoc *string) error {
 
 	i.RelatedDoc = relatedDoc
 	return nil
+}
+
+func (i *Item) SetForceRelatedDoc(relatedDoc *string) {
+	i.RelatedDoc = relatedDoc
 }
 
 func (i *Item) SetNumber(number int) error {

@@ -10,6 +10,10 @@ type InvalidationDateStrategy struct {
 }
 
 func (s *InvalidationDateStrategy) Validate() *dte_errors.DTEError {
+	if s.Document.Identification == nil {
+		return dte_errors.NewDTEErrorSimple("RequiredField", "Identification")
+	}
+
 	// Validar plazos según tipo de documento
 	docType := s.Document.Document.Type.GetValue()
 	emissionDate := s.Document.Document.EmissionDate.GetValue()
@@ -18,11 +22,11 @@ func (s *InvalidationDateStrategy) Validate() *dte_errors.DTEError {
 	switch docType {
 	case "01", "11": // Factura y FEXE: 3 meses
 		if annulmentDate.Sub(emissionDate).Hours() > 24*90 {
-			return dte_errors.NewDTEErrorSimple("InvalidDate", "Annulment period exceeded for invoice")
+			return dte_errors.NewDTEErrorSimple("InvalidDateForFEFX")
 		}
 	default: // Resto: 1 día
 		if annulmentDate.Sub(emissionDate).Hours() > 24 {
-			return dte_errors.NewDTEErrorSimple("InvalidDate", "Annulment period exceeded")
+			return dte_errors.NewDTEErrorSimple("InvalidDateForAllDTE")
 		}
 	}
 	return nil

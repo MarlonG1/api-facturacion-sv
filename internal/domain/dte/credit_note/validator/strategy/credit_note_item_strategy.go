@@ -37,11 +37,6 @@ func (s *CreditNoteItemStrategy) Validate() *dte_errors.DTEError {
 		if err := s.validateCreditNoteType4Rules(&item); err != nil {
 			return err
 		}
-
-		// Validar reglas específicas de no gravados
-		if err := s.validateItemNonTaxedRules(&item); err != nil {
-			return err
-		}
 	}
 
 	return nil
@@ -68,47 +63,7 @@ func (s *CreditNoteItemStrategy) validateItem(item *credit_note_models.CreditNot
 	return nil
 }
 
-func (s *CreditNoteItemStrategy) validateItemNonTaxedRules(item *credit_note_models.CreditNoteItem) *dte_errors.DTEError {
-	nonTaxed := item.NonTaxed.GetValue()
-	if nonTaxed > 0 {
-		if item.GetUnitPrice() != 0 {
-			logs.Error("Unit price must be zero when non_taxed > 0", map[string]interface{}{
-				"itemNumber": item.GetNumber(),
-				"unitPrice":  item.GetUnitPrice(),
-				"nonTaxed":   nonTaxed,
-			})
-			return dte_errors.NewDTEErrorSimple("InvalidUnitPriceForNonTaxed",
-				item.GetNumber())
-		}
-	}
-	return nil
-}
-
 func (s *CreditNoteItemStrategy) validateItemSaleTypes(item *credit_note_models.CreditNoteItem) *dte_errors.DTEError {
-	// Validar venta no gravada
-	if item.NonTaxed.GetValue() > 0 {
-		// No debe tener otros tipos de venta
-		if item.TaxedSale.GetValue() > 0 || item.ExemptSale.GetValue() > 0 || item.NonSubjectSale.GetValue() > 0 {
-			logs.Error("Items with non-taxed amount cannot have other sale types", map[string]interface{}{
-				"itemNumber":     item.GetNumber(),
-				"nonTaxed":       item.NonTaxed.GetValue(),
-				"taxedSale":      item.TaxedSale.GetValue(),
-				"exemptSale":     item.ExemptSale.GetValue(),
-				"nonSubjectSale": item.NonSubjectSale.GetValue(),
-			})
-			return dte_errors.NewDTEErrorSimple("InvalidMixedSalesWithNonTaxed", item.GetNumber())
-		}
-
-		// No debe tener impuestos
-		if len(item.GetTaxes()) > 0 {
-			logs.Error("Items with non-taxed amount cannot have taxes", map[string]interface{}{
-				"itemNumber": item.GetNumber(),
-				"taxes":      item.GetTaxes(),
-			})
-			return dte_errors.NewDTEErrorSimple("InvalidTaxesWithNonTaxed", item.GetNumber())
-		}
-	}
-
 	// Validar que no haya ventas mixtas
 	salesTypes := 0
 	if item.TaxedSale.GetValue() > 0 {
@@ -120,9 +75,6 @@ func (s *CreditNoteItemStrategy) validateItemSaleTypes(item *credit_note_models.
 	if item.NonSubjectSale.GetValue() > 0 {
 		salesTypes++
 	}
-	if item.NonTaxed.GetValue() > 0 {
-		salesTypes++
-	}
 
 	if salesTypes > 1 {
 		logs.Error("Mixed sales types in single item", map[string]interface{}{
@@ -130,7 +82,6 @@ func (s *CreditNoteItemStrategy) validateItemSaleTypes(item *credit_note_models.
 			"taxedSale":      item.TaxedSale.GetValue(),
 			"exemptSale":     item.ExemptSale.GetValue(),
 			"nonSubjectSale": item.NonSubjectSale.GetValue(),
-			"nonTaxed":       item.NonTaxed.GetValue(),
 		})
 		return dte_errors.NewDTEErrorSimple("MixedSalesTypesNotAllowed", item.GetNumber())
 	}

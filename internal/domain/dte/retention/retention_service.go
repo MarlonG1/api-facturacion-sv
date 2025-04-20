@@ -37,24 +37,25 @@ func (s *retentionService) Create(ctx context.Context, input interface{}, branch
 	// 1. Verificar si todos los documentos son físicos, si no lo son, obtener los detalles de cada documento
 	if !data.IsAllPhysical() {
 		for i := range data.RetentionItems {
+			// Solo procesar documentos electrónicos
+			if data.RetentionItems[i].DocumentType.GetValue() == constants.ElectronicDocument {
+				// 1.1 Obtener el documento DTE correspondiente al número de documento
+				dte, err := s.dteManager.GetByGenerationCode(ctx, branchID, data.RetentionItems[i].DocumentNumber.GetValue())
+				if err != nil {
+					return nil, err
+				}
 
-			// 1.1 Obtener el documento DTE correspondiente al número de documento
-			dte, err := s.dteManager.GetByGenerationCode(ctx, branchID, data.RetentionItems[i].DocumentNumber.GetValue())
-			if err != nil {
-				return nil, err
+				// 1.2 Verificar si el tipo de DTE es válido para retención
+				if !constants.ValidRetentionDTETypes[dte.Details.DTEType] {
+					return nil, shared_error.NewFormattedGeneralServiceError("RetentionUseCase", "Create", "InvalidDTETypeForRetention", data.RetentionItems[i].DocumentNumber.GetValue())
+				}
+
+				// 1.3 Verificar si el documento tiene detalles
+				err = s.extractSummaryData(&data.RetentionItems[i], dte)
+				if err != nil {
+					return nil, err
+				}
 			}
-
-			// 1.2 Verificar si el tipo de DTE es válido para retención
-			if !constants.ValidRetentionDTETypes[dte.Details.DTEType] {
-				return nil, shared_error.NewFormattedGeneralServiceError("RetentionUseCase", "Create", "InvalidDTETypeForRetention", data.RetentionItems[i].DocumentNumber.GetValue())
-			}
-
-			// 1.3 Verificar si el documento tiene detalles
-			err = s.extractSummaryData(&data.RetentionItems[i], dte)
-			if err != nil {
-				return nil, err
-			}
-
 		}
 
 		// 1.4 Calcular el resumen de la retención

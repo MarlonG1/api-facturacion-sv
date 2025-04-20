@@ -105,7 +105,7 @@ func (s *CCFItemStrategy) validateTotalNonTaxed() *dte_errors.DTEError {
 
 	// Usar comparación con una pequeña tolerancia
 	diff := totalToPay.Sub(expectedTotalToPay).Abs()
-	if diff.GreaterThan(decimal.NewFromFloat(0.000001)) {
+	if diff.GreaterThan(decimal.NewFromFloat(0.01)) {
 		logs.Error("Total to pay must be equal to total operation plus sum of non_taxed amounts", map[string]interface{}{
 			"totalToPay":     totalToPay,
 			"totalOperation": totalOperation,
@@ -133,12 +133,12 @@ func (s *CCFItemStrategy) validateCCFTaxRules(item *ccf_models.CreditItem) *dte_
 	}
 
 	for _, tax := range item.GetTaxes() {
-		if tax != constants.TaxIVA {
+		if item.GetType() == constants.Producto && tax != constants.TaxIVA {
 			logs.Error("Invalid tax code, only IVA (20) is allowed", map[string]interface{}{
 				"itemNumber": item.GetNumber(),
 				"taxCode":    tax,
 			})
-			return dte_errors.NewDTEErrorSimple("InvalidTaxCode", tax, "Only IVA (20) tax code is allowed")
+			return dte_errors.NewDTEErrorSimple("InvalidTaxCodeOnly20", tax, item.GetType())
 		}
 	}
 
@@ -175,7 +175,7 @@ func (s *CCFItemStrategy) validateCCFTaxRules(item *ccf_models.CreditItem) *dte_
 	if item.GetType() == constants.Impuesto {
 		for _, tax := range item.GetTaxes() {
 			if tax != constants.TaxIVA {
-				return dte_errors.NewDTEErrorSimple("InvalidTaxCode", tax, "ItemType is 4 (Tax), items can only have IVA (20)")
+				return dte_errors.NewDTEErrorSimple("InvalidTaxCodeOnly20", item.GetType(), tax)
 			}
 		}
 	}

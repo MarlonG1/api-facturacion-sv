@@ -1,7 +1,6 @@
 package strategy
 
 import (
-	"fmt"
 	"github.com/shopspring/decimal"
 
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/constants"
@@ -49,44 +48,6 @@ func (s *CreditNoteTaxStrategy) Validate() *dte_errors.DTEError {
 		logs.Error("Error validating total amounts")
 		return err
 	}
-
-	// 6. Validar monto no gravado
-	if err := s.validateNonTaxedAmount(); err != nil {
-		logs.Error("Error validating non-taxed amount")
-		return err
-	}
-
-	return nil
-}
-
-func (s *CreditNoteTaxStrategy) validateNonTaxedAmount() *dte_errors.DTEError {
-	totalNonTaxed := s.Document.CreditSummary.TotalNonTaxed.GetValue()
-
-	// Calcular suma de non_taxed de items
-	var sumItemsNonTaxed float64
-	for _, item := range s.Document.CreditItems {
-		sumItemsNonTaxed += item.NonTaxed.GetValue()
-	}
-
-	// Si el total_non_taxed del summary > 0 pero la suma de non_taxed de items es 0
-	if totalNonTaxed > 0 && sumItemsNonTaxed == 0 {
-		logs.Error("Invalid non-taxed amount", map[string]interface{}{
-			"summaryTotal": totalNonTaxed,
-			"itemsSum":     sumItemsNonTaxed,
-		})
-		return dte_errors.NewDTEErrorSimple("InvalidNonTaxedAmount")
-	}
-
-	// Validar que coincidan
-	if totalNonTaxed != sumItemsNonTaxed {
-		logs.Error("Non-taxed amount mismatch", map[string]interface{}{
-			"summaryTotal": totalNonTaxed,
-			"itemsSum":     sumItemsNonTaxed,
-		})
-		return dte_errors.NewDTEErrorSimple("InvalidTotalNonTaxed",
-			sumItemsNonTaxed, totalNonTaxed)
-	}
-
 	return nil
 }
 
@@ -398,7 +359,7 @@ func ValidateMonetaryAmount(amount float64, fieldName string) *dte_errors.DTEErr
 	if diff.GreaterThan(decimal.NewFromFloat(0.01)) {
 		return dte_errors.NewDTEErrorSimple("InvalidMonetaryAmount",
 			fieldName,
-			fmt.Sprintf("Must be multiple of 0.01, got: %v", amount))
+			amount)
 	}
 
 	return nil

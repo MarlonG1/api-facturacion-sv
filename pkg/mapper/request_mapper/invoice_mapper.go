@@ -77,10 +77,12 @@ func validateInvoiceRequest(req *structs.CreateInvoiceRequest) error {
 	if req.Summary == nil {
 		return dte_errors.NewValidationError("RequiredField", "Request->Summary")
 	}
-
 	if req.Receiver != nil {
 		if req.Receiver.DocumentType != nil && req.Receiver.DocumentNumber == nil || req.Receiver.DocumentType == nil && req.Receiver.DocumentNumber != nil {
 			return shared_error.NewFormattedGeneralServiceError("InvoiceMapper", "MapToInvoiceData", "InvalidDocumentTypeAndNumber")
+		}
+		if req.Receiver.NIT != nil {
+			return dte_errors.NewValidationError("InvalidFieldValue", "Request->Receiver->NIT")
 		}
 	}
 	return nil

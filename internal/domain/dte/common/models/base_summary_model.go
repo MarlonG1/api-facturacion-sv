@@ -219,3 +219,8 @@ func (s *Summary) SetTotalToPay(totalToPay float64) error {
 	s.TotalToPay = *ttpObj
 	return nil
 }
+
+func (s *Summary) SetForceTotalToPay(totalToPay float64) {
+	ttpObj := financial.NewValidatedAmount(totalToPay)
+	s.TotalToPay = *ttpObj
+}

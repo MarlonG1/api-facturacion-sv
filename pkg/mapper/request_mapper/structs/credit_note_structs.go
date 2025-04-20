@@ -19,8 +19,6 @@ type CreditNoteItemRequest struct {
 	NonSubjectSale float64 `json:"non_subject_sale"`
 	ExemptSale     float64 `json:"exempt_sale"`
 	TaxedSale      float64 `json:"taxed_sale"`
-	SuggestedPrice float64 `json:"suggested_price"`
-	NonTaxed       float64 `json:"non_taxed"`
 }
 
 // CreditNoteSummaryRequest estructura para mapear el resumen de una Nota de Crédito
@@ -30,5 +28,4 @@ type CreditNoteSummaryRequest struct {
 	IVAPerception   float64 `json:"iva_perception"`
 	IVARetention    float64 `json:"iva_retention"`
 	IncomeRetention float64 `json:"income_retention"`
-	BalanceInFavor  float64 `json:"balance_in_favor"`
 }

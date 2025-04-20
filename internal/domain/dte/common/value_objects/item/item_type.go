@@ -17,7 +17,7 @@ func NewItemType(value int) (*ItemType, error) {
 	if itemType.IsValid() {
 		return itemType, nil
 	}
-	return &ItemType{}, dte_errors.NewValidationError("InvalidItemType", fmt.Sprintf("%d", value))
+	return &ItemType{}, dte_errors.NewValidationError("InvalidItemType", value)
 }
 
 func NewValidatedItemType(value int) *ItemType {

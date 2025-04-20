@@ -55,22 +55,10 @@ func MapCreditNoteRequestItem(item structs.CreditNoteItemRequest, index int) (*c
 		return nil, err
 	}
 
-	suggestedPrice, err := financial.NewAmount(item.SuggestedPrice)
-	if err != nil {
-		return nil, err
-	}
-
-	nonTaxed, err := financial.NewAmount(item.NonTaxed)
-	if err != nil {
-		return nil, err
-	}
-
 	return &credit_note_models.CreditNoteItem{
 		Item:           baseItem,
 		NonSubjectSale: *nonSubjectSale,
 		ExemptSale:     *exemptSale,
 		TaxedSale:      *taxedSale,
-		SuggestedPrice: *suggestedPrice,
-		NonTaxed:       *nonTaxed,
 	}, nil
 }

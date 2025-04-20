@@ -152,6 +152,11 @@ func (i *Identification) SetCurrency(currency string) error {
 	return nil
 }
 
+func (i *Identification) SetDTETypeForce(dteType string) {
+	dteTypeObj := document.NewValidatedDTEType(dteType)
+	i.DTEType = *dteTypeObj
+}
+
 func (i *Identification) SetContingencyType(contingencyType *int) error {
 	if contingencyType == nil {
 		i.ContingencyType = nil

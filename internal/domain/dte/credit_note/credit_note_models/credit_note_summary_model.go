@@ -10,6 +10,5 @@ type CreditNoteSummary struct {
 	TaxedDiscount   financial.Amount // Descuento gravado
 	IVAPerception   financial.Amount // Percepción IVA 1%
 	IVARetention    financial.Amount // Retención IVA 1%
-	BalanceInFavor  financial.Amount // Saldo a Favor
 	IncomeRetention financial.Amount // Retención Renta
 }
