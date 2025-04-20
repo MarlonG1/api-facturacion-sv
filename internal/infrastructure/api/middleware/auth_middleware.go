@@ -2,10 +2,10 @@ package middleware
 
 import (
 	"context"
-	"github.com/MarlonG1/api-facturacion-sv/internal/domain/ports"
 	"net/http"
 	"strings"
 
+	"github.com/MarlonG1/api-facturacion-sv/internal/domain/ports"
 	"github.com/MarlonG1/api-facturacion-sv/internal/infrastructure/api/response"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/logs"
 )
@@ -55,7 +55,7 @@ func (m *AuthMiddleware) Handle(next http.Handler) http.Handler {
 				"path":   r.URL.Path,
 				"method": r.Method,
 			})
-			m.respWriter.Error(w, http.StatusUnauthorized, "Invalid token", []string{"Token is expired or has been tampered with"})
+			m.respWriter.Error(w, http.StatusUnauthorized, "error", []string{err.Error()})
 			return
 		}
 

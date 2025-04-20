@@ -12,15 +12,14 @@ import (
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/value_objects/financial"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/value_objects/identification"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/value_objects/temporal"
-	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/invalidation/models"
+	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/invalidation/invalidation_models"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/mapper/request_mapper/structs"
-	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/logs"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/shared_error"
 )
 
-func MapInvalidatedDocument(baseDTE *dte.DTEDetails, request *structs.InvalidationRequest, emissionDate time.Time) (*models.InvalidatedDocument, error) {
+func MapInvalidatedDocument(baseDTE *dte.DTEDetails, request *structs.CreateInvalidationRequest, emissionDate time.Time) (*invalidation_models.InvalidatedDocument, error) {
 	if baseDTE == nil {
-		return nil, shared_error.NewGeneralServiceError("InvalidationMapper", "MapToInvalidatedDocument", "Invalid base DTE", nil)
+		return nil, shared_error.NewFormattedGeneralServiceError("InvalidationMapper", "MapToInvalidatedDocument", "InvalidBaseDTE")
 	}
 
 	// Deserializar JSON del DTE original
@@ -35,14 +34,6 @@ func MapInvalidatedDocument(baseDTE *dte.DTEDetails, request *structs.Invalidati
 		return nil, err
 	}
 
-	logs.Info("DEBUG", map[string]interface{}{
-		"docType": docType,
-		"numDoc":  numDoc,
-		"name":    name,
-		"email":   email,
-		"phone":   phone,
-	})
-
 	// Extraer monto IVA del resumen
 	montoIVA, err := extractIVAAmount(dteData)
 	if err != nil {
@@ -50,7 +41,7 @@ func MapInvalidatedDocument(baseDTE *dte.DTEDetails, request *structs.Invalidati
 	}
 
 	// Crear documento invalidado
-	doc := &models.InvalidatedDocument{
+	doc := &invalidation_models.InvalidatedDocument{
 		Type:           *document.NewValidatedDTEType(baseDTE.DTEType),
 		GenerationCode: *identification.NewValidatedGenerationCode(baseDTE.ID),
 		ControlNumber:  *identification.NewValidatedControlNumber(baseDTE.ControlNumber),

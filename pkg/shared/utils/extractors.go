@@ -1,6 +1,8 @@
 package utils
 
-import "encoding/json"
+import (
+	"encoding/json"
+)
 
 type AuxiliarIdentificationExtractor struct {
 	Identification struct {
@@ -11,6 +13,35 @@ type AuxiliarIdentificationExtractor struct {
 	Issuer struct {
 		NIT string `json:"nit"`
 	} `json:"emisor"`
+}
+
+type AuxiliarReceiverExtractor struct {
+	Receiver struct {
+		NIT string `json:"nit"`
+	} `json:"receptor"`
+}
+
+type AuxiliarSummaryExtractor struct {
+	Summary struct {
+		SubTotal     float64 `json:"subTotal"`
+		IvaRetention float64 `json:"ivaRete1"`
+	} `json:"resumen"`
+}
+
+type AuxiliarTotalAmountsExtractor struct {
+	Summary struct {
+		TotalTaxed      float64 `json:"totalGravada"`
+		TotalExempt     float64 `json:"totalExenta"`
+		TotalNotSubject float64 `json:"totalNoSuj"`
+	} `json:"resumen"`
+}
+
+type AuxiliarDTETotalAmountsExtractor struct {
+	Summary struct {
+		TotalTaxed      float64 `json:"total_taxed"`
+		TotalExempt     float64 `json:"total_exempt"`
+		TotalNotSubject float64 `json:"total_non_subject"`
+	} `json:"summary"`
 }
 
 func ExtractAuxiliarIdentification(document interface{}) (AuxiliarIdentificationExtractor, error) {
@@ -44,19 +75,61 @@ func ExtractAuxiliarIdentificationFromStringJSON(document interface{}) (Auxiliar
 	return identification, nil
 }
 
-func ExtractAuxiliarDTEInfo(document interface{}) (AuxiliarIdentificationExtractor, error) {
-	var dteInfo AuxiliarIdentificationExtractor
+func ExtractAuxiliarSummaryFromStringJSON(document interface{}) (AuxiliarSummaryExtractor, error) {
+	var summary AuxiliarSummaryExtractor
+
+	// 1. Convertir a formato JSON el documento
+	jsonData := []byte(document.(string))
+
+	// 2. Extraer parte de la información del Resumen
+	if err := json.Unmarshal(jsonData, &summary); err != nil {
+		return summary, err
+	}
+
+	return summary, nil
+}
+
+func ExtractSummaryTotalAmounts(document interface{}) (AuxiliarTotalAmountsExtractor, error) {
+	var summary AuxiliarTotalAmountsExtractor
 
 	// 1. Convertir a formato JSON el documento
 	jsonData, err := json.Marshal(document)
 	if err != nil {
-		return dteInfo, err
+		return summary, err
 	}
 
-	// 2. Extraer parte de la información del DTE
-	if err := json.Unmarshal(jsonData, &dteInfo); err != nil {
-		return dteInfo, err
+	// 2. Extraer parte de la información del Resumen
+	if err = json.Unmarshal(jsonData, &summary); err != nil {
+		return summary, err
 	}
 
-	return dteInfo, nil
+	return summary, nil
+}
+
+func ExtractSummaryTotalAmountsFromStringJSON(document interface{}) (AuxiliarTotalAmountsExtractor, error) {
+	var summary AuxiliarTotalAmountsExtractor
+
+	// 1. Convertir a formato JSON el documento
+	jsonData := []byte(document.(string))
+
+	// 2. Extraer parte de la información del Resumen
+	if err := json.Unmarshal(jsonData, &summary); err != nil {
+		return summary, err
+	}
+
+	return summary, nil
+}
+
+func ExtractDTEReceiverFromString(document interface{}) (AuxiliarReceiverExtractor, error) {
+	var receiver AuxiliarReceiverExtractor
+
+	// 1. Convertir a formato JSON el documento
+	jsonData := []byte(document.(string))
+
+	// 2. Extraer parte de la información del Resumen
+	if err := json.Unmarshal(jsonData, &receiver); err != nil {
+		return receiver, err
+	}
+
+	return receiver, nil
 }

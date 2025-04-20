@@ -8,12 +8,11 @@ import (
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/value_objects/identification"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/mapper/request_mapper/common"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/mapper/request_mapper/structs"
-	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/shared_error"
 )
 
 func MapCCFRequestReceiver(receiver *structs.ReceiverRequest) (*models.Receiver, error) {
 	if receiver == nil {
-		return nil, shared_error.NewGeneralServiceError("MapperCCF", "MapCCFRequestReceiver", "receiver is nil", nil)
+		return nil, dte_errors.NewValidationError("RequiredField", "receiver")
 	}
 
 	if err := validateRequiredFields(receiver); err != nil {

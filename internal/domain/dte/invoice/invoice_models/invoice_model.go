@@ -6,5 +6,4 @@ type ElectronicInvoice struct {
 	*models.DTEDocument `json:"*Models.DTEDocument"` // herencia de la base
 	InvoiceItems        []InvoiceItem                `json:"invoiceItems"`   // cuerpoDocumento
 	InvoiceSummary      InvoiceSummary               `json:"invoiceSummary"` // resumen
-	State               string                       `json:"state"`          // estado
 }

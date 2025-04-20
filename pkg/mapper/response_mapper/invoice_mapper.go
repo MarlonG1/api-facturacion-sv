@@ -8,32 +8,33 @@ import (
 )
 
 // ToMHInvoice convierte una ElectronicInvoice a la estructura requerida por Hacienda
-func ToMHInvoice(doc *invoice_models.ElectronicInvoice) (*structs.InvoiceDTEResponse, error) {
+func ToMHInvoice(doc interface{}) *structs.InvoiceDTEResponse {
 
+	cast := doc.(*invoice_models.ElectronicInvoice)
 	dte := &structs.InvoiceDTEResponse{
-		Identificacion:  common.MapCommonResponseIdentification(doc.Identification),
-		Emisor:          common.MapCommonResponseIssuer(doc.Issuer),
-		Receptor:        invoice.MapInvoiceResponseReceiver(doc.Receiver),
-		Resumen:         invoice.MapInvoiceResponseSummary(doc.InvoiceSummary),
-		CuerpoDocumento: invoice.MapInvoiceResponseItem(doc.InvoiceItems),
-		Extension:       common.MapCommonResponseExtension(doc.Extension),
+		Identificacion:  common.MapCommonResponseIdentification(cast.Identification),
+		Emisor:          common.MapCommonResponseIssuer(cast.Issuer),
+		Receptor:        invoice.MapInvoiceResponseReceiver(cast.Receiver),
+		Resumen:         invoice.MapInvoiceResponseSummary(cast.InvoiceSummary),
+		CuerpoDocumento: invoice.MapInvoiceResponseItem(cast.InvoiceItems),
+		Extension:       common.MapCommonResponseExtension(cast.Extension),
 	}
 
-	if len(doc.GetRelatedDocuments()) > 0 {
-		dte.DocumentoRelacionado = common.MapCommonResponseRelatedDocuments(doc.GetRelatedDocuments())
+	if len(cast.GetRelatedDocuments()) > 0 {
+		dte.DocumentoRelacionado = common.MapCommonResponseRelatedDocuments(cast.GetRelatedDocuments())
 	}
 
-	if len(doc.GetOtherDocuments()) > 0 {
-		dte.OtrosDocumentos = common.MapCommonResponseOtherDocuments(doc.GetOtherDocuments())
+	if len(cast.GetOtherDocuments()) > 0 {
+		dte.OtrosDocumentos = common.MapCommonResponseOtherDocuments(cast.GetOtherDocuments())
 	}
 
-	if doc.GetThirdPartySale() != nil {
-		dte.VentaTercero = common.MapCommonResponseThirdPartySale(doc.GetThirdPartySale())
+	if cast.GetThirdPartySale() != nil {
+		dte.VentaTercero = common.MapCommonResponseThirdPartySale(cast.GetThirdPartySale())
 	}
 
-	if doc.Appendix != nil {
-		dte.Apendice = common.MapCommonResponseAppendix(doc.Appendix)
+	if cast.Appendix != nil {
+		dte.Apendice = common.MapCommonResponseAppendix(cast.Appendix)
 	}
 
-	return dte, nil
+	return dte
 }

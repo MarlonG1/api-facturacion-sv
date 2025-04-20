@@ -20,3 +20,30 @@ func (a *Address) GetMunicipality() string {
 func (a *Address) GetComplement() string {
 	return a.Complement.GetValue()
 }
+
+func (a *Address) SetDepartment(department string) error {
+	deptObj, err := location.NewDepartment(department)
+	if err != nil {
+		return err
+	}
+	a.Department = *deptObj
+	return nil
+}
+
+func (a *Address) SetMunicipality(municipality string) error {
+	munObj, err := location.NewMunicipality(municipality, a.Department)
+	if err != nil {
+		return err
+	}
+	a.Municipality = *munObj
+	return nil
+}
+
+func (a *Address) SetComplement(complement string) error {
+	compObj, err := location.NewAddress(complement)
+	if err != nil {
+		return err
+	}
+	a.Complement = *compObj
+	return nil
+}

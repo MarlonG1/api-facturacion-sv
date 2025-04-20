@@ -8,7 +8,6 @@ import (
 type InvoiceSummary struct {
 	*models.Summary
 	TaxedDiscount           financial.Amount `json:"taxedDiscount"`
-	IVAPerception           financial.Amount `json:"IVAPerception"`
 	IVARetention            financial.Amount `json:"IVARetention"`
 	IncomeRetention         financial.Amount `json:"incomeRetention"`
 	TotalIva                financial.Amount `json:"totalIva"`

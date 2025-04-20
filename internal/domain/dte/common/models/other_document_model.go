@@ -1,6 +1,7 @@
 package models
 
 import (
+	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/dte_errors"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/interfaces"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/value_objects/document"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/value_objects/identification"
@@ -63,4 +64,75 @@ func (d *DoctorInfo) GetIdentification() string {
 		return ""
 	}
 	return utils.PointerToString(d.Identification)
+}
+
+func (o *OtherDocument) SetAssociatedDocument(associatedDocument int) error {
+	adcObj, err := document.NewAssociatedDocumentCode(associatedDocument)
+	if err != nil {
+		return err
+	}
+	o.AssociatedCode = *adcObj
+	return nil
+}
+
+func (o *OtherDocument) SetDescription(description string) error {
+	if description == "" {
+		o.Description = nil
+		return nil
+	}
+	o.Description = &description
+	return nil
+}
+
+func (o *OtherDocument) SetDetail(detail string) error {
+	if detail == "" {
+		o.Detail = nil
+		return nil
+	}
+	o.Detail = &detail
+	return nil
+}
+
+func (o *OtherDocument) SetDoctor(doctor interfaces.DoctorInfo) error {
+	o.Doctor = doctor
+	return nil
+}
+
+func (d *DoctorInfo) SetName(name string) error {
+	if name == "" {
+		return dte_errors.NewValidationError("RequiredField", "Name")
+	}
+	d.Name = name
+	return nil
+}
+
+func (d *DoctorInfo) SetServiceType(serviceType int) error {
+	stObj, err := document.NewServiceType(serviceType)
+	if err != nil {
+		return err
+	}
+	d.ServiceType = *stObj
+	return nil
+}
+
+func (d *DoctorInfo) SetNIT(nit string) error {
+	if nit == "" {
+		d.NIT = nil
+		return nil
+	}
+	nitObj, err := identification.NewNIT(nit)
+	if err != nil {
+		return err
+	}
+	d.NIT = nitObj
+	return nil
+}
+
+func (d *DoctorInfo) SetIdentification(identification string) error {
+	if identification == "" {
+		d.Identification = nil
+		return nil
+	}
+	d.Identification = &identification
+	return nil
 }

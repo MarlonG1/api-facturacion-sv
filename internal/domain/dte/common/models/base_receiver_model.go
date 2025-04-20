@@ -1,6 +1,7 @@
 package models
 
 import (
+	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/dte_errors"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/interfaces"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/value_objects/base"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/value_objects/document"
@@ -81,4 +82,126 @@ func (r *Receiver) GetActivityDescription() *string {
 }
 func (r *Receiver) GetCommercialName() *string {
 	return r.CommercialName
+}
+func (r *Receiver) SetName(name *string) error {
+	r.Name = name
+	return nil
+}
+
+func (r *Receiver) SetDocumentType(documentType *string) error {
+	if documentType == nil {
+		r.DocumentType = nil
+		return nil
+	}
+
+	dtObj, err := document.NewDTETypeForReceiver(*documentType)
+	if err != nil {
+		return err
+	}
+	r.DocumentType = dtObj
+	return nil
+}
+
+func (r *Receiver) SetDocumentNumber(documentNumber *string) error {
+	if documentNumber == nil {
+		r.DocumentNumber = nil
+		return nil
+	}
+
+	// Si DocumentType no está establecido, no podemos validar DocumentNumber correctamente
+	if r.DocumentType == nil {
+		return dte_errors.NewValidationError("RequiredField", "DocumentType")
+	}
+
+	dnObj, err := identification.NewDocumentNumber(*documentNumber, r.DocumentType.GetValue())
+	if err != nil {
+		return err
+	}
+	r.DocumentNumber = dnObj
+	return nil
+}
+
+func (r *Receiver) SetAddress(address interfaces.Address) error {
+	r.Address = address
+	return nil
+}
+
+func (r *Receiver) SetEmail(email *string) error {
+	if email == nil {
+		r.Email = nil
+		return nil
+	}
+
+	emailObj, err := base.NewEmail(*email)
+	if err != nil {
+		return err
+	}
+	r.Email = emailObj
+	return nil
+}
+
+func (r *Receiver) SetPhone(phone *string) error {
+	if phone == nil {
+		r.Phone = nil
+		return nil
+	}
+
+	phoneObj, err := base.NewPhone(*phone)
+	if err != nil {
+		return err
+	}
+	r.Phone = phoneObj
+	return nil
+}
+
+func (r *Receiver) SetNRC(nrc *string) error {
+	if nrc == nil {
+		r.NRC = nil
+		return nil
+	}
+
+	nrcObj, err := identification.NewNRC(*nrc)
+	if err != nil {
+		return err
+	}
+	r.NRC = nrcObj
+	return nil
+}
+
+func (r *Receiver) SetNIT(nit *string) error {
+	if nit == nil {
+		r.NIT = nil
+		return nil
+	}
+
+	nitObj, err := identification.NewNIT(*nit)
+	if err != nil {
+		return err
+	}
+	r.NIT = nitObj
+	return nil
+}
+
+func (r *Receiver) SetActivityCode(activityCode *string) error {
+	if activityCode == nil {
+		r.ActivityCode = nil
+		return nil
+	}
+
+	acObj, err := identification.NewActivityCode(*activityCode)
+	if err != nil {
+		return err
+	}
+	r.ActivityCode = acObj
+	return nil
+}
+
+func (r *Receiver) SetActivityDescription(activityDescription *string) error {
+	r.ActivityDescription = activityDescription
+	return nil
+}
+
+func (r *Receiver) SetCommercialName(commercialName *string) error {
+	r.CommercialName = commercialName
+	return nil
 }

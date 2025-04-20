@@ -60,7 +60,7 @@ func (s *ItemValidationStrategy) validateItem(item interfaces.Item) *dte_errors.
 		logs.Error("Invalid item type", map[string]interface{}{
 			"type": itemType,
 		})
-		return dte_errors.NewDTEErrorSimple("InvalidItemType", string(rune(itemType)))
+		return dte_errors.NewDTEErrorSimple("InvalidItemType", itemType)
 	}
 
 	// Validar descripción (max 1000 chars)
@@ -68,7 +68,7 @@ func (s *ItemValidationStrategy) validateItem(item interfaces.Item) *dte_errors.
 		logs.Error("Invalid description length", map[string]interface{}{
 			"length": len(item.GetDescription()),
 		})
-		return dte_errors.NewDTEErrorSimple("InvalidLength", "Item description", "1-1000", string(rune(len(item.GetDescription()))))
+		return dte_errors.NewDTEErrorSimple("InvalidLength", "Item description", "1-1000", item.GetDescription())
 	}
 
 	// Validar unidad de medida (1-99)
@@ -76,7 +76,7 @@ func (s *ItemValidationStrategy) validateItem(item interfaces.Item) *dte_errors.
 		logs.Error("Invalid unit measure", map[string]interface{}{
 			"measure": item.GetUnitMeasure(),
 		})
-		return dte_errors.NewDTEErrorSimple("InvalidNumberRange", "UnitMeasure", "1-99", string(rune(item.GetUnitMeasure())))
+		return dte_errors.NewDTEErrorSimple("InvalidNumberRange", "UnitMeasure", "1-99", item.GetUnitMeasure())
 	}
 
 	// Validar código si está presente (max 25 chars)

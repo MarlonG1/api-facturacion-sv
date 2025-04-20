@@ -3,21 +3,24 @@ package repositories
 import (
 	"context"
 	"encoding/json"
+	"errors"
+	"gorm.io/gorm"
+	"time"
+
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/auth/models"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/core/dte"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/constants"
-	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/dte_documents/ports"
+	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/dte_documents"
 	"github.com/MarlonG1/api-facturacion-sv/internal/infrastructure/database/db_models"
+	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/shared_error"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/utils"
-	"gorm.io/gorm"
-	"time"
 )
 
 type DTERepository struct {
 	db *gorm.DB
 }
 
-func NewDTERepository(db *gorm.DB) ports.DTERepositoryPort {
+func NewDTERepository(db *gorm.DB) dte_documents.DTERepositoryPort {
 	return &DTERepository{
 		db: db,
 	}
@@ -57,6 +60,62 @@ func (D *DTERepository) Create(ctx context.Context, document interface{}, transm
 	result := D.db.WithContext(ctx).Create(dteDocument)
 	if result.Error != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (D *DTERepository) GetDTEBalanceControl(ctx context.Context, branchID uint, id string) (*dte.BalanceControl, error) {
+	var balanceControl db_models.DTEBalanceControl
+
+	// 1. Obtener el balance de un DTE por su ID
+	result := D.db.WithContext(ctx).
+		Preload("Transactions").
+		Where("branch_id = ? AND original_dte_id = ?", branchID, id).
+		First(&balanceControl)
+	if result.Error != nil {
+		return nil, handleGormErr(result.Error, "GetDTEBalanceControl")
+	}
+
+	return &dte.BalanceControl{
+		ID:                        balanceControl.ID,
+		BranchID:                  balanceControl.BranchID,
+		OriginalDTEID:             balanceControl.OriginalDTEID,
+		OriginalTaxedAmount:       balanceControl.OriginalTaxedAmount,
+		OriginalExemptAmount:      balanceControl.OriginalExemptAmount,
+		OriginalNotSubjectAmount:  balanceControl.OriginalTotalNotSubjectAmount,
+		RemainingTaxedAmount:      balanceControl.RemainingTaxedAmount,
+		RemainingExemptAmount:     balanceControl.RemainingExemptAmount,
+		RemainingNotSubjectAmount: balanceControl.RemainingNotSubjectAmount,
+	}, nil
+}
+
+func (D *DTERepository) GenerateBalanceTransaction(ctx context.Context, branchID uint, originalDTE string, transaction *dte.BalanceTransaction) error {
+	var balanceControl db_models.DTEBalanceControl
+
+	// 1. Obtener el balance de un DTE por su ID
+	result := D.db.WithContext(ctx).
+		Where("branch_id = ? AND original_dte_id = ?", branchID, originalDTE).
+		First(&balanceControl)
+	if result.Error != nil {
+		return handleGormErr(result.Error, "GenerateBalanceTransaction")
+	}
+
+	// 2. Crear un nuevo balance de transacción
+	dteTransaction := &db_models.DTEBalanceTransaction{
+		BalanceControlID:     balanceControl.ID,
+		BalanceControl:       &balanceControl,
+		AdjustmentDocumentID: transaction.AdjustmentDocumentID,
+		TransactionType:      transaction.TransactionType,
+		TaxedAmount:          transaction.TaxedAmount,
+		ExemptAmount:         transaction.ExemptAmount,
+		NotSubjectAmount:     transaction.NotSubjectAmount,
+	}
+
+	// 2. Guardar en la base de datos
+	result = D.db.WithContext(ctx).Create(dteTransaction)
+	if result.Error != nil {
+		return result.Error
 	}
 
 	return nil
@@ -106,7 +165,7 @@ func (D *DTERepository) VerifyStatus(ctx context.Context, branchID uint, id stri
 		Where("document_id = ? AND branch_id = ?", id, branchID).
 		First(&status)
 	if result.Error != nil {
-		return "", result.Error
+		return "", handleGormErr(result.Error, "VerifyStatus")
 	}
 
 	return status, nil
@@ -255,7 +314,7 @@ func (D *DTERepository) GetByGenerationCode(ctx context.Context, branchID uint, 
 		Where("branch_id = ? AND document_id = ?", branchID, generationCode).
 		First(&document)
 	if result.Error != nil {
-		return nil, result.Error
+		return nil, handleGormErr(result.Error, "GetByGenerationCode")
 	}
 
 	// 3. Retornar el documento DTE
@@ -300,4 +359,12 @@ func loadFilters(query *gorm.DB, filters *dte.DTEFilters) {
 	if filters.Transmission != "" {
 		query = query.Where("dte_details.transmission = ?", filters.Transmission)
 	}
+}
+
+func handleGormErr(err error, operation string) error {
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return shared_error.NewFormattedGeneralServiceError("DTERepo", operation, "NotFound")
+	}
+
+	return err
 }

@@ -5,12 +5,12 @@ import (
 
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/dte_errors"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/value_objects/document"
-	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/invalidation/models"
+	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/invalidation/invalidation_models"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/logs"
 )
 
 type InvalidationDocumentStrategy struct {
-	Document *models.InvalidationDocument
+	Document *invalidation_models.InvalidationDocument
 }
 
 func (s *InvalidationDocumentStrategy) Validate() *dte_errors.DTEError {

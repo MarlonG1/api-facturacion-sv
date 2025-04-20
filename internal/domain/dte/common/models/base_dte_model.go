@@ -51,6 +51,71 @@ func (d *DTEDocument) GetThirdPartySale() interfaces.ThirdPartySale {
 	return d.ThirdPartySale
 }
 
+func (d *DTEDocument) SetIdentification(identification interfaces.Identification) error {
+	if identification == nil {
+		return dte_errors.NewValidationError("RequiredField", "Identification")
+	}
+	d.Identification = identification
+	return nil
+}
+
+func (d *DTEDocument) SetAppendix(appendix []interfaces.Appendix) error {
+	d.Appendix = appendix
+	return nil
+}
+
+func (d *DTEDocument) SetExtension(extension interfaces.Extension) error {
+	d.Extension = extension
+	return nil
+}
+
+func (d *DTEDocument) SetIssuer(issuer interfaces.Issuer) error {
+	if issuer == nil {
+		return dte_errors.NewValidationError("RequiredField", "Issuer")
+	}
+	d.Issuer = issuer
+	return nil
+}
+
+func (d *DTEDocument) SetReceiver(receiver interfaces.Receiver) error {
+	if receiver == nil {
+		return dte_errors.NewValidationError("RequiredField", "Receiver")
+	}
+	d.Receiver = receiver
+	return nil
+}
+
+func (d *DTEDocument) SetItems(items []interfaces.Item) error {
+	if items == nil || len(items) == 0 {
+		return dte_errors.NewValidationError("RequiredField", "Items")
+	}
+	d.Items = items
+	return nil
+}
+
+func (d *DTEDocument) SetSummary(summary interfaces.Summary) error {
+	if summary == nil {
+		return dte_errors.NewValidationError("RequiredField", "Summary")
+	}
+	d.Summary = summary
+	return nil
+}
+
+func (d *DTEDocument) SetRelatedDocuments(relatedDocuments []interfaces.RelatedDocument) error {
+	d.RelatedDocuments = relatedDocuments
+	return nil
+}
+
+func (d *DTEDocument) SetOtherDocuments(otherDocuments []interfaces.OtherDocuments) error {
+	d.OtherDocuments = otherDocuments
+	return nil
+}
+
+func (d *DTEDocument) SetThirdPartySale(thirdPartySale interfaces.ThirdPartySale) error {
+	d.ThirdPartySale = thirdPartySale
+	return nil
+}
+
 // Validate Válida un documento DTE contra las reglas de validación
 func (d *DTEDocument) Validate() error {
 	return validator.ValidateDTEDocument(d)

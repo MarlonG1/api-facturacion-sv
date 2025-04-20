@@ -15,7 +15,7 @@ func MapCommonRequestSummaryTaxes(taxes []structs.TaxRequest) ([]interfaces.Tax,
 	result := make([]interfaces.Tax, len(taxes))
 	for i, tax := range taxes {
 		if tax.Code == "" || tax.Description == "" {
-			return nil, shared_error.NewGeneralServiceError("CommonMapper", "MapCommonRequestSummaryTaxes", "Tax code and description are required, but one or both are empty", nil)
+			return nil, shared_error.NewFormattedGeneralServiceError("CommonMapper", "MapCommonRequestSummaryTaxes", "InvalidTaxCodeAndDescription")
 		}
 
 		if tax.Value == 0 && tax.Code != constants.TaxIVAExport {

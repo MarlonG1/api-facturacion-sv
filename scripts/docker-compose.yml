@@ -26,8 +26,10 @@ x-app-environment: &app-environment
   # Configuración de la aplicación
   APP_NAME: DTE-Microservice
 
+  APP_LANG: es # Actualmente soporta es y en
   DEBUG: true
-  FORCE_CONTINGENCY: false
+  FORCE_CONTINGENCY: false # Forzar el uso de contingencia
+  RUN_MIGRATION: false
 
   SERVER_PORT: 7319
   ADMIN_EMAIL: example@example.com
@@ -38,7 +40,6 @@ x-app-environment: &app-environment
   LOG_LEVEL: debug
   LOG_PATH: /pkg/shared/logs/
   LOG_FILE_LOGGING: true
-
 
   # Configuración de bases de datos
   DB_DRIVER: mysql #mysql o postgres

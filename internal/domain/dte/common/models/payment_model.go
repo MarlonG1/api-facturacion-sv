@@ -1,6 +1,7 @@
 package models
 
 import (
+	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/dte_errors"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/value_objects/financial"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/utils"
 )
@@ -39,4 +40,49 @@ func (p *PaymentType) GetPeriod() *int {
 }
 func (p *PaymentType) GetPeriodPointer() *int {
 	return p.Period
+}
+
+func (p *PaymentType) SetCode(code string) error {
+	codeObj, err := financial.NewPaymentType(code)
+	if err != nil {
+		return err
+	}
+	p.Code = *codeObj
+	return nil
+}
+
+func (p *PaymentType) SetAmount(amount float64) error {
+	amountObj, err := financial.NewAmount(amount)
+	if err != nil {
+		return err
+	}
+	p.Amount = *amountObj
+	return nil
+}
+
+func (p *PaymentType) SetReference(reference string) error {
+	if reference == "" {
+		return dte_errors.NewValidationError("RequiredField", "Reference")
+	}
+	p.Reference = reference
+	return nil
+}
+
+func (p *PaymentType) SetTerm(term *string) error {
+	if term == nil {
+		p.Term = nil
+		return nil
+	}
+
+	termObj, err := financial.NewPaymentTerm(*term)
+	if err != nil {
+		return err
+	}
+	p.Term = termObj
+	return nil
+}
+
+func (p *PaymentType) SetPeriod(period *int) error {
+	p.Period = period
+	return nil
 }

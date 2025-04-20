@@ -14,7 +14,7 @@ func NewPhone(value string) (*Phone, error) {
 	if phone.IsValid() {
 		return phone, nil
 	}
-	return &Phone{}, dte_errors.NewValidationError("InvalidFormat", "Phone", "8 a 30 dígitos", value)
+	return &Phone{}, dte_errors.NewValidationError("InvalidPhone", value)
 }
 
 func NewValidatedPhone(value string) *Phone {

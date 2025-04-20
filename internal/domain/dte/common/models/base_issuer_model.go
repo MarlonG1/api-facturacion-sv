@@ -1,6 +1,7 @@
 package models
 
 import (
+	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/dte_errors"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/interfaces"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/value_objects/base"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/value_objects/document"
@@ -66,4 +67,107 @@ func (i *Issuer) GetPOSCode() *string {
 }
 func (i *Issuer) GetPOSMHCode() *string {
 	return i.POSMHCode
+}
+
+func (i *Issuer) SetName(name string) error {
+	if name == "" {
+		return dte_errors.NewValidationError("RequiredField", "Name")
+	}
+	i.Name = name
+	return nil
+}
+
+func (i *Issuer) SetActivityDescription(description string) error {
+	if description == "" {
+		return dte_errors.NewValidationError("RequiredField", "ActivityDescription")
+	}
+	i.ActivityDescription = description
+	return nil
+}
+
+func (i *Issuer) SetCommercialName(commercialName string) error {
+	i.CommercialName = commercialName
+	return nil
+}
+
+func (i *Issuer) SetNIT(nit string) error {
+	nitObj, err := identification.NewNIT(nit)
+	if err != nil {
+		return err
+	}
+	i.NIT = *nitObj
+	return nil
+}
+
+func (i *Issuer) SetNRC(nrc string) error {
+	nrcObj, err := identification.NewNRC(nrc)
+	if err != nil {
+		return err
+	}
+	i.NRC = *nrcObj
+	return nil
+}
+
+func (i *Issuer) SetActivityCode(activityCode string) error {
+	acObj, err := identification.NewActivityCode(activityCode)
+	if err != nil {
+		return err
+	}
+	i.ActivityCode = *acObj
+	return nil
+}
+
+func (i *Issuer) SetEstablishmentType(establishmentType string) error {
+	etObj, err := document.NewEstablishmentType(establishmentType)
+	if err != nil {
+		return err
+	}
+	i.EstablishmentType = *etObj
+	return nil
+}
+
+func (i *Issuer) SetAddress(address interfaces.Address) error {
+	if address == nil {
+		return dte_errors.NewValidationError("RequiredField", "Address")
+	}
+	i.Address = address
+	return nil
+}
+
+func (i *Issuer) SetPhone(phone string) error {
+	phoneObj, err := base.NewPhone(phone)
+	if err != nil {
+		return err
+	}
+	i.Phone = *phoneObj
+	return nil
+}
+
+func (i *Issuer) SetEmail(email string) error {
+	emailObj, err := base.NewEmail(email)
+	if err != nil {
+		return err
+	}
+	i.Email = *emailObj
+	return nil
+}
+
+func (i *Issuer) SetEstablishmentCode(establishmentCode *string) error {
+	i.EstablishmentCode = establishmentCode
+	return nil
+}
+
+func (i *Issuer) SetEstablishmentMHCode(establishmentMHCode *string) error {
+	i.EstablishmentMHCode = establishmentMHCode
+	return nil
+}
+
+func (i *Issuer) SetPOSCode(posCode *string) error {
+	i.POSCode = posCode
+	return nil
+}
+
+func (i *Issuer) SetPOSMHCode(posMHCode *string) error {
+	i.POSMHCode = posMHCode
+	return nil
 }

@@ -79,3 +79,108 @@ func (i *Identification) GenerateCode() error {
 	i.GenerationCode = *gc
 	return err
 }
+
+func (i *Identification) SetVersion(version int) error {
+	versionObj, err := document.NewVersion(version)
+	if err != nil {
+		return err
+	}
+	i.Version = *versionObj
+	return nil
+}
+
+func (i *Identification) SetAmbient(ambient string) error {
+	ambientObj, err := document.NewAmbientCustom(ambient)
+	if err != nil {
+		return err
+	}
+	i.Ambient = *ambientObj
+	return nil
+}
+
+func (i *Identification) SetDTEType(dteType string) error {
+	dteTypeObj, err := document.NewDTEType(dteType)
+	if err != nil {
+		return err
+	}
+	i.DTEType = *dteTypeObj
+	return nil
+}
+
+func (i *Identification) SetModelType(modelType int) error {
+	modelTypeObj, err := document.NewModelType(modelType)
+	if err != nil {
+		return err
+	}
+	i.ModelType = *modelTypeObj
+	return nil
+}
+
+func (i *Identification) SetOperationType(operationType int) error {
+	operationTypeObj, err := document.NewOperationType(operationType)
+	if err != nil {
+		return err
+	}
+	i.OperationType = *operationTypeObj
+	return nil
+}
+
+func (i *Identification) SetEmissionDate(emissionDate time.Time) error {
+	emissionDateObj, err := temporal.NewEmissionDate(emissionDate)
+	if err != nil {
+		return err
+	}
+	i.EmissionDate = *emissionDateObj
+	return nil
+}
+
+func (i *Identification) SetEmissionTime(emissionTime time.Time) error {
+	emissionTimeObj, err := temporal.NewEmissionTime(emissionTime)
+	if err != nil {
+		return err
+	}
+	i.EmissionTime = *emissionTimeObj
+	return nil
+}
+
+func (i *Identification) SetCurrency(currency string) error {
+	currencyObj, err := financial.NewCurrency(currency)
+	if err != nil {
+		return err
+	}
+	i.Currency = *currencyObj
+	return nil
+}
+
+func (i *Identification) SetDTETypeForce(dteType string) {
+	dteTypeObj := document.NewValidatedDTEType(dteType)
+	i.DTEType = *dteTypeObj
+}
+
+func (i *Identification) SetContingencyType(contingencyType *int) error {
+	if contingencyType == nil {
+		i.ContingencyType = nil
+		return nil
+	}
+
+	ctObj, err := document.NewContingencyType(*contingencyType)
+	if err != nil {
+		return err
+	}
+	i.ContingencyType = ctObj
+	return nil
+}
+
+func (i *Identification) SetContingencyReason(contingencyReason *string) error {
+	if contingencyReason == nil {
+		i.ContingencyReason = nil
+		return nil
+	}
+
+	crObj, err := document.NewContingencyReason(*contingencyReason)
+	if err != nil {
+		return err
+	}
+	i.ContingencyReason = crObj
+	return nil
+}

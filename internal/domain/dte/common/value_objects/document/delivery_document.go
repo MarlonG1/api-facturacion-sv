@@ -14,7 +14,7 @@ func NewDeliveryDocument(value string) (*DeliveryDocument, error) {
 	if doc.IsValid() {
 		return doc, nil
 	}
-	return &DeliveryDocument{}, dte_errors.NewValidationError("InvalidLength", "DeliveryDocument", "1 a 25", value)
+	return &DeliveryDocument{}, dte_errors.NewValidationError("InvalidDeliveryDocument", value)
 }
 
 func NewValidatedDeliveryDocument(value string) *DeliveryDocument {

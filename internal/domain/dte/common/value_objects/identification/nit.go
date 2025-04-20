@@ -22,7 +22,7 @@ func NewNIT(value string) (*NIT, error) {
 	if nit.IsValid() {
 		return nit, nil
 	}
-	return &NIT{}, dte_errors.NewValidationError("InvalidPattern", "NIT", "12345678901234 o 123456789", value)
+	return &NIT{}, dte_errors.NewValidationError("InvalidPattern", "nit", "12345678901234 o 123456789", value)
 }
 
 func NewValidatedNIT(value string) *NIT {

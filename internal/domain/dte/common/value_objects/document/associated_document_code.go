@@ -17,7 +17,7 @@ func NewAssociatedDocumentCode(value int) (*AssociatedDocumentCode, error) {
 	if adc.IsValid() {
 		return adc, nil
 	}
-	return &AssociatedDocumentCode{}, dte_errors.NewValidationError("InvalidAssociatedDocumentCode", strconv.Itoa(value))
+	return &AssociatedDocumentCode{}, dte_errors.NewValidationError("InvalidAssociatedDocumentCode", value)
 }
 
 func NewValidatedAssociatedDocumentCode(value int) *AssociatedDocumentCode {

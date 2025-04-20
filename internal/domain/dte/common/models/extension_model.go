@@ -37,3 +37,58 @@ func (e *Extension) GetObservation() *string {
 	}
 	return nil
 }
+
+func (e *Extension) SetDeliveryName(deliveryName string) error {
+	dnObj, err := document.NewDeliveryName(deliveryName)
+	if err != nil {
+		return err
+	}
+	e.DeliveryName = *dnObj
+	return nil
+}
+
+func (e *Extension) SetDeliveryDocument(deliveryDocument string) error {
+	ddObj, err := document.NewDeliveryDocument(deliveryDocument)
+	if err != nil {
+		return err
+	}
+	e.DeliveryDocument = *ddObj
+	return nil
+}
+
+func (e *Extension) SetReceiverName(receiverName string) error {
+	rnObj, err := document.NewDeliveryName(receiverName)
+	if err != nil {
+		return err
+	}
+	e.ReceiverName = *rnObj
+	return nil
+}
+
+func (e *Extension) SetReceiverDocument(receiverDocument string) error {
+	rdObj, err := document.NewDeliveryDocument(receiverDocument)
+	if err != nil {
+		return err
+	}
+	e.ReceiverDocument = *rdObj
+	return nil
+}
+
+func (e *Extension) SetObservation(observation *string) error {
+	if observation == nil {
+		e.Observation = nil
+		return nil
+	}
+
+	obsObj, err := document.NewObservation(*observation)
+	if err != nil {
+		return err
+	}
+	e.Observation = obsObj
+	return nil
+}
+
+func (e *Extension) SetVehiculePlate(vehiculePlate *string) error {
+	e.VehiculePlate = vehiculePlate
+	return nil
+}

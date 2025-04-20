@@ -22,6 +22,8 @@ var modelsToMigrate = []schema.Tabler{
 	&db_models.DomainEvent{},
 	&db_models.UserNotification{},
 	&db_models.NotifiableUser{},
+	&db_models.DTEBalanceControl{},
+	&db_models.DTEBalanceTransaction{},
 }
 
 // RunMigrations ejecuta todas las migraciones de la base de datos
@@ -30,11 +32,11 @@ func RunMigrations(db *gorm.DB) error {
 
 	for i, model := range modelsToMigrate {
 		tn := model.TableName()
-		logs.Info(fmt.Sprintf("Starting model migration #%d: %s", i, tn))
+		logs.Info(fmt.Sprintf("Starting model migration #%d: %s", i+1, tn))
 
 		if err := db.AutoMigrate(model); err != nil {
 			logs.Error("Failed to migrate model", map[string]interface{}{
-				"index": i,
+				"index": i + 1,
 				"model": tn,
 				"error": err.Error(),
 			})

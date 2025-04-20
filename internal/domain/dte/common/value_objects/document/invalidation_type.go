@@ -16,7 +16,7 @@ func NewInvalidationType(value int) (*InvalidationType, error) {
 	if it.IsValid() {
 		return it, nil
 	}
-	return nil, dte_errors.NewValidationError("InvalidInvalidationType", fmt.Sprintf("%d", value))
+	return nil, dte_errors.NewValidationError("InvalidInvalidationType", value)
 }
 
 func (it *InvalidationType) IsValid() bool {

@@ -1,6 +1,11 @@
 package db_models
 
-import "time"
+import (
+	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/constants"
+	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/utils"
+	"gorm.io/gorm"
+	"time"
+)
 
 // DTEDocument representa la relación entre un documento tributario electrónico y una sucursal.
 // Se utiliza para almacenar la relación entre un documento tributario electrónico y una sucursal.
@@ -18,6 +23,33 @@ type DTEDocument struct {
 	// Relaciones
 	Branch   *BranchOffice `gorm:"foreignKey:BranchID;references:ID"`
 	Document *DTEDetails   `gorm:"foreignKey:DocumentID;references:ID"`
+}
+
+func (d *DTEDocument) AfterCreate(tx *gorm.DB) error {
+	// Si el DTE es una nota de crédito o débito, se crea un registro en la tabla de control de saldo.
+	if constants.ValidAdjustmentDTETypes[d.Document.DTEType] {
+
+		extractor, err := utils.ExtractSummaryTotalAmountsFromStringJSON(d.Document.JSONData)
+		if err != nil {
+			return err
+		}
+
+		dteBalanceControl := &DTEBalanceControl{
+			OriginalDTEID:                 d.DocumentID,
+			BranchID:                      d.BranchID,
+			OriginalTaxedAmount:           extractor.Summary.TotalTaxed,
+			OriginalExemptAmount:          extractor.Summary.TotalExempt,
+			OriginalTotalNotSubjectAmount: extractor.Summary.TotalNotSubject,
+			RemainingTaxedAmount:          extractor.Summary.TotalTaxed,
+			RemainingExemptAmount:         extractor.Summary.TotalExempt,
+			RemainingNotSubjectAmount:     extractor.Summary.TotalNotSubject,
+		}
+		if err = tx.Create(dteBalanceControl).Error; err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func (DTEDocument) TableName() string {

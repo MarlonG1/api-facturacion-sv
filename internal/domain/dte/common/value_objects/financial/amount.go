@@ -74,16 +74,24 @@ func (a *Amount) GetValue() float64 {
 	return a.Value
 }
 
+func (a *Amount) GetValueAsDecimal() decimal.Decimal {
+	if a == nil {
+		return decimal.Zero
+	}
+
+	return decimal.NewFromFloat(a.Value)
+}
+
 func (a *Amount) ToString() string {
 	return fmt.Sprintf("%.2f", a.Value)
 }
 
-func (a *Amount) Add(other *Amount) (*Amount, error) {
+func (a *Amount) Add(other *Amount) {
 	sum := decimal.NewFromFloat(a.Value).
 		Add(decimal.NewFromFloat(other.Value))
 
 	result, _ := sum.Round(2).Float64()
-	return NewAmount(result)
+	a.Value = result
 }
 
 func (a *Amount) Mul(value float64) (*Amount, error) {

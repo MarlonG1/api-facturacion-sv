@@ -14,7 +14,7 @@ func NewObservation(value string) (*Observation, error) {
 	if obs.IsValid() {
 		return obs, nil
 	}
-	return &Observation{}, dte_errors.NewValidationError("InvalidLength", "Observation", "1 a 3000", value)
+	return &Observation{}, dte_errors.NewValidationError("InvalidLength", "observation", "1-3000", value)
 }
 
 func NewValidatedObservation(value string) *Observation {

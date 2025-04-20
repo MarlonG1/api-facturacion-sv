@@ -48,6 +48,10 @@ func (m *CorsMiddleware) Handler(next http.Handler) http.Handler {
 			w.Header().Set("Access-Control-Allow-Methods", strings.Join(m.allowedMethods, ", "))
 			w.Header().Set("Access-Control-Allow-Headers", strings.Join(m.allowedHeaders, ", "))
 			w.Header().Set("Access-Control-Allow-Credentials", "true")
+
+			// Headers de seguridad
+			w.Header().Set("X-Content-Type-Options", "nosniff")
+			w.Header().Set("Strict-Transport-Security", "max-age=31536000; includeSubDomains")
 		}
 
 		// Handle preflight requests

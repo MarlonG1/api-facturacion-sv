@@ -16,7 +16,7 @@ func NewVersion(value int) (*Version, error) {
 	if version.IsValid() {
 		return version, nil
 	}
-	return &Version{}, dte_errors.NewValidationError("InvalidLength", "Version", "1, 2 o 3", fmt.Sprintf("%d", value))
+	return &Version{}, dte_errors.NewValidationError("InvalidLength", "version", "1-3", fmt.Sprintf("%d", value))
 }
 
 func NewValidatedVersion(value int) *Version {

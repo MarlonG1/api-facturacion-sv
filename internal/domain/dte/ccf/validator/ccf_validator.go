@@ -17,9 +17,10 @@ func NewCCFRulesValidator(doc *ccf_models.CreditFiscalDocument) *CCFRulesValidat
 	validator := &CCFRulesValidator{
 		document: doc,
 		strategies: []interfaces.DTEValidationStrategy{
-			&strategy.CCFItemStrategy{Document: doc},     // Validaciones de items
-			&strategy.CCFTaxStrategy{Document: doc},      // Validaciones de impuestos específicos
-			&strategy.CCFReceiverStrategy{Document: doc}, // Validaciones de receptor
+			&strategy.CCFItemStrategy{Document: doc},       // Validaciones de items
+			&strategy.CCFTaxStrategy{Document: doc},        // Validaciones de impuestos específicos
+			&strategy.CCFReceiverStrategy{Document: doc},   // Validaciones de receptor
+			&strategy.CCFRelatedDocStrategy{Document: doc}, // Validaciones de documentos relacionados
 		},
 	}
 	return validator

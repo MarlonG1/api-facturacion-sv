@@ -1,7 +1,6 @@
 package strategy
 
 import (
-	"fmt"
 	"github.com/shopspring/decimal"
 
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/ccf/ccf_models"
@@ -246,7 +245,6 @@ func (s *CCFTaxStrategy) validateIVA() *dte_errors.DTEError {
 				"actual":   actualTax,
 			})
 			return dte_errors.NewDTEErrorSimple("InvalidTaxCalculation",
-				tax.GetCode(),
 				expectedTax.InexactFloat64(),
 				actualTax.InexactFloat64())
 		}
@@ -266,8 +264,8 @@ func (s *CCFTaxStrategy) validatePerception() *dte_errors.DTEError {
 		diff := expectedPerception.Sub(actualPerception).Abs()
 		if diff.GreaterThan(decimal.NewFromFloat(0.01)) {
 			return dte_errors.NewDTEErrorSimple("InvalidPerceptionAmount",
-				actualPerception.StringFixed(2),
-				expectedPerception.StringFixed(2))
+				actualPerception.InexactFloat64(),
+				expectedPerception.InexactFloat64())
 		}
 	}
 
@@ -281,7 +279,7 @@ func (s *CCFTaxStrategy) validateTotalAmounts() *dte_errors.DTEError {
 	// Obtener montos que afectan el total a pagar
 	taxedAmount := decimal.NewFromFloat(s.Document.CreditSummary.TotalTaxed.GetValue())
 
-	// NUEVA VALIDACIÓN: Calcular subtotal considerando descuentos
+	// Calcular subtotal considerando descuentos
 	expectedSubTotal := decimal.NewFromFloat(s.Document.CreditSummary.SubTotalSales.GetValue()).
 		Sub(decimal.NewFromFloat(s.Document.CreditSummary.TaxedDiscount.GetValue())).
 		Sub(decimal.NewFromFloat(s.Document.CreditSummary.ExemptDiscount.GetValue())).
@@ -303,7 +301,7 @@ func (s *CCFTaxStrategy) validateTotalAmounts() *dte_errors.DTEError {
 			actualSubTotal.InexactFloat64())
 	}
 
-	// NUEVA VALIDACIÓN: Calcular IVA con descuento
+	// Calcular IVA con descuento
 	if taxedAmount.GreaterThan(decimal.Zero) {
 		taxedWithDiscount := taxedAmount.
 			Sub(decimal.NewFromFloat(s.Document.CreditSummary.TaxedDiscount.GetValue()))
@@ -385,7 +383,7 @@ func ValidateMonetaryAmount(amount float64, fieldName string) *dte_errors.DTEErr
 	if diff.GreaterThan(decimal.NewFromFloat(0.01)) {
 		return dte_errors.NewDTEErrorSimple("InvalidMonetaryAmount",
 			fieldName,
-			fmt.Sprintf("Must be multiple of 0.01, got: %v", amount))
+			amount)
 	}
 
 	return nil

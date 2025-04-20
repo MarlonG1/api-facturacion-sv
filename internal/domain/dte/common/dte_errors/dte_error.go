@@ -2,6 +2,7 @@ package dte_errors
 
 import (
 	"fmt"
+	"github.com/MarlonG1/api-facturacion-sv/internal/i18n"
 	"strings"
 
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/constants"
@@ -12,6 +13,7 @@ type DTEError struct {
 	BusinessErrors   []*DTEError // Errores de reglas de negocio DTE
 	ErrorType        string
 	Message          string
+	Code             string // Campo explícito para el código de error
 }
 
 // getDTEErrorMessage Obtiene el mensaje de error DTE con los parámetros enviados
@@ -25,6 +27,7 @@ func NewDTEErrorSimple(errorType string, params ...interface{}) *DTEError {
 		ValidationErrors: nil,
 		ErrorType:        errorType,
 		Message:          getDTEErrorMessage(errorType, params...),
+		Code:             strings.ToUpper(errorType),
 	}
 }
 
@@ -40,63 +43,72 @@ func NewDTEErrorComposite(businessErrors []*DTEError) *DTEError {
 		}
 	}
 
-	var errorType string
-	if len(validErrors) > 0 {
-		errorType = validErrors[0].ErrorType
-	}
-
 	return &DTEError{
 		BusinessErrors: validErrors,
-		ErrorType:      errorType,
 		Message:        strings.Join(messages, "; "),
+		Code:           "MANY_ERRORS",
 	}
 }
 
-// Error Implementación de la interfaz error para el error DTE para lanzar error principal a nivel de DTEDocument y errores de validación
+// Error Implementación de la interfaz error para el error DTE
 func (e *DTEError) Error() string {
 	if e == nil {
-		return "unknown DTEError"
+		return "Unknown DTE error"
 	}
 
-	var messages []string
-	messages = append(messages, fmt.Sprintf("%s", e.Message))
-
-	if len(e.ValidationErrors) > 0 {
-		messages = append(messages, "Errores de validación:")
-		for _, err := range e.ValidationErrors {
-			messages = append(messages, fmt.Sprintf("- %s", err.Error()))
-		}
-	}
-
-	return strings.Join(messages, " | -> | ")
+	return e.Message
 }
 
 // GetValidationErrorsString Obtiene los errores de validación asociados al error DTE en caso de existir
 func (e *DTEError) GetValidationErrorsString() []string {
 	var messages []string
 	for _, err := range e.ValidationErrors {
-		messages = append(messages, err.Error())
+		if err != nil {
+			messages = append(messages, err.Error())
+		}
+	}
+
+	if e.BusinessErrors != nil {
+		for _, err := range e.BusinessErrors {
+			if err != nil {
+				messages = append(messages, err.Message)
+			}
+		}
 	}
 
 	return messages
 }
 
-// GetValidationErrors Obtiene los errores de validación asociados al error DTE en caso de existir
-func (e *DTEError) GetValidationErrors() []error {
-	return e.ValidationErrors
+// GetCode Obtiene el código de error
+func (e *DTEError) GetCode() string {
+	if e == nil {
+		return "UNKNOWN_DTE_ERROR"
+	}
+
+	if e.Code != "" {
+		return e.Code
+	}
+
+	return strings.ToUpper(e.ErrorType)
 }
 
-// HasValidationErrors Indica si el error DTE tiene errores de validación asociados
-func (e *DTEError) HasValidationErrors() bool {
-	return len(e.ValidationErrors) > 0
-}
+// GetMessage Obtiene el mensaje traducido del error
+func (e *DTEError) GetMessage() string {
+	if e == nil {
+		return "Unknown DTE error"
+	}
 
-// HasBusinessErrors Indica si hay errores de negocio
-func (e *DTEError) HasBusinessErrors() bool {
-	return len(e.BusinessErrors) > 0
-}
+	if len(e.ValidationErrors) > 0 || len(e.BusinessErrors) > 0 {
+		return i18n.Translate("service_errors.FailedToCreateDTE")
+	}
 
-// GetBusinessErrors Obtiene los errores de negocio
-func (e *DTEError) GetBusinessErrors() []*DTEError {
-	return e.BusinessErrors
+	key := fmt.Sprintf("service_errors.%s", e.ErrorType)
+	translated := i18n.Translate(key)
+
+	// Si no hay traducción específica, usa el mensaje original
+	if translated == key {
+		return e.Message
+	}
+
+	return translated
 }

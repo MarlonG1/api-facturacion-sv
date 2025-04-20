@@ -121,6 +121,23 @@ var Log *log
 var Signer *signer
 var MHPaths *mhPaths
 
+// InitEnvTesting inicializa la configuración del entorno de pruebas
+func InitEnvTesting() {
+	EnvConfig = &envConfig{}
+	Server = &EnvConfig.Server
+	Database = &EnvConfig.Database
+	Redis = &EnvConfig.Redis
+	Log = &EnvConfig.Log
+	Signer = &EnvConfig.Signer
+	MHPaths = &EnvConfig.MHPaths
+
+	// Configurar a modo de prueba
+	Server.AmbientCode = "00"
+	Log.Path = "/pkg/shared/logs/"
+	Server.Debug = true
+	Server.AppLang = "en"
+}
+
 // InitEnvConfig inicializa la configuración del archivo .env
 func InitEnvConfig(rootPath string) error {
 	v := viper.New()
@@ -360,7 +377,6 @@ func validateEnvVariables(v reflect.Value, bt map[string]bool, exceptions []stri
 				continue
 			}
 		default:
-			// Para otros tipos, podríamos agregar manejo específico o rechazarlos
 			return fmt.Errorf("unsupported type %s for field %s", f.Kind(), fn)
 		}
 	}

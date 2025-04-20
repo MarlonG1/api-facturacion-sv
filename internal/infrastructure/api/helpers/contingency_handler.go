@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/shared_error"
 	"net"
 	"net/http"
 	"strings"
@@ -12,13 +11,14 @@ import (
 
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/constants"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/dte_errors"
-	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/contingency/interfaces"
+	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/contingency"
 	"github.com/MarlonG1/api-facturacion-sv/internal/infrastructure/adapters/transmitter/hacienda_error"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/logs"
+	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/shared_error"
 )
 
 type ContingencyHandler struct {
-	contingencyService interfaces.ContingencyManager
+	contingencyService contingency.ContingencyManager
 }
 
 type ContingencyResult struct {
@@ -42,7 +42,7 @@ type ErrClassification struct {
 }
 
 func NewContingencyHandler(
-	contingencyService interfaces.ContingencyManager,
+	contingencyService contingency.ContingencyManager,
 ) *ContingencyHandler {
 	return &ContingencyHandler{
 		contingencyService: contingencyService,

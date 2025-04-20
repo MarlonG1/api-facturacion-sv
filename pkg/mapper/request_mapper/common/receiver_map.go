@@ -1,6 +1,8 @@
 package common
 
 import (
+	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/constants"
+	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/dte_errors"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/models"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/value_objects/base"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/value_objects/document"
@@ -82,6 +84,10 @@ func MapCommonRequestReceiver(receiver *structs.ReceiverRequest) (*models.Receiv
 
 	if receiver.ActivityDesc != nil {
 		activityDesc = receiver.ActivityDesc
+	}
+
+	if *receiver.DocumentType == constants.DUI && receiver.NRC != nil {
+		return nil, dte_errors.NewValidationError("InvalidFieldValue", "Request->Receiver->NRC")
 	}
 
 	return &models.Receiver{

@@ -47,6 +47,32 @@ var (
 		OtroDocumento,
 	}
 
+	// ValidRetentionDTETypes Es una lista de valores permitidos para el campo DTEType de una retención
+	ValidRetentionDTETypes = map[string]bool{
+		FacturaElectronica:               true,
+		CCFElectronico:                   true,
+		FacturaSujetoExcluidoElectronica: true,
+	}
+
+	//ValidAdjustmentDTETypes  Es una lista de valores permitidos para el campo DTEType de un ajuste (Nota de crédito o débito)
+	ValidAdjustmentDTETypes = map[string]bool{
+		CCFElectronico:                  true,
+		ComprobanteRetencionElectronico: true,
+	}
+
+	// ValidCCFDTETypesRelateDoc Es una lista de valores permitidos para el campo DTEType de un documento relacionado en un CCF
+	ValidCCFDTETypesRelateDoc = map[string]bool{
+		NotaRemisionElectronica:           true,
+		ComprobanteLiquidacionElectronico: true,
+		DocContableLiquidacionElectronico: true,
+	}
+
+	// ValidInvoiceDTETypesRelateDoc Es una lista de valores permitidos para el campo DTEType de un documento relacionado en una Factura
+	ValidInvoiceDTETypesRelateDoc = map[string]bool{
+		NotaRemisionElectronica:           true,
+		DocContableLiquidacionElectronico: true,
+	}
+
 	// ValidDTETypesForContingency Es una lista de valores permitidos que se puede enviar por contingencia
 	ValidDTETypesForContingency = map[string]bool{
 		FacturaElectronica:               true,
@@ -58,3 +84,14 @@ var (
 		FacturaSujetoExcluidoElectronica: true,
 	}
 )
+
+func ShowValidRelatedDocTypes(valids map[string]bool) string {
+	var result string
+	for k := range valids {
+		result += k + ", "
+	}
+	if len(result) > 2 {
+		result = result[:len(result)-2]
+	}
+	return result
+}

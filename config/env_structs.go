@@ -20,6 +20,7 @@ type server struct {
 	RunMigration     bool   `map-structure:"RUN_MIGRATION"`
 	AdminEmail       string `map-structure:"ADMIN_EMAIL"`
 	ForceContingency bool   `map-structure:"FORCE_CONTINGENCY"`
+	AppLang          string `map-structure:"APP_LANG"`
 }
 
 // database es una estructura que contiene la configuración de la base de datos

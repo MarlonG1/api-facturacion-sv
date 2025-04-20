@@ -18,7 +18,7 @@ func NewGenerationCode() (*GenerationCode, error) {
 	if code.IsValid() {
 		return code, nil
 	}
-	return &GenerationCode{}, dte_errors.NewValidationError("InvalidPattern", "GenerationCode", "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX", code.Value)
+	return &GenerationCode{}, dte_errors.NewValidationError("InvalidPattern", "generation_code", "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX", code.Value)
 }
 
 func NewValidatedGenerationCode(value string) *GenerationCode {

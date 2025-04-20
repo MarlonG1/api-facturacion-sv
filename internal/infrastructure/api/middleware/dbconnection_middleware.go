@@ -1,9 +1,10 @@
 package middleware
 
 import (
+	"net/http"
+
 	"github.com/MarlonG1/api-facturacion-sv/config/drivers"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/logs"
-	"net/http"
 )
 
 type DBConnectionMiddleware struct {

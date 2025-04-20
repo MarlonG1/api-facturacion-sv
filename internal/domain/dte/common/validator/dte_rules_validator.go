@@ -39,11 +39,12 @@ func (v *DTERulesValidator) Validate() *dte_errors.DTEError {
 	var validationErrors []*dte_errors.DTEError
 
 	for i, strategyValidator := range v.strategies {
-		logs.Info("Starting validation for strategy", map[string]interface{}{"strategy": i})
+		logs.Info("Starting validation for strategy", map[string]interface{}{"strategy": i + 1})
 		if err := strategyValidator.Validate(); err != nil {
-			logs.Error("Failed to validate strategy", map[string]interface{}{"strategy": i, "error": err.Error()})
+			logs.Error("Failed to validate strategy", map[string]interface{}{"strategy": i + 1, "error": err.Error()})
 			validationErrors = append(validationErrors, err)
 		}
+		logs.Info("Finished validation for strategy", map[string]interface{}{"strategy": i + 1})
 	}
 
 	if len(validationErrors) > 0 {

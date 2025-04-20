@@ -7,31 +7,33 @@ import (
 	"github.com/MarlonG1/api-facturacion-sv/pkg/mapper/response_mapper/structs"
 )
 
-func ToMHCreditFiscalInvoice(doc *ccf_models.CreditFiscalDocument) (*structs.CCFDTEResponse, error) {
+func ToMHCreditFiscalInvoice(doc interface{}) *structs.CCFDTEResponse {
+
+	cast := doc.(*ccf_models.CreditFiscalDocument)
 	dte := &structs.CCFDTEResponse{
-		Identificacion:  common.MapCommonResponseIdentification(doc.Identification),
-		Emisor:          common.MapCommonResponseIssuer(doc.Issuer),
-		Receptor:        common.MapCommonResponseReceiver(doc.Receiver),
-		Resumen:         ccf.MapCCFResponseSummary(doc.CreditSummary),
-		CuerpoDocumento: ccf.MapCCFResponseItem(doc.CreditItems),
-		Extension:       common.MapCommonResponseExtension(doc.Extension),
+		Identificacion:  common.MapCommonResponseIdentification(cast.Identification),
+		Emisor:          common.MapCommonResponseIssuer(cast.Issuer),
+		Receptor:        common.MapCommonResponseReceiver(cast.Receiver),
+		Resumen:         ccf.MapCCFResponseSummary(cast.CreditSummary),
+		CuerpoDocumento: ccf.MapCCFResponseItem(cast.CreditItems),
+		Extension:       common.MapCommonResponseExtension(cast.Extension),
 	}
 
-	if len(doc.GetRelatedDocuments()) > 0 {
-		dte.DocumentoRelacionado = common.MapCommonResponseRelatedDocuments(doc.GetRelatedDocuments())
+	if len(cast.GetRelatedDocuments()) > 0 {
+		dte.DocumentoRelacionado = common.MapCommonResponseRelatedDocuments(cast.GetRelatedDocuments())
 	}
 
-	if len(doc.GetOtherDocuments()) > 0 {
-		dte.OtrosDocumentos = common.MapCommonResponseOtherDocuments(doc.GetOtherDocuments())
+	if len(cast.GetOtherDocuments()) > 0 {
+		dte.OtrosDocumentos = common.MapCommonResponseOtherDocuments(cast.GetOtherDocuments())
 	}
 
-	if doc.GetThirdPartySale() != nil {
-		dte.VentaTercero = common.MapCommonResponseThirdPartySale(doc.GetThirdPartySale())
+	if cast.GetThirdPartySale() != nil {
+		dte.VentaTercero = common.MapCommonResponseThirdPartySale(cast.GetThirdPartySale())
 	}
 
-	if doc.GetAppendix() != nil {
-		dte.Apendice = common.MapCommonResponseAppendix(doc.GetAppendix())
+	if cast.GetAppendix() != nil {
+		dte.Apendice = common.MapCommonResponseAppendix(cast.GetAppendix())
 	}
 
-	return dte, nil
+	return dte
 }

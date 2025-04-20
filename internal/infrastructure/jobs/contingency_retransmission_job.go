@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 	"github.com/MarlonG1/api-facturacion-sv/config/drivers"
-	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/contingency/interfaces"
+	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/contingency"
 	"sync/atomic"
 	"time"
 
@@ -14,12 +14,12 @@ import (
 
 type RetransmissionJob struct {
 	connection         *drivers.DbConnection
-	ContingencyService interfaces.ContingencyManager
+	ContingencyService contingency.ContingencyManager
 	IsRunning          atomic.Bool
 	MaxExecutionTime   time.Duration
 }
 
-func NewRetransmissionJob(contingencyService interfaces.ContingencyManager, connection *drivers.DbConnection) *RetransmissionJob {
+func NewRetransmissionJob(contingencyService contingency.ContingencyManager, connection *drivers.DbConnection) *RetransmissionJob {
 	return &RetransmissionJob{
 		connection:         connection,
 		ContingencyService: contingencyService,

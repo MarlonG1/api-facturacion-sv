@@ -3,25 +3,24 @@ package invalidation
 import (
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/value_objects/document"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/value_objects/identification"
-	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/invalidation/models"
+	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/invalidation/invalidation_models"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/mapper/request_mapper/structs"
-	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/shared_error"
 )
 
-func MapInvalidationReasonRequest(reason *structs.ReasonRequest) (*models.InvalidationReason, error) {
+func MapInvalidationReasonRequest(reason *structs.ReasonRequest) (*invalidation_models.InvalidationReason, error) {
 	invalidationType, err := document.NewInvalidationType(reason.Type)
 	if err != nil {
-		return nil, shared_error.NewGeneralServiceError("InvalidationMapper", "MapToInvalidationDocument", "Error creating invalidation type", err)
+		return nil, err
 	}
 
 	responsibleDocType, err := document.NewDTETypeForReceiver(reason.ResponsibleDocType)
 	if err != nil {
-		return nil, shared_error.NewGeneralServiceError("InvalidationMapper", "MapToInvalidationDocument", "Error creating responsible document type", err)
+		return nil, err
 	}
 
 	requestorDocType, err := document.NewDTETypeForReceiver(reason.RequestorDocType)
 	if err != nil {
-		return nil, shared_error.NewGeneralServiceError("InvalidationMapper", "MapToInvalidationDocument", "Error creating requester document type", err)
+		return nil, err
 	}
 
 	responsibleName := reason.ResponsibleName
@@ -29,15 +28,15 @@ func MapInvalidationReasonRequest(reason *structs.ReasonRequest) (*models.Invali
 
 	responsibleDocNum, err := identification.NewDocumentNumber(reason.ResponsibleNumDoc, reason.ResponsibleDocType)
 	if err != nil {
-		return nil, shared_error.NewGeneralServiceError("InvalidationMapper", "MapToInvalidationDocument", "Error creating responsible document number", err)
+		return nil, err
 	}
 
 	requestorDocNum, err := identification.NewDocumentNumber(reason.RequestorNumDoc, reason.RequestorDocType)
 	if err != nil {
-		return nil, shared_error.NewGeneralServiceError("InvalidationMapper", "MapToInvalidationDocument", "Error creating requester document number", err)
+		return nil, err
 	}
 
-	result := &models.InvalidationReason{
+	result := &invalidation_models.InvalidationReason{
 		Type:               *invalidationType,
 		ResponsibleName:    responsibleName,
 		ResponsibleDocType: *responsibleDocType,
@@ -50,7 +49,7 @@ func MapInvalidationReasonRequest(reason *structs.ReasonRequest) (*models.Invali
 	if reason.Reason != nil && reason.Type == 3 {
 		invalidationReason, err := document.NewInvalidationReason(*reason.Reason)
 		if err != nil {
-			return nil, shared_error.NewGeneralServiceError("InvalidationMapper", "MapToInvalidationDocument", "Error creating invalidation reason", err)
+			return nil, err
 		}
 		result.Reason = invalidationReason
 	}

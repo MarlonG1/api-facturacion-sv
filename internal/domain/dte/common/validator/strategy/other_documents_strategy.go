@@ -14,12 +14,12 @@ type OtherDocumentsStrategy struct {
 // Validate valida los documentos adicionales del DTE
 func (s *OtherDocumentsStrategy) Validate() *dte_errors.DTEError {
 	docs := s.Document.GetOtherDocuments()
-	if docs == nil {
+	if docs == nil || len(docs) == 0 {
 		return nil // Es opcional
 	}
 
 	// Validar cantidad de documentos
-	if len(docs) == 0 || len(docs) > 10 {
+	if len(docs) > 10 {
 		return dte_errors.NewDTEErrorSimple("InvalidOtherDocsCount", len(docs))
 	}
 

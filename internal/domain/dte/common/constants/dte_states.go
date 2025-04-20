@@ -12,6 +12,11 @@ const (
 	TransmissionNormal      = "NORMAL"
 )
 
+const (
+	PhysicalDocument   = 1
+	ElectronicDocument = 2
+)
+
 var (
 	// ValidReceiverDocumentStates contiene los estados válidos para un documento tributario electrónico
 	ValidReceiverDocumentStates = map[string]bool{

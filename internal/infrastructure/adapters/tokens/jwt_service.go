@@ -4,11 +4,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/ports"
-	"github.com/golang-jwt/jwt"
+	"github.com/golang-jwt/jwt/v5"
 	"time"
 
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/auth/models"
-	errPackage "github.com/MarlonG1/api-facturacion-sv/internal/infrastructure/error"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/logs"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/shared_error"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/utils"
@@ -141,17 +140,18 @@ func (s *JWTService) SaveTimestampsForContingency(issuedAt, expiresAt time.Time,
 // ValidateToken válida un token JWT y retorna los claims si es válido.
 func (s *JWTService) ValidateToken(tokenString string) (*models.AuthClaims, error) {
 	key := "token:" + tokenString
+
 	claims, err := s.cacheService.Get(key)
 	if err != nil {
 		logs.Error("Failed to retrieve token from cacheService", map[string]interface{}{
 			"token": tokenString,
 			"error": err.Error(),
 		})
-		return nil, shared_error.NewGeneralServiceError(
+		return nil, shared_error.NewFormattedGeneralServiceWithError(
 			"JWTService",
 			"ValidateToken",
-			"failed to retrieve token from cacheService",
 			err,
+			"FailedToLogin",
 		)
 	}
 
@@ -161,28 +161,25 @@ func (s *JWTService) ValidateToken(tokenString string) (*models.AuthClaims, erro
 			"token": tokenString,
 			"error": err.Error(),
 		})
-		return nil, shared_error.NewGeneralServiceError(
+		return nil, shared_error.NewFormattedGeneralServiceError(
 			"JWTService",
 			"ValidateToken",
-			"failed to unmarshal claims",
-			err,
+			"AuthServiceUnavailable",
 		)
 	}
 
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		return []byte(s.SecretKey), nil
 	})
-
 	if err != nil {
 		logs.Error("Failed to parse token", map[string]interface{}{
 			"token": tokenString,
 			"error": err.Error(),
 		})
-		return nil, shared_error.NewGeneralServiceError(
+		return nil, shared_error.NewFormattedGeneralServiceError(
 			"JWTService",
 			"ValidateToken",
-			"failed to parse token",
-			err,
+			"AuthServiceUnavailable",
 		)
 	}
 
@@ -190,7 +187,11 @@ func (s *JWTService) ValidateToken(tokenString string) (*models.AuthClaims, erro
 		logs.Error("Invalid token", map[string]interface{}{
 			"token": tokenString,
 		})
-		return nil, errPackage.ErrTokenNotFound
+		return nil, shared_error.NewFormattedGeneralServiceError(
+			"JWTService",
+			"ValidateToken",
+			"Unauthorized",
+		)
 	}
 
 	logs.Info("Token validated successfully", map[string]interface{}{

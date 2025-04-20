@@ -2,8 +2,6 @@ package dte_errors
 
 import (
 	"fmt"
-	"strings"
-
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/constants"
 )
 
@@ -29,13 +27,9 @@ func (v *ValidationError) Error() string {
 
 // GetType Retorna el tipo de error de validación
 func (v *ValidationError) GetType() string {
-	switch {
-	case strings.Contains(v.Message, "ExceededParameters"):
-		v.ErrorType = "ExceededParameters"
-	case strings.Contains(v.Message, "ServerError"):
-		v.ErrorType = "ServerError"
-	case strings.Contains(v.Message, "WithoutParams"):
-		v.ErrorType = "WithoutParams"
+	if v == nil {
+		return "UnknownError"
 	}
+
 	return v.ErrorType
 }

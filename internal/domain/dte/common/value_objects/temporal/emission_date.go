@@ -20,6 +20,14 @@ func NewEmissionDate(value time.Time) (*EmissionDate, error) {
 	return &EmissionDate{}, dte_errors.NewValidationError("InvalidDateTime", value.String())
 }
 
+func NewEmissionDateFromString(value string) (*EmissionDate, error) {
+	date, err := time.Parse("2006-01-02", value)
+	if err != nil {
+		return nil, dte_errors.NewValidationError("InvalidDateTime", value)
+	}
+	return NewEmissionDate(date)
+}
+
 func NewValidatedEmissionDate(value time.Time) *EmissionDate {
 	return &EmissionDate{Value: value}
 }

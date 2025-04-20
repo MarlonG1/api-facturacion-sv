@@ -16,7 +16,7 @@ func NewPaymentType(value string) (*PaymentType, error) {
 	if pt.IsValid() {
 		return pt, nil
 	}
-	return &PaymentType{}, dte_errors.NewValidationError("InvalidLength", "PaymentType", "01 a 14, 99", value)
+	return &PaymentType{}, dte_errors.NewValidationError("InvalidLength", "payment.code", "01-14 o 99", value)
 }
 
 func NewValidatedPaymentType(value string) *PaymentType {

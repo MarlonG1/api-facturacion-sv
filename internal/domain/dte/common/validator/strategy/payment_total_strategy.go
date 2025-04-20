@@ -17,6 +17,10 @@ func (s *PaymentTotalStrategy) Validate() *dte_errors.DTEError {
 		return nil
 	}
 
+	if s.Document.GetIdentification().GetDTEType() == constants.NotaCreditoElectronica {
+		return nil
+	}
+
 	// Validar términos de pago para crédito
 	for _, payment := range s.Document.GetSummary().GetPaymentTypes() {
 		if s.Document.GetSummary().GetOperationCondition() == constants.Credit {

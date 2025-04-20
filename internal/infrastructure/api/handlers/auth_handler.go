@@ -2,11 +2,12 @@ package handlers
 
 import (
 	"encoding/json"
+	"net/http"
+
 	"github.com/MarlonG1/api-facturacion-sv/internal/application/auth"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/auth/models"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/core/user"
 	"github.com/MarlonG1/api-facturacion-sv/internal/infrastructure/api/response"
-	"net/http"
 )
 
 type AuthHandler struct {

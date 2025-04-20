@@ -3,7 +3,7 @@ package strategies
 import (
 	"context"
 	"crypto/subtle"
-	"errors"
+	"github.com/MarlonG1/api-facturacion-sv/internal/domain/auth"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/auth/constants"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/ports"
 	"time"
@@ -14,12 +14,12 @@ import (
 )
 
 type StandardAuthStrategy struct {
-	authRepo     ports.AuthRepositoryPort
+	authRepo     auth.AuthRepositoryPort
 	cacheService ports.CacheManager
 }
 
 // NewStandardAuthStrategy crea una instancia de StandardAuthStrategy. Recibe un repositorio de clientes.
-func NewStandardAuthStrategy(repo ports.AuthRepositoryPort, cacheService ports.CacheManager) *StandardAuthStrategy {
+func NewStandardAuthStrategy(repo auth.AuthRepositoryPort, cacheService ports.CacheManager) *StandardAuthStrategy {
 	return &StandardAuthStrategy{
 		cacheService: cacheService,
 		authRepo:     repo,
@@ -37,22 +37,22 @@ func (s *StandardAuthStrategy) ValidateCredentials(credentials *models.AuthCrede
 		logs.Error("API key is required", map[string]interface{}{
 			"credentials": credentials,
 		})
-		return shared_error.NewGeneralServiceError(
+		return shared_error.NewFormattedGeneralServiceError(
 			"StandardAuth",
 			"ValidateCredentials",
-			"API key is required",
-			errors.New("api key is required"),
+			"RequiredField",
+			"api key",
 		)
 	}
 	if credentials.APISecret == "" {
 		logs.Error("API secret is required", map[string]interface{}{
 			"credentials": credentials,
 		})
-		return shared_error.NewGeneralServiceError(
+		return shared_error.NewFormattedGeneralServiceError(
 			"StandardAuth",
 			"ValidateCredentials",
-			"API secret is required",
-			errors.New("api secret is required"),
+			"RequiredField",
+			"api secret",
 		)
 	}
 	return nil
@@ -67,11 +67,10 @@ func (s *StandardAuthStrategy) Authenticate(ctx context.Context, credentials *mo
 			"apiKey": credentials.APIKey,
 			"error":  err.Error(),
 		})
-		return nil, shared_error.NewGeneralServiceError(
+		return nil, shared_error.NewFormattedGeneralServiceError(
 			"StandardAuth",
 			"Authenticate",
-			"invalid credentials",
-			err,
+			"NotFound",
 		)
 	}
 
@@ -80,11 +79,10 @@ func (s *StandardAuthStrategy) Authenticate(ctx context.Context, credentials *mo
 		logs.Error("Invalid credentials", map[string]interface{}{
 			"apiKey": credentials.APIKey,
 		})
-		return nil, shared_error.NewGeneralServiceError(
+		return nil, shared_error.NewFormattedGeneralServiceError(
 			"StandardAuth",
 			"Authenticate",
-			"invalid credentials",
-			errors.New("invalid credentials"),
+			"InvalidCredentials",
 		)
 	}
 
@@ -95,11 +93,10 @@ func (s *StandardAuthStrategy) Authenticate(ctx context.Context, credentials *mo
 			"apiKey": credentials.APIKey,
 			"error":  err.Error(),
 		})
-		return nil, shared_error.NewGeneralServiceError(
+		return nil, shared_error.NewFormattedGeneralServiceError(
 			"StandardAuth",
 			"Authenticate",
-			"invalid credentials",
-			err,
+			"InvalidCredentials",
 		)
 	}
 
@@ -108,11 +105,10 @@ func (s *StandardAuthStrategy) Authenticate(ctx context.Context, credentials *mo
 		logs.Error("Client account is not active", map[string]interface{}{
 			"clientID": user.ID,
 		})
-		return nil, shared_error.NewGeneralServiceError(
+		return nil, shared_error.NewFormattedGeneralServiceError(
 			"StandardAuth",
 			"Authenticate",
-			"user account is not active",
-			errors.New("user account is not active"),
+			"UserNotActive",
 		)
 	}
 
@@ -139,11 +135,10 @@ func (s *StandardAuthStrategy) GetTokenLifetime(credentials *models.AuthCredenti
 			"apiKey": credentials.APIKey,
 			"error":  err.Error(),
 		})
-		return 0, shared_error.NewGeneralServiceError(
+		return 0, shared_error.NewFormattedGeneralServiceError(
 			"StandardAuth",
 			"GetTokenLifetime",
-			"failed to get user information",
-			err,
+			"ServerError",
 		)
 	}
 
@@ -158,11 +153,10 @@ func (s *StandardAuthStrategy) GetHaciendaCredentials(token string) (*models.Hac
 			"token": token,
 			"error": err.Error(),
 		})
-		return nil, shared_error.NewGeneralServiceError(
+		return nil, shared_error.NewFormattedGeneralServiceError(
 			"StandardAuth",
 			"GetHaciendaCredentials",
-			"failed to get Hacienda credentials",
-			err,
+			"FailedToGetCredentials",
 		)
 	}
 

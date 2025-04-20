@@ -8,7 +8,9 @@ import (
 	"fmt"
 	"github.com/MarlonG1/api-facturacion-sv/config"
 	"github.com/MarlonG1/api-facturacion-sv/config/drivers"
-	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/contingency/ports"
+	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/contingency"
+	batchPorts "github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/transmitter"
+	ports2 "github.com/MarlonG1/api-facturacion-sv/internal/domain/ports"
 	"io"
 	"net"
 	"net/http"
@@ -19,9 +21,7 @@ import (
 	authModels "github.com/MarlonG1/api-facturacion-sv/internal/domain/auth/models"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/core/dte"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/constants"
-	ports2 "github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/ports"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/transmitter/models"
-	batchPorts "github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/transmitter/ports"
 	"github.com/MarlonG1/api-facturacion-sv/internal/infrastructure/adapters/circuit"
 	"github.com/MarlonG1/api-facturacion-sv/internal/infrastructure/adapters/transmitter/hacienda_error"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/logs"
@@ -34,7 +34,7 @@ import (
 type BatchTransmitterService struct {
 	haciendaAuth    authPorts.HaciendaAuthManager
 	signer          authPorts.SignerManager
-	contingencyRepo ports.ContingencyRepositoryPort
+	contingencyRepo contingency.ContingencyRepositoryPort
 	timeProvider    ports2.TimeProvider
 	config          *models.TransmissionConfig
 	httpClient      *http.Client
@@ -46,7 +46,7 @@ type BatchTransmitterService struct {
 func NewBatchTransmitterService(
 	haciendaAuth authPorts.HaciendaAuthManager,
 	signer authPorts.SignerManager,
-	contingencyRepo ports.ContingencyRepositoryPort,
+	contingencyRepo contingency.ContingencyRepositoryPort,
 	config *models.TransmissionConfig,
 	timeProvider ports2.TimeProvider,
 	connection *drivers.DbConnection,
@@ -78,10 +78,8 @@ func (s *BatchTransmitterService) GetDTEVersion(dteType string) int {
 	switch dteType {
 	case constants.FacturaElectronica:
 		return 1
-	case constants.CCFElectronico:
-		return 2
 	default:
-		return 1 // Versión por defecto
+		return 2 // Versión por defecto
 	}
 }
 
@@ -201,16 +199,17 @@ func (s *BatchTransmitterService) transmitToHacienda(
 		)
 	}
 
-	logs.Info("Sending batch to Hacienda", map[string]interface{}{
-		"batchId": batch.SendID,
-		"ambient": batch.Ambient,
-		"docs":    len(batch.Documents),
-	})
-
 	reqBody, err := json.Marshal(batch)
 	if err != nil {
 		return nil, shared_error.NewGeneralServiceError("BatchTransmitterService", "transmitToHacienda", "failed to marshal request", err)
 	}
+
+	logs.Info("Sending batch to Hacienda", map[string]interface{}{
+		"batchId": batch.SendID,
+		"ambient": batch.Ambient,
+		"docs":    len(batch.Documents),
+		"body":    string(reqBody),
+	})
 
 	req, err := http.NewRequestWithContext(ctx, "POST", config.MHPaths.LoteReceptionURL, bytes.NewBuffer(reqBody))
 	if err != nil {

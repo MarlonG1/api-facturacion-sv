@@ -4,14 +4,15 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/MarlonG1/api-facturacion-sv/internal/infrastructure/adapters/transmitter/hacienda_error"
-	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/shared_error"
 	"net/http"
 	"strings"
 	"time"
 
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/dte_errors"
+	"github.com/MarlonG1/api-facturacion-sv/internal/i18n"
+	"github.com/MarlonG1/api-facturacion-sv/internal/infrastructure/adapters/transmitter/hacienda_error"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/logs"
+	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/shared_error"
 )
 
 type errorType string
@@ -100,22 +101,26 @@ func (w *ResponseWriter) handleValidationError(rw http.ResponseWriter, err error
 		json.NewEncoder(rw).Encode(APIResponse{
 			Success: false,
 			Error: &APIError{
-				Message: dteErr.Message,
+				Message: dteErr.GetMessage(),
 				Details: dteErr.GetValidationErrorsString(),
-				Code:    "VALIDATION_ERROR",
+				Code:    dteErr.GetCode(),
 			},
 		})
 		return
 	}
 
-	rw.WriteHeader(http.StatusBadRequest)
-	json.NewEncoder(rw).Encode(APIResponse{
-		Success: false,
-		Error: &APIError{
-			Message: err.Error(),
-			Code:    "VALIDATION_ERROR",
-		},
-	})
+	var validationErr *dte_errors.ValidationError
+	if errors.As(err, &validationErr) {
+		rw.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(rw).Encode(APIResponse{
+			Success: false,
+			Error: &APIError{
+				Message: validationErr.Error(),
+				Details: []string{i18n.Translate("service_errors.NoDetailsAvailable")},
+				Code:    strings.ToUpper(validationErr.GetType()),
+			},
+		})
+	}
 }
 
 // handleBusinessError maneja los errores de negocio y envía una respuesta de error con el código de estado y el mensaje correspondiente.
@@ -145,21 +150,14 @@ func (w *ResponseWriter) handleBusinessError(rw http.ResponseWriter, err error) 
 
 	var svcErr *shared_error.ServiceError
 	if errors.As(err, &svcErr) {
-		var details []string
 		rw.WriteHeader(http.StatusBadRequest)
-
-		if svcErr.Err != nil {
-			details = append(details, svcErr.Err.Error())
-		} else {
-			details = append(details, "No further details available")
-		}
 
 		json.NewEncoder(rw).Encode(APIResponse{
 			Success: false,
 			Error: &APIError{
 				Message: svcErr.Message,
-				Details: details,
-				Code:    fmt.Sprintf("BUSINESS_%s_ERROR", strings.ToUpper(svcErr.Type)),
+				Details: svcErr.GetErrError(),
+				Code:    strings.ToUpper(svcErr.GetCode()),
 			},
 		})
 		return
@@ -168,11 +166,12 @@ func (w *ResponseWriter) handleBusinessError(rw http.ResponseWriter, err error) 
 	var httpErr *hacienda_error.HTTPResponseError
 	if errors.As(err, &httpErr) {
 		rw.WriteHeader(httpErr.StatusCode)
+		detail := i18n.Translate("service_errors.ContingencyActiveTransmission")
 		json.NewEncoder(rw).Encode(APIResponse{
 			Success: false,
 			Error: &APIError{
 				Message: httpErr.Error(),
-				Details: []string{"Contingency mode is active in this environment you can't send Invalidation to Hacienda but the others processes are working fine"},
+				Details: []string{detail},
 				Code:    fmt.Sprintf("HACIENDA_%d", httpErr.StatusCode),
 			},
 		})
@@ -193,10 +192,11 @@ func (w *ResponseWriter) handleBusinessError(rw http.ResponseWriter, err error) 
 // handleSystemError maneja los errores de sistema y envía una respuesta de error con el código de estado y el mensaje correspondiente.
 func (w *ResponseWriter) handleSystemError(rw http.ResponseWriter, err error) {
 	rw.WriteHeader(http.StatusInternalServerError)
+	message := i18n.Translate("validation_errors.ServerError")
 	json.NewEncoder(rw).Encode(APIResponse{
 		Success: false,
 		Error: &APIError{
-			Message: "An unexpected error occurred",
+			Message: message,
 			Code:    "SYSTEM_ERROR",
 		},
 	})

@@ -16,7 +16,7 @@ func NewContingencyType(value int) (*ContingencyType, error) {
 	if ct.IsValid() {
 		return ct, nil
 	}
-	return &ContingencyType{}, dte_errors.NewValidationError("InvalidLength", "ContingencyType", "1 a 5", fmt.Sprintf("%d", value))
+	return &ContingencyType{}, dte_errors.NewValidationError("InvalidLength", "contingency type", "1-5", fmt.Sprintf("%d", value))
 }
 
 func NewValidatedContingencyType(value int) *ContingencyType {

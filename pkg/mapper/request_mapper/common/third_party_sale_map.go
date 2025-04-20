@@ -10,11 +10,10 @@ import (
 // MapCommonRequestThirdPartySale mapea una venta a tercero a un modelo
 func MapCommonRequestThirdPartySale(sale *structs.ThirdPartySaleRequest) (*models.ThirdPartySale, error) {
 	if sale.Name == "" || sale.NIT == "" {
-		return nil, shared_error.NewGeneralServiceError(
+		return nil, shared_error.NewFormattedGeneralServiceError(
 			"CommonMapper",
 			"MapCommonRequestThirdPartySale",
-			"Name and NIT are required and cannot be empty in third_party_sale",
-			nil,
+			"InvalidThirdParty",
 		)
 	}
 

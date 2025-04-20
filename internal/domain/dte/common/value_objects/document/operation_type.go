@@ -16,7 +16,7 @@ func NewOperationType(value int) (*OperationType, error) {
 	if opType.IsValid() {
 		return opType, nil
 	}
-	return &OperationType{}, dte_errors.NewValidationError("InvalidLength", "OperationType", "1 o 2", fmt.Sprintf("%d", value))
+	return &OperationType{}, dte_errors.NewValidationError("InvalidNumberRange", "operation type", "1-2", fmt.Sprintf("%d", value))
 }
 
 func NewValidatedOperationType(value int) *OperationType {

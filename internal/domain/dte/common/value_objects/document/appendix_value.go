@@ -14,7 +14,7 @@ func NewAppendixValue(value string) (*AppendixValue, error) {
 	if v.IsValid() {
 		return v, nil
 	}
-	return &AppendixValue{}, dte_errors.NewValidationError("InvalidLength", "AppendixValue", "1 a 150", value)
+	return &AppendixValue{}, dte_errors.NewValidationError("InvalidAppendixValue", value)
 }
 
 func NewValidatedAppendixValue(value string) *AppendixValue {

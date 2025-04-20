@@ -2,18 +2,20 @@ package auth
 
 import (
 	"context"
+	"github.com/MarlonG1/api-facturacion-sv/internal/domain/auth"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/auth/models"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/core/user"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/ports"
+	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/logs"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/shared_error"
 )
 
 type AuthUseCase struct {
-	authManager  ports.AuthManager
+	authManager  auth.AuthManager
 	cryptManager ports.CryptManager
 }
 
-func NewAuthUseCase(authManager ports.AuthManager, cryptManager ports.CryptManager) *AuthUseCase {
+func NewAuthUseCase(authManager auth.AuthManager, cryptManager ports.CryptManager) *AuthUseCase {
 	return &AuthUseCase{
 		authManager:  authManager,
 		cryptManager: cryptManager,
@@ -44,7 +46,10 @@ func (a *AuthUseCase) Register(ctx context.Context, user *user.User) ([]user.Lis
 	// 2.Generar todas las API KEYS y API SECRETS necesarios para el usuario
 	keys, secrets, err := a.cryptManager.GenerateBulkAPIKeys(len(user.BranchOffices))
 	if err != nil {
-		return nil, err
+		logs.Error("Failed to generate bulk API keys and secrets", map[string]interface{}{
+			"error": err.Error(),
+		})
+		return nil, shared_error.NewFormattedGeneralServiceError("AuthUseCase", "Register", "FailedToCreateUser")
 	}
 
 	// 3. Asignar las API KEYS y API SECRETS a las sucursales del usuario
@@ -52,7 +57,10 @@ func (a *AuthUseCase) Register(ctx context.Context, user *user.User) ([]user.Lis
 
 	//4. Crear el usuario en la base de datos
 	if err = a.authManager.Create(ctx, user); err != nil {
-		return nil, shared_error.NewGeneralServiceError("AuthUseCase", "Register", "failed to create user", err)
+		logs.Error("Failed to create user", map[string]interface{}{
+			"error": err.Error(),
+		})
+		return nil, shared_error.NewFormattedGeneralServiceWithError("AuthUseCase", "Register", err, "FailedToCreateUser")
 	}
 
 	return user.ListBranches(), nil
