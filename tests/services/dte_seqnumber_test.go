@@ -12,8 +12,8 @@ import (
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/dte_documents"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/shared_error"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/utils"
-	"github.com/MarlonG1/api-facturacion-sv/test"
-	"github.com/MarlonG1/api-facturacion-sv/test/mocks"
+	"github.com/MarlonG1/api-facturacion-sv/tests"
+	"github.com/MarlonG1/api-facturacion-sv/tests/mocks"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 )
