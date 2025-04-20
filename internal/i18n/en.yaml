@@ -121,6 +121,7 @@ validation_errors:
   InvalidIVAItemWithoutTaxedSale: "Item %d has IVA item but no taxed sale"
   InvalidIVAItemCalculation: "Item %d has invalid IVA item calculation. Expected: %f, Actual: %f"
   MissingIVAItem: "When there are taxable sales, the VAT item is required, its calculation is (taxed_sale / 1.13) * 0.13"
+  MissingItemTaxes: "For this DTE type, the taxes field is required in the item. Item %d has no taxes"
   DiscountExceedsSubtotal: "The %s, with value %f, exceeds the subtotal %f"
   MissingContingencyType: "Contingency type required when the operation type is contingency"
   MissingContingencyReason: "Contingency reason required when the contingency type is 'Other reason'"

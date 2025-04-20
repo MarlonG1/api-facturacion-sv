@@ -2,7 +2,6 @@ package fixtures
 
 import (
 	"fmt"
-
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/constants"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/interfaces"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/models"
@@ -183,6 +182,7 @@ func (b *CreditNoteBuilder) AddItems() *CreditNoteBuilder {
 			return b
 		}
 
+		item.Taxes = []string{constants.TaxIVA}
 		creditItem := credit_note_models.CreditNoteItem{
 			Item: item,
 		}
@@ -203,7 +203,6 @@ func (b *CreditNoteBuilder) AddItems() *CreditNoteBuilder {
 		}
 		creditItem.NonSubjectSale = *zeroAmount
 		creditItem.ExemptSale = *zeroAmount
-
 		creditItems = append(creditItems, creditItem)
 	}
 

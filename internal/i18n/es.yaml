@@ -114,6 +114,7 @@ validation_errors:
   InvalidMonetaryAmount: "El monto %s es inválido, debe ser multiplo de 0.01, recibido %s"
   InvalidUnitPriceForNonTaxed: "El ítem %d con monto no gravado debe tener precio unitario 0"
   MissingItemRelatedDoc: "El ítem %d, documento relacionado es requerido cuando la sección de Documentos Relacionados está presente"
+  MissingItemTaxes: "Para este tipo de DTE, el campo de impuestos es obligatorio en los item. El item %d no tiene impuestos"
   InvalidItemRelatedDoc: "El ítem %d, documento relacionado %s no es válido"
   InvalidSubTotalCalculation: "El cálculo del subtotal con descuentos (descuento_exento - descuento_no_sujeto - descuento_gravado) es incorrecto. Esperado: %f, Actual: %f"
   InvalidIVACalculation: "El cálculo del IVA considerando descuentos es incorrecto. Esperado: %f, Actual: %f"

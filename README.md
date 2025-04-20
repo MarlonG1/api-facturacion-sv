@@ -1,11 +1,11 @@
 # API Facturación El Salvador
 
 [![Go Version](https://img.shields.io/badge/Go-1.23-blue.svg)](https://golang.org/)
-[![Documentación](https://img.shields.io/badge/Docs-GitHub%20Pages-blue)](https://marlong1.github.io/doc-api-facturacion-sv/)
+[![Documentación](https://img.shields.io/badge/Docs-GitHub%20Pages-blue)](https://chainedpixel.github.io/doc-api-facturacion-sv/)
 
 Una API para la gestión, emisión y transmisión de Documentos Tributarios Electrónicos (DTE) que cumple con los requisitos establecidos por la autoridad fiscal.
 
-> **📚 Documentación completa disponible en:** [marlong1.github.io/doc-api-facturacion-sv](https://marlong1.github.io/doc-api-facturacion-sv/)
+> **📚 Documentación completa disponible en:** [chainedpixel.github.io/doc-api-facturacion-sv](https://chainedpixel.github.io/doc-api-facturacion-sv/)
 
 ## 📋 Características
 
@@ -55,7 +55,7 @@ Este proyecto está implementado siguiendo principios de:
 
 1. Clonar el repositorio:
 ```bash
-git clone https://github.com/MarlonG1/api-facturacion-sv.git
+git clone https://github.com/chainedpixel/api-facturacion-sv.git
 cd dte-microservice
 ```
 
@@ -103,7 +103,7 @@ El servicio expone las siguientes APIs:
 - `GET /api/v1/metrics`: Obtener métricas de los endpoints
 - `GET /api/v1/health`: Estado de salud del servicio
 
-> **Nota**: Para más detalles sobre los endpoints y ejemplos de uso, consulta la [documentación completa](https://marlong1.github.io/doc-api-facturacion-sv/).
+> **Nota**: Para más detalles sobre los endpoints y ejemplos de uso, consulta la [documentación completa](https://chainedpixel.github.io/doc-api-facturacion-sv/).
 
 ## 🚧 Gestión de contingencias
 
@@ -144,6 +144,6 @@ Para contribuir a este proyecto:
 
 ## 📚 Recursos
 
-- [Documentación completa de la API](https://marlong1.github.io/doc-api-facturacion-sv/)
-- [Repositorio de la documentación](https://github.com/marlong1/doc-api-facturacion-sv)
+- [Documentación completa de la API](https://chainedpixel.github.io/doc-api-facturacion-sv/)
+- [Repositorio de la documentación](https://github.com/chainedpixel/doc-api-facturacion-sv)
 - [Guía de referencias JSON Schema y catálogos oficiales](https://factura.gob.sv/informacion-tecnica-y-funcional/)

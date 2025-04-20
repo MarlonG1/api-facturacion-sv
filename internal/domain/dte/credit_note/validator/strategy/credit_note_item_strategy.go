@@ -60,6 +60,28 @@ func (s *CreditNoteItemStrategy) validateItem(item *credit_note_models.CreditNot
 		return dte_errors.NewDTEErrorSimple("MissingItemRelatedDoc", item.GetNumber())
 	}
 
+	// Validación de impuestos: al menos uno debe estar presente si hay venta gravada
+	if item.TaxedSale.GetValue() > 0 {
+		if item.GetTaxes() == nil || len(item.GetTaxes()) == 0 {
+			logs.Error("At least one tax is required for credit note items", map[string]interface{}{
+				"itemNumber": item.GetNumber(),
+			})
+			return dte_errors.NewDTEErrorSimple("MissingItemTaxes", item.GetNumber())
+		}
+	}
+
+	if item.GetType() != constants.Impuesto {
+		for _, tax := range item.GetTaxes() {
+			if !constants.MapAllowedTaxTypes[tax] {
+				logs.Error("Invalid tax type", map[string]interface{}{
+					"itemNumber": item.GetNumber(),
+					"tax":        tax,
+				})
+				return dte_errors.NewDTEErrorSimple("InvalidTaxType", item.GetNumber(), tax)
+			}
+		}
+	}
+
 	return nil
 }
 

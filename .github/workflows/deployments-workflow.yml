@@ -40,6 +40,24 @@ jobs:
         with:
           go-version: '1.23.x'
 
+      - name: Install mockgen
+        run: |
+          go install github.com/golang/mock/mockgen@latest
+          echo "Mockgen installed successfully"
+          mockgen --version || echo "Warning: mockgen command not found"
+
+      - name: Generate Mocks
+        run: |
+          # Verificar si existe el archivo de generación de mocks
+          if [ -f "./tests/mocks/mocks_generation.go" ]; then
+            echo "Generating mocks..."
+            cd tests/mocks
+            go generate ./mocks_generation.go
+            echo "Mocks generated successfully"
+          else
+            echo "Warning: mocks_generation.go not found, skipping mock generation"
+          fi
+
       - name: Run tests
         id: run_tests
         run: |
