@@ -140,7 +140,6 @@ Para contribuir a este proyecto:
 3. Mantener consistencia con implementaciones existentes
 4. Validar contra JSON Schema
 5. No asumir comportamientos no documentados
-6. Justificar cualquier complejidad adicional
 
 ## 📚 Recursos
 
