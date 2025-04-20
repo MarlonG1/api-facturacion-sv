@@ -3,6 +3,7 @@ package fixtures
 import (
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/constants"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/mapper/request_mapper/structs"
+	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/utils"
 )
 
 // CreateDefaultCreditNoteItem crea un ítem de nota de crédito predeterminado válido
@@ -24,8 +25,6 @@ func CreateDefaultCreditNoteItem(index int) structs.CreditNoteItemRequest {
 		NonSubjectSale: 0,
 		ExemptSale:     0,
 		TaxedSale:      25.0, // Cantidad * Precio unitario
-		SuggestedPrice: 0,
-		NonTaxed:       0,
 	}
 }
 
@@ -59,7 +58,6 @@ func CreateDefaultCreditNoteSummary() *structs.CreditNoteSummaryRequest {
 		IVAPerception:   0,
 		IVARetention:    0,
 		IncomeRetention: 0,
-		BalanceInFavor:  0,
 	}
 }
 
@@ -70,9 +68,14 @@ func CreateDefaultCreditNoteRequest() *structs.CreateCreditNoteRequest {
 		CreateDefaultCreditNoteItem(2),
 	}
 
+	receiver := CreateDefaultReceiver()
+	receiver.NIT = utils.ToStringPointer("06141804941035")
+	receiver.DocumentType = nil
+	receiver.DocumentNumber = nil
+
 	return &structs.CreateCreditNoteRequest{
 		Items:     items,
-		Receiver:  CreateDefaultReceiver(),
+		Receiver:  receiver,
 		ModelType: constants.ModeloFacturacionPrevio, // Modelo normal
 		Summary:   CreateDefaultCreditNoteSummary(),
 		RelatedDocs: []structs.RelatedDocRequest{

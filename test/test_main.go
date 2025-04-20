@@ -23,6 +23,7 @@ func TestMain(m *testing.T) {
 
 	// Configurar a modo de prueba
 	config.Server.AmbientCode = "00"
+	config.Server.Debug = true
 
 	// Inicializar el tiempo
 	err = utils.TimeInit()

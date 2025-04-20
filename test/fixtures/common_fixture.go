@@ -50,7 +50,6 @@ func CreateDefaultReceiver() *structs.ReceiverRequest {
 	docNumber := "06141804941035"
 	name := "Empresa Servicios Generales, S.A. de C.V."
 	nrc := "123456"
-	nit := "06141804941035"
 	phone := "22123456"
 	email := "empresa@example.com"
 	activityCode := "46900"
@@ -62,7 +61,6 @@ func CreateDefaultReceiver() *structs.ReceiverRequest {
 		DocumentNumber: &docNumber,
 		Name:           &name,
 		NRC:            &nrc,
-		NIT:            &nit,
 		Address:        CreateDefaultAddress(),
 		Phone:          &phone,
 		Email:          &email,

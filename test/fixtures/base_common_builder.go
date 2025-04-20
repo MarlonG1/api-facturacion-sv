@@ -2,7 +2,13 @@ package fixtures
 
 import (
 	"fmt"
+	"math"
+	"time"
+
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/ccf/ccf_models"
+	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/constants"
+	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/interfaces"
+	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/models"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/value_objects/base"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/value_objects/document"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/value_objects/financial"
@@ -13,11 +19,6 @@ import (
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/invalidation/invalidation_models"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/invoice/invoice_models"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/retention/retention_models"
-	"time"
-
-	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/constants"
-	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/interfaces"
-	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/models"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/utils"
 )
 
@@ -36,6 +37,10 @@ func NewDTEBuilder() *DTEBuilder {
 			OtherDocuments:   make([]interfaces.OtherDocuments, 0),
 		},
 	}
+}
+
+func (b *DTEBuilder) Document() *models.DTEDocument {
+	return b.document
 }
 
 // Build construye y valida el documento DTE, devolviendo cualquier error que haya ocurrido
@@ -311,7 +316,6 @@ func (b *DTEBuilder) AddItems() *DTEBuilder {
 	b.setError(item1.SetUnitMeasure(1))
 	b.setError(item1.SetUnitPrice(899.99))
 	b.setError(item1.SetDiscount(0.0))
-	b.setError(item1.SetTaxes([]string{constants.TaxIVA}))
 	b.setError(item1.SetItemCode("LAPTOP-HP-001"))
 
 	if b.err == nil {
@@ -450,17 +454,17 @@ func (b *DTEBuilder) AddSummary() *DTEBuilder {
 	// Establecer valores
 	b.setError(summary.SetTotalNonSubject(0.00))
 	b.setError(summary.SetTotalExempt(0.00))
-	b.setError(summary.SetTotalTaxed(totalTaxed))
-	b.setError(summary.SetSubTotal(totalTaxed))
-	b.setError(summary.SetSubtotalSales(totalTaxed))
+	b.setError(summary.SetTotalTaxed(math.Round(totalTaxed*100) / 100))
+	b.setError(summary.SetSubTotal(math.Round(totalTaxed*100) / 100))
+	b.setError(summary.SetSubtotalSales(math.Round(totalTaxed*100) / 100))
 	b.setError(summary.SetNonSubjectDiscount(0.00))
 	b.setError(summary.SetExemptDiscount(0.00))
 	b.setError(summary.SetDiscountPercentage(0.00))
 	b.setError(summary.SetTotalDiscount(0.00))
-	b.setError(summary.SetTotalOperation(totalOperation))
+	b.setError(summary.SetTotalOperation(math.Round(totalOperation*100) / 100))
 	b.setError(summary.SetTotalNotTaxed(0.00))
 	b.setError(summary.SetOperationCondition(constants.Cash))
-	b.setError(summary.SetTotalToPay(totalOperation))
+	b.setError(summary.SetTotalToPay(math.Round(totalOperation*100) / 100))
 	b.setError(summary.SetTotalInWords("UN MIL DOLARES CON 00/100 CENTAVOS"))
 
 	// Crear impuesto IVA
@@ -479,7 +483,7 @@ func (b *DTEBuilder) AddSummary() *DTEBuilder {
 	// Crear tipo de pago en efectivo
 	payment := &models.PaymentType{}
 	b.setError(payment.SetCode(constants.BilletesMonedas))
-	b.setError(payment.SetAmount(totalOperation))
+	b.setError(payment.SetAmount(math.Round(totalOperation*100) / 100))
 	b.setError(payment.SetReference("Cash payment"))
 
 	// Añadir tipo de pago al resumen
@@ -961,7 +965,6 @@ func (b *DTEBuilder) BuildElectronicInvoice() (*invoice_models.ElectronicInvoice
 		return nil, err
 	}
 	invoice.InvoiceSummary.TaxedDiscount = *zeroAmountObj
-	invoice.InvoiceSummary.IVAPerception = *zeroAmountObj
 	invoice.InvoiceSummary.IVARetention = *zeroAmountObj
 	invoice.InvoiceSummary.IncomeRetention = *zeroAmountObj
 	invoice.InvoiceSummary.BalanceInFavor = *zeroAmountObj
@@ -1069,7 +1072,6 @@ func (b *DTEBuilder) BuildInvalidElectronicInvoice() (*invoice_models.Electronic
 		return nil, err
 	}
 	invoice.InvoiceSummary.TaxedDiscount = *zeroAmountObj
-	invoice.InvoiceSummary.IVAPerception = *zeroAmountObj
 	invoice.InvoiceSummary.IVARetention = *zeroAmountObj
 	invoice.InvoiceSummary.IncomeRetention = *zeroAmountObj
 	invoice.InvoiceSummary.BalanceInFavor = *zeroAmountObj
@@ -1322,9 +1324,6 @@ func (b *DTEBuilder) BuildCreditNote() (*credit_note_models.CreditNoteModel, err
 			}
 			creditNoteItem.NonSubjectSale = *zeroAmountObj
 			creditNoteItem.ExemptSale = *zeroAmountObj
-			creditNoteItem.SuggestedPrice = *zeroAmountObj
-			creditNoteItem.NonTaxed = *zeroAmountObj
-
 			creditNote.CreditItems = append(creditNote.CreditItems, creditNoteItem)
 		}
 	}
@@ -1338,7 +1337,6 @@ func (b *DTEBuilder) BuildCreditNote() (*credit_note_models.CreditNoteModel, err
 	creditNote.CreditSummary.IVAPerception = *zeroAmountObj
 	creditNote.CreditSummary.IVARetention = *zeroAmountObj
 	creditNote.CreditSummary.IncomeRetention = *zeroAmountObj
-	creditNote.CreditSummary.BalanceInFavor = *zeroAmountObj
 
 	// Validar la nota de crédito completa
 	baseDTE := creditNote.DTEDocument
@@ -1419,8 +1417,6 @@ func (b *DTEBuilder) BuildInvalidCreditNote() (*credit_note_models.CreditNoteMod
 			}
 			creditNoteItem.NonSubjectSale = *zeroAmountObj
 			creditNoteItem.ExemptSale = *zeroAmountObj
-			creditNoteItem.SuggestedPrice = *zeroAmountObj
-			creditNoteItem.NonTaxed = *zeroAmountObj
 
 			creditNote.CreditItems = append(creditNote.CreditItems, creditNoteItem)
 		}
@@ -1435,7 +1431,6 @@ func (b *DTEBuilder) BuildInvalidCreditNote() (*credit_note_models.CreditNoteMod
 	creditNote.CreditSummary.IVAPerception = *zeroAmountObj
 	creditNote.CreditSummary.IVARetention = *zeroAmountObj
 	creditNote.CreditSummary.IncomeRetention = *zeroAmountObj
-	creditNote.CreditSummary.BalanceInFavor = *zeroAmountObj
 
 	return creditNote, nil
 }

@@ -395,14 +395,14 @@ func TestMapToInvoiceData(t *testing.T) {
 			wantErr: false,
 		},
 		{
-			name: "Invoice with valid NIT",
+			name: "Invoice with NIT",
 			req: func() *structs.CreateInvoiceRequest {
 				req := fixtures.CreateDefaultInvoiceRequest()
 				validNIT := "06141804941035"
 				req.Receiver.NIT = &validNIT
 				return req
 			},
-			wantErr: false,
+			wantErr: true,
 		},
 
 		// ------ CASOS VÁLIDOS PARA DIRECCIÓN ------
@@ -624,7 +624,7 @@ func TestMapToInvoiceData(t *testing.T) {
 			if tt.wantErr {
 				assert.Error(t, err)
 				if tt.errorCode != "" {
-					assertErrorCode(t, err, tt.errorCode)
+					test.AssertErrorCode(t, err, tt.errorCode)
 				}
 				return
 			}

@@ -490,7 +490,7 @@ func TestMapToRetentionData(t *testing.T) {
 			if tt.wantErr {
 				assert.Error(t, err)
 				if tt.errorCode != "" {
-					assertErrorCode(t, err, tt.errorCode)
+					test.AssertErrorCode(t, err, tt.errorCode)
 				}
 				return
 			}

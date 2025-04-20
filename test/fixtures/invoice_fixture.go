@@ -84,7 +84,6 @@ func CreateDefaultInvoiceSummary() *structs.InvoiceSummaryRequest {
 			},
 		},
 		TaxedDiscount:   0,
-		IVAPerception:   0,
 		IVARetention:    0,
 		IncomeRetention: 0,
 		TotalIVA:        13.0,

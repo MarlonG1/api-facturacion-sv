@@ -274,7 +274,7 @@ func TestMapToInvalidationData(t *testing.T) {
 					if tt.wantErr {
 						assert.Error(t, validationErr)
 						if tt.errorCode != "" {
-							assertErrorCode(t, validationErr, tt.errorCode)
+							test.AssertErrorCode(t, validationErr, tt.errorCode)
 						}
 						return
 					}
@@ -290,7 +290,7 @@ func TestMapToInvalidationData(t *testing.T) {
 			if tt.wantErr {
 				assert.Error(t, err)
 				if tt.errorCode != "" {
-					assertErrorCode(t, err, tt.errorCode)
+					test.AssertErrorCode(t, err, tt.errorCode)
 				}
 				return
 			}
