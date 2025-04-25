@@ -20,7 +20,7 @@ func NewDocumentNumber(value string, dteType string) (*DocumentNumber, error) {
 			value = strings.ReplaceAll(value, "-", "")
 		}
 	}
-
+	value = strings.TrimSpace(value)
 	documentNumber := &DocumentNumber{Value: value}
 	if documentNumber.IsValid() {
 		return documentNumber, nil
