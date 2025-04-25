@@ -71,6 +71,7 @@ func (s *Server) configurePublicRoutes(public *mux.Router) {
 func (s *Server) configureGlobalMiddlewares() {
 	s.router.Use(s.container.Middleware().CorsMiddleware().Handler)
 	s.router.Use(s.container.Middleware().ErrorMiddleware().Handler)
+	s.router.Use(s.container.Middleware().TimeoutMiddleware().Handler)
 }
 
 func (s *Server) configureProtectedMiddlewares(protected *mux.Router) {

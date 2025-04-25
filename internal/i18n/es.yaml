@@ -210,6 +210,8 @@ service_errors:
   NoDetailsAvailable: "No hay más detalles disponibles"
   RelatedDocumentNotReceived: "El documento relacionado %s no fue recibido por Hacienda, su estado actual es: %s"
   NotMatchingReceiverNIT: "El NIT del receptor en el documento de nota de crédito no coincide con el NIT del documento a acreditar"
+  RequestTimeOutTitle: "Tiempo de espera agotado"
+  RequestTimeOut: "El tiempo de espera para la solicitud ha expirado, este error suele aparecer por que el Ministerio de Hacienda tardo mucho en responder, por favor intente nuevamente"
 
 health:
   up:

@@ -210,6 +210,8 @@ service_errors:
   NoDetailsAvailable: "No further details available"
   RelatedDocumentNotReceived: "The related document %s was not received by Hacienda, actual status: %s"
   NotMatchingReceiverNIT: "The receiver NIT in credit note document does not match the NIT in the document to be credited"
+  RequestTimeOutTitle: "Request Timeout"
+  RequestTimeOut: "The request timeout has expired. This error usually occurs because the Ministry of Finance took a long time to respond. Please try again"
 
 health:
   up:

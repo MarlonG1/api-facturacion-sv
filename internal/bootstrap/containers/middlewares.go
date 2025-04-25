@@ -9,12 +9,13 @@ type MiddlewareContainer struct {
 	services   *ServicesContainer
 	connection *drivers.DbConnection
 
-	corsMid   *middleware.CorsMiddleware
-	authMid   *middleware.AuthMiddleware
-	tokenMid  *middleware.TokenExtractor
-	errorMid  *middleware.ErrorMiddleware
-	metricMid *middleware.MetricsMiddleware
-	dbMid     *middleware.DBConnectionMiddleware
+	corsMid    *middleware.CorsMiddleware
+	authMid    *middleware.AuthMiddleware
+	tokenMid   *middleware.TokenExtractor
+	errorMid   *middleware.ErrorMiddleware
+	metricMid  *middleware.MetricsMiddleware
+	timeoutMid *middleware.TimeoutMiddleware
+	dbMid      *middleware.DBConnectionMiddleware
 }
 
 func NewMiddlewareContainer(services *ServicesContainer, connection *drivers.DbConnection) *MiddlewareContainer {
@@ -35,8 +36,12 @@ func (c *MiddlewareContainer) Initialize() {
 	c.authMid = middleware.NewAuthMiddleware(c.services.TokenManager())
 	c.metricMid = middleware.NewMetricsMiddleware(c.services.CacheManager())
 	c.dbMid = middleware.NewDBConnectionMiddleware(c.connection)
+	c.timeoutMid = middleware.NewTimeoutMiddleware()
 }
 
+func (c *MiddlewareContainer) TimeoutMiddleware() *middleware.TimeoutMiddleware {
+	return c.timeoutMid
+}
 func (c *MiddlewareContainer) DBConnectionMiddleware() *middleware.DBConnectionMiddleware {
 	return c.dbMid
 }
