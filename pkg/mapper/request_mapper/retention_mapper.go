@@ -24,6 +24,10 @@ func (m *RetentionMapper) MapToRetentionData(req *structs.CreateRetentionRequest
 		return nil, dte_errors.NewValidationError("RequiredField", "Request")
 	}
 
+	if req.Summary == nil {
+		return nil, dte_errors.NewValidationError("RequiredField", "Request->Summary")
+	}
+
 	issuer, err := common.MapCommonIssuer(client)
 	if err != nil {
 		return nil, shared_error.NewFormattedGeneralServiceWithError("RetentionMapper", "MapToRetentionData", err, "ErrorMapping", "Retention->Issuer")
@@ -48,6 +52,11 @@ func (m *RetentionMapper) MapToRetentionData(req *structs.CreateRetentionRequest
 		return nil, shared_error.NewFormattedGeneralServiceWithError("RetentionMapper", "MapToRetentionData", err, "ErrorMapping", "Retention->Receiver")
 	}
 
+	summary, err := retention.MapRetentionSummary(req.Summary)
+	if err != nil {
+		return nil, shared_error.NewFormattedGeneralServiceWithError("RetentionMapper", "MapToRetentionData", err, "ErrorMapping", "Retention->Summary")
+	}
+
 	result := &retention_models.InputRetentionData{
 		InputDataCommon: &models.InputDataCommon{
 			Issuer:         issuer,
@@ -55,22 +64,11 @@ func (m *RetentionMapper) MapToRetentionData(req *structs.CreateRetentionRequest
 			Identification: identification,
 		},
 		RetentionItems:   items,
-		RetentionSummary: &retention_models.RetentionSummary{},
+		RetentionSummary: summary,
 	}
 
 	if err = mapRetentionOptionalFields(req, result); err != nil {
 		return nil, err
-	}
-
-	if m.IsAllPhysical(req.Items) {
-
-		if req.Summary == nil {
-			return nil, dte_errors.NewValidationError("RequiredField", "Request->Summary")
-		}
-		result.RetentionSummary, err = retention.MapRetentionSummary(req.Summary)
-		if err != nil {
-			return nil, shared_error.NewFormattedGeneralServiceWithError("RetentionMapper", "MapToRetentionData", err, "ErrorMapping", "Retention->Summary")
-		}
 	}
 
 	return result, nil
@@ -114,14 +112,4 @@ func mapRetentionOptionalFields(req *structs.CreateRetentionRequest, result *ret
 	}
 
 	return nil
-}
-
-func (m *RetentionMapper) IsAllPhysical(items []structs.RetentionItem) bool {
-	isAllPhysical := true
-	for _, item := range items {
-		if item.DocumentType == 2 {
-			isAllPhysical = false
-		}
-	}
-	return isAllPhysical
 }

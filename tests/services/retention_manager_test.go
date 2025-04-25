@@ -3,7 +3,6 @@ package services
 import (
 	"context"
 	"errors"
-	"fmt"
 	"testing"
 	"time"
 
@@ -13,7 +12,6 @@ import (
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/core/dte"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/constants"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/dte_errors"
-	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/value_objects/document"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/value_objects/financial"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/value_objects/temporal"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/retention"
@@ -194,102 +192,6 @@ func TestRetentionServiceCreate(t *testing.T) {
 			},
 			wantErr:   true,
 			errorCode: "DateOutOfAllowedRange",
-		},
-		{
-			name: "Error - Retention with invalid document types",
-			setupRetentionData: func() (*retention_models.InputRetentionData, error) {
-				retention, err := fixtures.BuildRetentionWithElectronicItems()
-				if err != nil {
-					return nil, err
-				}
-
-				inputData := fixtures.BuildAsInputRetentionData(retention)
-
-				// Asegurar que el tipo de documento se reconoce como electrónico
-				for i := range inputData.RetentionItems {
-					docType, _ := document.NewOperationType(constants.ElectronicDocument)
-					inputData.RetentionItems[i].DocumentType = *docType
-				}
-
-				return inputData, nil
-			},
-			setupMock: func(mockSeq *mocks.MockSequentialNumberManager, mockDTE *mocks.MockDTEManager) {
-				mockDTE.EXPECT().GetByGenerationCode(
-					gomock.Any(),
-					gomock.Any(),
-					gomock.Any(),
-				).Return(&dte.DTEDocument{
-					CreatedAt: utils.TimeNow(),
-					Details: &dte.DTEDetails{
-						DTEType:  constants.DocumentInvalid, // Tipo inválido
-						JSONData: `{"resumen":{"subTotal":100.00,"ivaRete1":13.00}}`,
-					},
-				}, nil).AnyTimes()
-			},
-			wantErr:   true,
-			errorCode: "InvalidDTETypeForRetention",
-		},
-		{
-			name: "Error - Retention with DTE extraction error",
-			setupRetentionData: func() (*retention_models.InputRetentionData, error) {
-				retention, err := fixtures.BuildRetentionWithElectronicItems()
-				if err != nil {
-					return nil, err
-				}
-
-				inputData := fixtures.BuildAsInputRetentionData(retention)
-
-				// Asegurar que el tipo de documento se reconoce como electrónico
-				for i := range inputData.RetentionItems {
-					docType, _ := document.NewOperationType(constants.ElectronicDocument)
-					inputData.RetentionItems[i].DocumentType = *docType
-				}
-
-				return inputData, nil
-			},
-			setupMock: func(mockSeq *mocks.MockSequentialNumberManager, mockDTE *mocks.MockDTEManager) {
-				mockDTE.EXPECT().GetByGenerationCode(
-					gomock.Any(),
-					gomock.Any(),
-					gomock.Any(),
-				).Return(&dte.DTEDocument{
-					CreatedAt: utils.TimeNow(),
-					Details: &dte.DTEDetails{
-						DTEType:  constants.FacturaElectronica,
-						JSONData: `{"invalid_json": "invalid"}}`, // JSON inválido para provocar error en extracción
-					},
-				}, nil).AnyTimes()
-			},
-			wantErr:   true,
-			errorCode: "invalid character",
-		},
-		{
-			name: "Error - Retention with document not found",
-			setupRetentionData: func() (*retention_models.InputRetentionData, error) {
-				retention, err := fixtures.BuildRetentionWithElectronicItems()
-				if err != nil {
-					return nil, err
-				}
-
-				inputData := fixtures.BuildAsInputRetentionData(retention)
-
-				// Asegurar que se reconoce como electrónico
-				for i := range inputData.RetentionItems {
-					docType, _ := document.NewOperationType(constants.ElectronicDocument)
-					inputData.RetentionItems[i].DocumentType = *docType
-				}
-
-				return inputData, nil
-			},
-			setupMock: func(mockSeq *mocks.MockSequentialNumberManager, mockDTE *mocks.MockDTEManager) {
-				mockDTE.EXPECT().GetByGenerationCode(
-					gomock.Any(),
-					gomock.Any(),
-					gomock.Any(),
-				).Return(nil, fmt.Errorf("document not found")).AnyTimes()
-			},
-			wantErr:   true,
-			errorCode: "document not found",
 		},
 		{
 			name: "Error - Failed to generate control number",

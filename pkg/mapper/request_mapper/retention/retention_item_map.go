@@ -1,7 +1,6 @@
 package retention
 
 import (
-	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/constants"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/dte_errors"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/value_objects/document"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/value_objects/financial"
@@ -38,58 +37,32 @@ func mapRetentionItem(req *structs.RetentionItem, i int) (*retention_models.Rete
 		return nil, err
 	}
 
-	// Formato fisico tradicional
-	if documentType.GetValue() == constants.PhysicalDocument {
-
-		err := validateRetentionPhysicalFields(req)
-		if err != nil {
-			return nil, err
-		}
-
-		documentNumber, err := document.NewDocumentNumber(req.DocumentNumber, req.DocumentType)
-		if err != nil {
-			return nil, err
-		}
-
-		taxedAmount, err := financial.NewAmount(*req.TaxedAmount)
-		if err != nil {
-			return nil, err
-		}
-
-		ivaAmount, err := financial.NewAmount(*req.IvaAmount)
-		if err != nil {
-			return nil, err
-		}
-
-		emissionDate, err := temporal.NewEmissionDateFromString(*req.EmissionDate)
-		if err != nil {
-			return nil, err
-		}
-
-		dteType, err := document.NewDTEType(*req.DTEType)
-		if err != nil {
-			return nil, err
-		}
-
-		retentionCode, err := document.NewRetentionCode(req.RetentionCode)
-		if err != nil {
-			return nil, err
-		}
-
-		return &retention_models.RetentionItem{
-			Number:          *item.NewValidatedItemNumber(i),
-			DocumentType:    *documentType,
-			DocumentNumber:  documentNumber,
-			Description:     req.Description,
-			RetentionAmount: *taxedAmount,
-			RetentionIVA:    *ivaAmount,
-			EmissionDate:    *emissionDate,
-			DTEType:         *dteType,
-			ReceptionCodeMH: *retentionCode,
-		}, nil
+	err = validateRetentionFields(req)
+	if err != nil {
+		return nil, err
 	}
 
 	documentNumber, err := document.NewDocumentNumber(req.DocumentNumber, req.DocumentType)
+	if err != nil {
+		return nil, err
+	}
+
+	taxedAmount, err := financial.NewAmount(*req.TaxedAmount)
+	if err != nil {
+		return nil, err
+	}
+
+	ivaAmount, err := financial.NewAmount(*req.IvaAmount)
+	if err != nil {
+		return nil, err
+	}
+
+	emissionDate, err := temporal.NewEmissionDateFromString(*req.EmissionDate)
+	if err != nil {
+		return nil, err
+	}
+
+	dteType, err := document.NewDTEType(*req.DTEType)
 	if err != nil {
 		return nil, err
 	}
@@ -108,11 +81,15 @@ func mapRetentionItem(req *structs.RetentionItem, i int) (*retention_models.Rete
 		DocumentType:    *documentType,
 		DocumentNumber:  documentNumber,
 		Description:     req.Description,
+		RetentionAmount: *taxedAmount,
+		RetentionIVA:    *ivaAmount,
+		EmissionDate:    *emissionDate,
+		DTEType:         *dteType,
 		ReceptionCodeMH: *retentionCode,
 	}, nil
 }
 
-func validateRetentionPhysicalFields(req *structs.RetentionItem) error {
+func validateRetentionFields(req *structs.RetentionItem) error {
 	if req.TaxedAmount == nil {
 		return dte_errors.NewValidationError("RequiredField", "TaxedAmount")
 	}
