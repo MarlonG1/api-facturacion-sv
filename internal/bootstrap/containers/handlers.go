@@ -60,7 +60,7 @@ func (c *HandlerContainer) initializeGenericCreatorHandler(contingencyHandler *h
 		UseCase:         c.useCases.CreditNoteUseCase(),
 		RequestType:     &structs.CreateCreditNoteRequest{},
 		DocumentType:    constants.NotaCreditoElectronica,
-		UsesContingency: true,
+		UsesContingency: false, // TODO: activar cuando Hacienda resuelva el problema
 	})
 
 	genericHandler.RegisterDocument("/dte/retention", helpers.DocumentConfig{

@@ -78,6 +78,11 @@ func processKeys(v *viper.Viper, lang string) {
 	}
 }
 
+func TranslateServiceArgs(code string, params ...interface{}) string {
+	code = fmt.Sprintf("service_errors.%s", strings.ToLower(code))
+	return Translate(code, params...)
+}
+
 // Translate obtiene la traducción para un código y lenguaje
 func Translate(code string, params ...interface{}) string {
 	code = strings.ToLower(code)

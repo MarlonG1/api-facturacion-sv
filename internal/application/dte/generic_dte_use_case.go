@@ -57,18 +57,21 @@ func (u *GenericDTEUseCase) Create(ctx context.Context, req interface{}) (interf
 	// 2. Obtener la información del emisor
 	issuer, err := u.authService.GetIssuer(ctx, claims.BranchID)
 	if err != nil {
+		logs.Error("Error getting issuer information", map[string]interface{}{"error": err.Error()})
 		return nil, nil, err
 	}
 
 	// 3. Mapear a modelo de dominio
 	domainModel, err := u.mapper.MapToDomainModel(req, issuer)
 	if err != nil {
+		logs.Error("Error mapping to domain model", map[string]interface{}{"error": err.Error()})
 		return nil, nil, err
 	}
 
 	// 4. Crear DTE a nivel de servicio
 	result, err := u.service.Create(ctx, domainModel, claims.BranchID)
 	if err != nil {
+		logs.Error("Error creating DTE at service level", map[string]interface{}{"error": err.Error()})
 		return nil, nil, err
 	}
 
@@ -78,6 +81,7 @@ func (u *GenericDTEUseCase) Create(ctx context.Context, req interface{}) (interf
 	// 6. Extraer el código de generación
 	generationCode, err := extractGenerationCode(mhModel)
 	if err != nil {
+		logs.Error("Error extracting generation code", map[string]interface{}{"error": err.Error()})
 		return nil, nil, err
 	}
 
@@ -91,6 +95,7 @@ func (u *GenericDTEUseCase) Create(ctx context.Context, req interface{}) (interf
 	// 8. Comenzar la transmisión del documento
 	transmitResult, err := u.transmitter.RetryTransmission(ctx, mhModel, token, claims.NIT)
 	if err != nil {
+		logs.Error("Error transmitting document", map[string]interface{}{"error": err.Error()})
 		return mhModel, options, err
 	}
 	options.ReceptionStamp = transmitResult.ReceptionStamp
@@ -98,6 +103,7 @@ func (u *GenericDTEUseCase) Create(ctx context.Context, req interface{}) (interf
 	// 9. Guardar el documento en la base de datos
 	err = u.dteService.Create(ctx, mhModel, constants.TransmissionNormal, constants.DocumentReceived, transmitResult.ReceptionStamp)
 	if err != nil {
+		logs.Error("Error saving document in database", map[string]interface{}{"error": err.Error()})
 		return mhModel, options, err
 	}
 
@@ -105,7 +111,7 @@ func (u *GenericDTEUseCase) Create(ctx context.Context, req interface{}) (interf
 	if u.additionalOps != nil {
 		err = u.additionalOps(ctx, result, claims.BranchID, mhModel)
 		if err != nil {
-			logs.Warn("Error executing additional operations", map[string]interface{}{"error": err.Error()})
+			logs.Error("Error executing additional operations", map[string]interface{}{"error": err.Error()})
 			return mhModel, options, err
 		}
 	}

@@ -128,6 +128,9 @@ func (s *DTESigner) SignDTE(ctx context.Context, dte json.RawMessage, nit string
 		return "", fmt.Errorf("error decoding successful response: %w, body: %s", err, string(body))
 	}
 
+	logs.Debug("Sign response", map[string]interface{}{
+		"status": signResp.Body,
+	})
 	logs.Info("Document signed successfully")
 
 	return signResp.Body, nil

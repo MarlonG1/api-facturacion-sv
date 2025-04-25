@@ -217,6 +217,8 @@ func deriveErrorCode(status int) string {
 		return "METHOD_NOT_ALLOWED"
 	case http.StatusInternalServerError:
 		return "INTERNAL_SERVER_ERROR"
+	case http.StatusRequestTimeout:
+		return "REQUEST_TIMEOUT"
 	default:
 		return "UNKNOWN_ERROR"
 	}
