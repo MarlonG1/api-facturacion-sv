@@ -2,6 +2,7 @@ package db_models
 
 import (
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/constants"
+	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/logs"
 	"gorm.io/gorm"
 	"time"
 )
@@ -41,6 +42,12 @@ func (d *DTEBalanceTransaction) AfterCreate(tx *gorm.DB) error {
 
 	err := tx.Save(d.BalanceControl).Error
 	if err != nil {
+		logs.Error("Error updating DTE balance control", map[string]interface{}{
+			"error":       err.Error(),
+			"document_id": d.AdjustmentDocumentID,
+			"branch_id":   d.BalanceControl.BranchID,
+			"dteType":     d.AdjustmentDocument.DTEType,
+		})
 		return err
 	}
 

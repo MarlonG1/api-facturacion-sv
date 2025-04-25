@@ -2,13 +2,10 @@ package retention
 
 import (
 	"context"
-	"github.com/MarlonG1/api-facturacion-sv/internal/domain/core/dte"
+
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/constants"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/interfaces"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/models"
-	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/value_objects/document"
-	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/value_objects/financial"
-	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/value_objects/temporal"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/dte_documents"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/retention/retention_models"
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/retention/validator"
@@ -34,35 +31,8 @@ func NewRetentionService(seqNumberManager dte_documents.SequentialNumberManager,
 
 func (s *retentionService) Create(ctx context.Context, input interface{}, branchID uint) (interface{}, error) {
 	data := input.(*retention_models.InputRetentionData)
-	// 1. Verificar si todos los documentos son físicos, si no lo son, obtener los detalles de cada documento
-	if !data.IsAllPhysical() {
-		for i := range data.RetentionItems {
-			// Solo procesar documentos electrónicos
-			if data.RetentionItems[i].DocumentType.GetValue() == constants.ElectronicDocument {
-				// 1.1 Obtener el documento DTE correspondiente al número de documento
-				dte, err := s.dteManager.GetByGenerationCode(ctx, branchID, data.RetentionItems[i].DocumentNumber.GetValue())
-				if err != nil {
-					return nil, err
-				}
 
-				// 1.2 Verificar si el tipo de DTE es válido para retención
-				if !constants.ValidRetentionDTETypes[dte.Details.DTEType] {
-					return nil, shared_error.NewFormattedGeneralServiceError("RetentionUseCase", "Create", "InvalidDTETypeForRetention", data.RetentionItems[i].DocumentNumber.GetValue())
-				}
-
-				// 1.3 Verificar si el documento tiene detalles
-				err = s.extractSummaryData(&data.RetentionItems[i], dte)
-				if err != nil {
-					return nil, err
-				}
-			}
-		}
-
-		// 1.4 Calcular el resumen de la retención
-		s.calculateSummary(data)
-	}
-
-	// 2. Crear el documento base para la retención
+	// 1. Crear el documento base para la retención
 	data.RetentionSummary.TotalIVARetentionLetters = utils.InLetters(data.RetentionSummary.TotalIVARetention.GetValue())
 	baseDoc := createBaseDocument(data)
 	retention := &retention_models.RetentionModel{
@@ -71,13 +41,13 @@ func (s *retentionService) Create(ctx context.Context, input interface{}, branch
 		RetentionSummary: data.RetentionSummary,
 	}
 
-	// 3. Validar el documento de retention generado
+	// 2. Validar el documento de retention generado
 	err := s.validate(retention)
 	if err != nil {
 		return nil, err
 	}
 
-	// 4. Generar el codigo de generacion y el numero de control
+	// 3. Generar el codigo de generacion y el numero de control
 	if err := s.generateCodeAndIdentifiers(ctx, retention, branchID); err != nil {
 		return nil, err
 	}
@@ -154,32 +124,6 @@ func createBaseDocument(data *retention_models.InputRetentionData) *models.DTEDo
 		ThirdPartySale:   thirdPartySale,
 		Appendix:         appendixes,
 	}
-}
-
-func (s *retentionService) calculateSummary(retention *retention_models.InputRetentionData) {
-	var totalIva, totalAmount financial.Amount
-
-	for _, item := range retention.RetentionItems {
-		totalIva.Add(&item.RetentionIVA)
-		totalAmount.Add(&item.RetentionAmount)
-	}
-
-	retention.RetentionSummary.TotalIVARetention = totalIva
-	retention.RetentionSummary.TotalSubjectRetention = totalAmount
-}
-
-func (s *retentionService) extractSummaryData(item *retention_models.RetentionItem, doc *dte.DTEDocument) error {
-	extractor, err := utils.ExtractAuxiliarSummaryFromStringJSON(doc.Details.JSONData)
-	if err != nil {
-		return err
-	}
-
-	item.RetentionAmount = *financial.NewValidatedAmount(extractor.Summary.SubTotal)
-	item.RetentionIVA = *financial.NewValidatedAmount(extractor.Summary.IvaRetention)
-	item.EmissionDate = *temporal.NewValidatedEmissionDate(doc.CreatedAt)
-	item.DTEType = *document.NewValidatedDTEType(doc.Details.DTEType)
-
-	return nil
 }
 
 func (s *retentionService) generateCodeAndIdentifiers(ctx context.Context, retention *retention_models.RetentionModel, branchID uint) error {
