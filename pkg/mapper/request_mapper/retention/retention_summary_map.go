@@ -12,6 +12,14 @@ func MapRetentionSummary(req *structs.RetentionSummary) (*retention_models.Reten
 		return nil, dte_errors.NewValidationError("RequiredField", "RetentionSummary")
 	}
 
+	if req.TotalRetentionAmount == 0 {
+		return nil, dte_errors.NewValidationError("RequiredField", "RetentionSummary->TotalRetentionAmount")
+	}
+
+	if req.TotalRetentionIVA == 0 {
+		return nil, dte_errors.NewValidationError("RequiredField", "RetentionSummary->TotalRetentionIVA")
+	}
+
 	totalRetention, err := financial.NewAmountForTotal(req.TotalRetentionAmount)
 	if err != nil {
 		return nil, err

@@ -2,6 +2,7 @@ package db_models
 
 import (
 	"github.com/MarlonG1/api-facturacion-sv/internal/domain/dte/common/constants"
+	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/logs"
 	"github.com/MarlonG1/api-facturacion-sv/pkg/shared/utils"
 	"gorm.io/gorm"
 	"time"
@@ -45,6 +46,12 @@ func (d *DTEDocument) AfterCreate(tx *gorm.DB) error {
 			RemainingNotSubjectAmount:     extractor.Summary.TotalNotSubject,
 		}
 		if err = tx.Create(dteBalanceControl).Error; err != nil {
+			logs.Error("Error creating DTE balance control", map[string]interface{}{
+				"error":       err.Error(),
+				"document_id": d.DocumentID,
+				"branch_id":   d.BranchID,
+				"dteType":     d.Document.DTEType,
+			})
 			return err
 		}
 	}

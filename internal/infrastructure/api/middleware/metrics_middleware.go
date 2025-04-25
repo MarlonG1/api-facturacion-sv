@@ -30,7 +30,7 @@ var (
 		"POST:/api/v1/dte/ccf":          "ccf",
 		"POST:/api/v1/dte/invalidation": "invalidation",
 		"POST:/api/v1/dte/retention":    "retention",
-		"POST:/api/v1/dte/credit_note":  "credit_note",
+		"POST:/api/v1/dte/creditnote":   "creditnote",
 	}
 )
 

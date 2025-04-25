@@ -17,6 +17,7 @@ func NewNIT(value string) (*NIT, error) {
 	if strings.Contains(value, "-") {
 		value = strings.ReplaceAll(value, "-", "")
 	}
+	value = strings.TrimSpace(value)
 
 	nit := &NIT{Value: value}
 	if nit.IsValid() {

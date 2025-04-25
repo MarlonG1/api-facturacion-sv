@@ -148,8 +148,8 @@ func (s *ContingencyEventService) prepareContingencyReason(doc dte.ContingencyDo
 	return models.ContingencyReason{
 		StartDate:         startTime.Format("2006-01-02"),
 		EndDate:           now.Format("2006-01-02"),
-		StartTime:         startTime.Format("15:04:05"),
-		EndTime:           now.Add(1 * time.Hour).Format("15:04:05"),
+		StartTime:         startTime.Add(-60 * time.Second).Format("15:04:05"),
+		EndTime:           now.Add(10 * time.Second).Format("15:04:05"),
 		ContingencyType:   doc.ContingencyType,
 		ContingencyReason: doc.Reason,
 	}, nil

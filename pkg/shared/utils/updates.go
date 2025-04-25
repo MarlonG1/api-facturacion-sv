@@ -10,14 +10,27 @@ import (
 func UpdateContingencyIdentification(document interface{}, contiType *int8, reason *string) (map[string]interface{}, error) {
 	// 1. Convertir cualquier struct a map[string]interface{} mediante Marshal y Unmarshal
 	var dteDoc map[string]interface{}
-	jsonBytes, err := json.Marshal(document)
-	if err != nil {
-		return nil, fmt.Errorf("failed to marshal DTE JSON:  %w", err)
-	}
+	switch v := document.(type) {
+	case string:
+		// Si es string, directamente hacer unmarshal
+		if err := json.Unmarshal([]byte(v), &dteDoc); err != nil {
+			return nil, fmt.Errorf("failed to unmarshal DTE JSON: %w", err)
+		}
+	case []byte:
+		// Si son bytes, directamente hacer unmarshal
+		if err := json.Unmarshal(v, &dteDoc); err != nil {
+			return nil, fmt.Errorf("failed to unmarshal DTE JSON: %w", err)
+		}
+	default:
+		// Si es otro tipo (struct, map), primero marshal y luego unmarshal
+		jsonBytes, err := json.Marshal(document)
+		if err != nil {
+			return nil, fmt.Errorf("failed to marshal DTE JSON: %w", err)
+		}
 
-	// 1.1 Luego convertimos ese JSON a map[string]interface{}
-	if err = json.Unmarshal(jsonBytes, &dteDoc); err != nil {
-		return nil, fmt.Errorf("failed to unmarshal DTE JSON: %w", err)
+		if err = json.Unmarshal(jsonBytes, &dteDoc); err != nil {
+			return nil, fmt.Errorf("failed to unmarshal DTE JSON: %w", err)
+		}
 	}
 
 	// 2. Actualizar la identificación de contingencia en el JSON del DTE
