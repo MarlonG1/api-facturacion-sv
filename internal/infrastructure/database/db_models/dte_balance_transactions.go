@@ -14,7 +14,7 @@ type DTEBalanceTransaction struct {
 	ID                   uint      `gorm:"primaryKey;autoIncrement:true;not null;index:idx_dte_balance_transaction"`
 	BalanceControlID     uint      `gorm:"column:balance_control_id;type:int;not null;index:idx_dte_balance_control"`
 	AdjustmentDocumentID string    `gorm:"column:adjustment_document_id;type:varchar(36);not null;index:idx_dte_adjustment_document"`
-	TransactionType      string    `gorm:"column:transaction_type;type:varchar(2);not null;index:idx_dte_transaction_type"`
+	TransactionType      string    `gorm:"column:transaction_type;type:varchar(20);not null;index:idx_dte_transaction_type"`
 	TaxedAmount          float64   `gorm:"column:taxed_amount;type:decimal(18,2);not null"`
 	ExemptAmount         float64   `gorm:"column:exempt_amount;type:decimal(18,2);not null"`
 	NotSubjectAmount     float64   `gorm:"column:not_subject_amount;type:decimal(18,2);not null"`

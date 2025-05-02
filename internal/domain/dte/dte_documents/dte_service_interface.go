@@ -18,6 +18,8 @@ type DTEManager interface {
 	GetByGenerationCode(ctx context.Context, branchID uint, generationCode string) (*dte.DTEDocument, error)
 	// GenerateBalanceTransaction genera una transacción de balance para un DTE.
 	GenerateBalanceTransaction(ctx context.Context, branchID uint, transactionType, id, originalDTE string, document interface{}) error
+	// GenerateBalanceTransactionWithAmounts genera una transacción de balance con montos específicos.
+	GenerateBalanceTransactionWithAmounts(ctx context.Context, branchID uint, transactionType, originalDTE, adjustmentDTE string, taxedSale, exemptSale, notSubjectSale float64) error
 	// ValidateForCreditNote valida un DTE para la creación de una Nota de Crédito.
 	ValidateForCreditNote(ctx context.Context, branchID uint, originalDTE string, document interface{}) error
 	// GetByGenerationCodeConsult obtiene un DTE por su código de generación para consultas.

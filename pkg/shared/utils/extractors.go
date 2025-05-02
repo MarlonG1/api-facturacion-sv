@@ -37,6 +37,19 @@ type AuxiliarDTETotalAmountsExtractor struct {
 	} `json:"summary"`
 }
 
+type AuxiliarRelatedDocAndItemsExtractor struct {
+	RelatedDocs []struct {
+		GenerationType int    `json:"tipoGeneracion"`
+		DocumentNumber string `json:"numeroDocumento"`
+	} `json:"documentoRelacionado"`
+	Items []struct {
+		TaxedAmount      float64 `json:"ventaGravada"`
+		ExemptAmount     float64 `json:"ventaExenta"`
+		NotSubjectAmount float64 `json:"ventaNoSuj"`
+		RelatedDoc       string  `json:"numeroDocumento"`
+	} `json:"cuerpoDocumento"`
+}
+
 func ExtractAuxiliarIdentification(document interface{}) (AuxiliarIdentificationExtractor, error) {
 	var identification AuxiliarIdentificationExtractor
 
@@ -97,6 +110,17 @@ func ExtractSummaryTotalAmountsFromStringJSON(document interface{}) (AuxiliarTot
 	}
 
 	return summary, nil
+}
+
+func ExtractRelatedDocAndItemsFromStringJSON(document interface{}) AuxiliarRelatedDocAndItemsExtractor {
+	var relatedDocAndItems AuxiliarRelatedDocAndItemsExtractor
+
+	// 1. Convertir a formato JSON el documento
+	jsonData := []byte(document.(string))
+
+	// 2. Extraer parte de la información del Resumen
+	_ = json.Unmarshal(jsonData, &relatedDocAndItems)
+	return relatedDocAndItems
 }
 
 func ExtractDTEReceiverFromString(document interface{}) (AuxiliarReceiverExtractor, error) {
