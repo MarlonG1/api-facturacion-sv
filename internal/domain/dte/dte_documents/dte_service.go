@@ -55,10 +55,29 @@ func (m *DTEService) GenerateBalanceTransaction(ctx context.Context, branchID ui
 		NotSubjectAmount:     extractor.Summary.TotalNotSubject,
 	}
 
-	// 3. Obtener el control de saldo del DTE
+	// 3. Generar el control de saldo del DTE
 	err = m.repo.GenerateBalanceTransaction(ctx, branchID, originalDTE, &transaction)
 	if err != nil {
 		return shared_error.NewFormattedGeneralServiceWithError("DTEService", "GenerateBalanceTransaction", err, "FailedToGenerateBalanceTransaction")
+	}
+
+	return nil
+}
+
+func (m *DTEService) GenerateBalanceTransactionWithAmounts(ctx context.Context, branchID uint, transactionType, originalDTE, adjustmentDTE string, taxedSale, exemptSale, notSubjectSale float64) error {
+	// 1. Crear la transacción de balance
+	transaction := dte.BalanceTransaction{
+		AdjustmentDocumentID: adjustmentDTE,
+		TransactionType:      transactionType,
+		TaxedAmount:          taxedSale,
+		ExemptAmount:         exemptSale,
+		NotSubjectAmount:     notSubjectSale,
+	}
+
+	// 2. Generar el control de saldo del DTE
+	err := m.repo.GenerateBalanceTransaction(ctx, branchID, originalDTE, &transaction)
+	if err != nil {
+		return shared_error.NewFormattedGeneralServiceWithError("DTEService", "GenerateBalanceTransactionWithAmounts", err, "FailedToGenerateBalanceTransaction")
 	}
 
 	return nil
