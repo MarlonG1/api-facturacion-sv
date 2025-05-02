@@ -390,6 +390,17 @@ func TestInvalidationServiceInvalidateDocument(t *testing.T) {
 						Status: constants.DocumentInvalid,
 					},
 				).Return(nil)
+
+				mockDTE.EXPECT().GetByGenerationCode(
+					gomock.Any(),
+					gomock.Any(),
+					gomock.Any(),
+				).Return(&dte.DTEDocument{
+					Details: &dte.DTEDetails{
+						ID:      "DTE-01-00000001-000000000000001",
+						DTEType: constants.CCFElectronico,
+					},
+				}, nil)
 			},
 			wantErr: false,
 		},
@@ -403,10 +414,10 @@ func TestInvalidationServiceInvalidateDocument(t *testing.T) {
 						ID:     "DTE-01-00000001-000000000000001",
 						Status: constants.DocumentInvalid,
 					},
-				).Return(shared_error.NewGeneralServiceError("DTEManager", "UpdateDTE", "Failed to update document status", nil))
+				).Return(errors.New("any error"))
 			},
 			wantErr:   true,
-			errorCode: "Failed to update document status",
+			errorCode: "FailedToInvalidatedDTE",
 		},
 	}
 
