@@ -209,6 +209,8 @@ service_errors:
   NotMatchingReceiverNIT: "The receiver NIT in credit note document does not match the NIT in the document to be credited"
   RequestTimeOutTitle: "Request Timeout"
   RequestTimeOut: "The request timeout has expired. This error usually occurs because the Ministry of Finance took a long time to respond. Please try again"
+  FailedToInvalidatedDTE: "There was an error invalidating the DTE, please contact the administrator"
+  FailedToRecoverInvalidatedAmounts: "There was an error retrieving the amounts from the invalidated DTE, please contact the administrator"
 
 health:
   up:
